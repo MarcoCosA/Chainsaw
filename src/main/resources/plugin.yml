@@ -1,0 +1,40 @@
+name: Chainsaw
+main: me.BerylliumOranges.main.PluginMain
+version: 0.1
+api-version: '1.20'
+commands:
+   getitems:
+     description: Gets all the Purity plugin's items.
+     aliases:
+     permission:
+     usage: /<command>
+   checkitem:
+     description: testing only.
+     aliases:
+     permission:
+     usage: /<command>
+   potions:
+     description: Check what potions are still active.
+     aliases:
+     permission:
+     usage: /<command>
+   gpt:
+     description: Talk with chatgpt.
+     aliases:
+     permission:
+     usage: /<command>
+   goto:
+     description: Teleport to a dimension
+     aliases:
+     permission:
+     usage: /<command> <dimension name>
+   listdimensions:
+     description: Lists all dimensions
+     aliases:
+     permission:
+     usage: /<command>
+   createdimension:
+     description: Lists all dimensions
+     aliases:
+     permission:
+     usage: /<command>
