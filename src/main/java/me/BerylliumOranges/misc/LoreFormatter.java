@@ -6,7 +6,7 @@ import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor; // Ensure this import is correct for your environment
 
-import me.BerylliumOranges.listeners.traits.ItemTrait;
+import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 
 import java.util.ArrayList;
 

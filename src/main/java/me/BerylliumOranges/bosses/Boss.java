@@ -42,11 +42,16 @@ public abstract class Boss implements Listener {
 		creator.generator(chunkGenerator);
 		world = Bukkit.getServer().createWorld(creator);
 		Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Created " + name);
+
+		int highestY = world.getHighestBlockYAt(0, 0);
+		Location spawnLocation = new Location(world, 0.5, highestY + 1, 10.5);
+
+		bossIntro(spawnLocation);
 	}
 
 	public abstract List<ItemStack> getDrops();
 
-	public abstract void startFight(Location loc);
+	public abstract void bossIntro(Location loc);
 
 	public abstract LivingEntity spawnBoss(Location loc);
 

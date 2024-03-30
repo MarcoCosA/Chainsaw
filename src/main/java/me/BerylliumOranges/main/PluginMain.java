@@ -19,9 +19,9 @@ import me.BerylliumOranges.bosses.utils.BossUtils;
 import me.BerylliumOranges.bosses.utils.GlobalBossListener;
 import me.BerylliumOranges.dimensions.CustomChunkGenerator;
 import me.BerylliumOranges.listeners.BossesSpawnListener;
-import me.BerylliumOranges.listeners.purityItems.traits.globallisteners.GlobalTraitListener;
-import me.BerylliumOranges.listeners.purityItems.traits.globallisteners.InventoryListener;
-import me.BerylliumOranges.listeners.purityItems.traits.utils.TraitCache;
+import me.BerylliumOranges.listeners.items.traits.globallisteners.GlobalTraitListener;
+import me.BerylliumOranges.listeners.items.traits.globallisteners.InventoryListener;
+import me.BerylliumOranges.listeners.items.traits.utils.TraitCache;
 
 public class PluginMain extends JavaPlugin implements Listener {
 	public static BossesSpawnListener pl;

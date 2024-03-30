@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import me.BerylliumOranges.listeners.traits.ItemTrait;
+import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 
 public class DirectoryTools {
 

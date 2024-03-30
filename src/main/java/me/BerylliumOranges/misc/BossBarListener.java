@@ -13,7 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
 
-import me.BerylliumOranges.customEvents.BossTickEvent;
+import me.BerylliumOranges.customEvents.TickEvent;
 import me.BerylliumOranges.main.PluginMain;
 
 public class BossBarListener implements Listener {
@@ -87,7 +87,7 @@ public class BossBarListener implements Listener {
 	}
 
 	@EventHandler
-	public void onTick(BossTickEvent e) {
+	public void onTick(TickEvent e) {
 		bar.setProgress(getBossCurrentHP(bosses) / getBossMaxHP(bosses));
 		int mod = 22 + (tier * 3) * (tier * 3);
 		outerloop: for (Player p : Bukkit.getServer().getOnlinePlayers()) {

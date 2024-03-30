@@ -1,16 +1,15 @@
 package me.BerylliumOranges.misc;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import me.BerylliumOranges.listeners.purityItems.traits.utils.ItemBuilder;
-import me.BerylliumOranges.listeners.traits.ItemTrait;
-import me.BerylliumOranges.listeners.traits.LesserHealPower;
-import me.BerylliumOranges.listeners.traits.PlaceholderTrait;
+import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
+import me.BerylliumOranges.listeners.items.traits.traits.LesserHealPower;
+import me.BerylliumOranges.listeners.items.traits.traits.PlaceholderTrait;
+import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
 import me.BerylliumOranges.main.DirectoryTools;
 
 public class MiscItems {
@@ -46,9 +45,8 @@ public class MiscItems {
 
 	public static ArrayList<ItemStack> loadPotions() {
 		ArrayList<ItemStack> items = new ArrayList<>();
-		ArrayList<Class<? extends ItemTrait>> classes = DirectoryTools.getClasses("me.BerylliumOranges.listeners.purityItems.traits",
+		ArrayList<Class<? extends ItemTrait>> classes = DirectoryTools.getClasses("me.BerylliumOranges.listeners.items.traits.traits",
 				ItemTrait.class);
-
 		for (Class<? extends ItemTrait> clazz : classes) {
 			try {
 				ItemTrait itemTrait = clazz.getDeclaredConstructor().newInstance();

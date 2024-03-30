@@ -7,7 +7,7 @@ import org.bukkit.event.entity.EntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import me.BerylliumOranges.listeners.traits.ItemTrait;
+import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 
 public class KnockbackEvent extends EntityEvent implements Cancellable {
 	boolean isCancelled;

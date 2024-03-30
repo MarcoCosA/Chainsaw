@@ -8,7 +8,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 
-import me.BerylliumOranges.listeners.traits.ItemTrait;
+import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 
 public class ItemCombineEvent extends Event implements Cancellable {
 	ItemStack item;
