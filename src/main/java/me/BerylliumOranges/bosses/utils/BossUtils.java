@@ -15,6 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import me.BerylliumOranges.bosses.Boss;
 import me.BerylliumOranges.bosses.Boss1_Thorns;
 import me.BerylliumOranges.bosses.Boss2_Enchantment;
+import me.BerylliumOranges.bosses.Boss3_Block;
 import me.BerylliumOranges.bosses.utils.Hazards.Hazard;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.NormalRepulsionTrait;
@@ -32,7 +33,11 @@ public class BossUtils {
 	public enum BossType {
 		THORNS(ChatColor.DARK_GREEN + "Thorns Devil", Boss1_Thorns.class, Arrays.asList(Hazard.CACTUS_DAMAGE),
 				Arrays.asList(NormalRepulsionTrait.class)),
+
 		ENCHANTMENT(ChatColor.AQUA + "Enchantment Devil", Boss2_Enchantment.class, Arrays.asList(Hazard.NO_LOGOUT, Hazard.EXPLODE_ON_DEATH),
+				Arrays.asList(NormalRepulsionTrait.class)),
+
+		BLOCK(ChatColor.AQUA + "Block Devil", Boss3_Block.class, Arrays.asList(Hazard.TIME_LIMIT_FIVE),
 				Arrays.asList(NormalRepulsionTrait.class));
 
 		private final String name;

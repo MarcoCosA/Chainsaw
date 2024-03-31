@@ -1,4 +1,4 @@
-package me.BerylliumOranges.misc;
+package me.BerylliumOranges.bosses.utils;
 
 import java.util.ArrayList;
 

@@ -6,6 +6,7 @@ import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
+import org.bukkit.boss.BarColor;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -21,12 +22,14 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import me.BerylliumOranges.bosses.utils.BossBarListener;
 import me.BerylliumOranges.bosses.utils.BossUtils;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
 import me.BerylliumOranges.customEvents.TickEvent;
 import me.BerylliumOranges.dimensions.BossChunkGenerator;
 import me.BerylliumOranges.dimensions.populators.SurfacePopulator;
 import me.BerylliumOranges.listeners.attacks.CactusAttack;
+import me.BerylliumOranges.listeners.attacks.RainbowSheepAttack;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.LesserAttackTrait;
 import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
@@ -93,6 +96,8 @@ public class Boss1_Thorns extends Boss {
 
 		new CactusAttack(zombie);
 
+		new BossBarListener(bosses, BarColor.GREEN, 1);
+
 		return zombie;
 	}
 
@@ -110,7 +115,6 @@ public class Boss1_Thorns extends Boss {
 	@Override
 	public void despawn() {
 
-		
 	}
 
 	@EventHandler

@@ -49,8 +49,10 @@ public abstract class BossAttack implements Listener {
 	public List<LivingEntity> selectTargets() {
 		List<LivingEntity> targets = new ArrayList<>();
 		LivingEntity p = BossUtils.getNearestEnemy(source, attackRange);
-		if (p != null)
+
+		if (p != null && source.hasLineOfSight(p))
 			targets.add(p);
+
 		return targets;
 	}
 
