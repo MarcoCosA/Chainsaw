@@ -5,10 +5,12 @@ import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
 import org.bukkit.boss.BarColor;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Illager;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -22,25 +24,29 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import me.BerylliumOranges.bosses.actions.GravityTeleportAttack;
+import me.BerylliumOranges.bosses.actions.ProjectileDefense;
 import me.BerylliumOranges.bosses.utils.BossBarListener;
 import me.BerylliumOranges.bosses.utils.BossUtils;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
 import me.BerylliumOranges.customEvents.TickEvent;
-import me.BerylliumOranges.dimensions.BossChunkGenerator;
+import me.BerylliumOranges.dimensions.chunkgenerators.SkyIslandChunkGenerator;
 import me.BerylliumOranges.dimensions.populators.SurfacePopulator;
 import me.BerylliumOranges.listeners.attacks.CactusAttack;
 import me.BerylliumOranges.listeners.attacks.RainbowSheepAttack;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.LesserAttackTrait;
+import me.BerylliumOranges.listeners.items.traits.traits.NormalArmorPenetrationTrait;
 import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
+import net.md_5.bungee.api.ChatColor;
 
-public class Boss2_Enchantment extends Boss {
+public class Boss11_Explosion extends Boss {
 
-	public Boss2_Enchantment() {
+	public Boss11_Explosion() {
 		super(BossType.ENCHANTMENT,
-				new BossChunkGenerator(Arrays.asList(Material.RED_SAND), Arrays.asList(Material.SANDSTONE), Biome.DESERT, 35));
-		this.islandSize = 35;
-		SurfacePopulator.placeCacti(world, islandSize);
+				new SkyIslandChunkGenerator(Arrays.asList(Material.DIRT), Arrays.asList(Material.STONE), Biome.PLAINS, 55));
+		this.islandSize = 55;
+		SurfacePopulator.placeTrees(world, islandSize);
 	}
 
 	@Override
@@ -56,57 +62,59 @@ public class Boss2_Enchantment extends Boss {
 
 	@Override
 	public LivingEntity spawnBoss(Location loc) {
-		// Spawn a zombie at the provided location
-		Zombie zombie = (Zombie) loc.getWorld().spawnEntity(loc, EntityType.ZOMBIE);
+		Illager boss = (Illager) loc.getWorld().spawnEntity(loc, EntityType.VINDICATOR);
+		boss.setCustomName(ChatColor.AQUA + "Killager");
+		boss.setSilent(true);
+		boss.setCanPickupItems(false);
 
-		// Ensure the zombie is an adult, is silent, and does not drop items
-		zombie.setAdult();
-		zombie.setSilent(true);
-		zombie.setCanPickupItems(false);
+		boss.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0, false));
+		boss.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, Integer.MAX_VALUE, 2, false));
 
-		zombie.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0, false));
-		zombie.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, Integer.MAX_VALUE, 0, false));
+		boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(200);
+		boss.setHealth(200);
 
-		ItemStack[] armor = new ItemStack[] { createArmorItem(Material.DIAMOND_BOOTS, Enchantment.PROTECTION_ENVIRONMENTAL, 2),
-				createArmorItem(Material.DIAMOND_LEGGINGS, Enchantment.PROTECTION_ENVIRONMENTAL, 2),
-				createArmorItem(Material.DIAMOND_CHESTPLATE, Enchantment.PROTECTION_ENVIRONMENTAL, 2), new ItemStack(Material.PINK_WOOL) };
+		ItemStack[] armor = new ItemStack[] { createArmorItem(Material.DIAMOND_BOOTS), createArmorItem(Material.DIAMOND_LEGGINGS),
+				createArmorItem(Material.DIAMOND_CHESTPLATE), createArmorItem(Material.DIAMOND_HELMET) };
 
-		// Set the zombie's armor
-		EntityEquipment equipment = zombie.getEquipment();
+		EntityEquipment equipment = boss.getEquipment();
 		if (equipment != null) {
 			equipment.setArmorContents(armor);
 			equipment.setHelmetDropChance(0f);
 			equipment.setChestplateDropChance(0f);
 			equipment.setLeggingsDropChance(0f);
 			equipment.setBootsDropChance(0f);
+
+			ItemStack sword = new ItemStack(Material.IRON_AXE);
+			sword.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 3);
+			equipment.setItemInMainHand(
+					ItemBuilder.buildItem(new ItemStack(Material.IRON_SWORD), Arrays.asList(new NormalArmorPenetrationTrait())));
 		}
 
-		bosses.add(zombie);
+		bosses.add(boss);
 
 		try {
 			List<Class<? extends ItemTrait>> traitClasses = getBossType().getTraits();
-
 			for (Class<? extends ItemTrait> clazz : traitClasses) {
 				ItemTrait trait = clazz.getDeclaredConstructor().newInstance();
-
-				trait.potionRunnable(zombie);
+				trait.potionRunnable(boss);
 			}
 		} catch (ReflectiveOperationException roe) {
 			roe.printStackTrace();
 		}
+		new GravityTeleportAttack(boss);
 
-		new RainbowSheepAttack(zombie);
+		new BossBarListener(bosses, BarColor.RED, 3);
 
-		new BossBarListener(bosses, BarColor.BLUE, 1);
-
-		return zombie;
+		return boss;
 	}
 
-	private ItemStack createArmorItem(Material material, Enchantment enchantment, int level) {
+	private ItemStack createArmorItem(Material material) {
 		ItemStack item = new ItemStack(material);
 		ItemMeta meta = item.getItemMeta();
 		if (meta != null) {
-			meta.addEnchant(enchantment, level, true);
+			meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 4, true);
+			meta.addEnchant(Enchantment.PROTECTION_EXPLOSIONS, 4, true);
+			meta.addEnchant(Enchantment.PROTECTION_FIRE, 4, true);
 			meta.setUnbreakable(true);
 			item.setItemMeta(meta);
 		}
@@ -116,23 +124,5 @@ public class Boss2_Enchantment extends Boss {
 	@Override
 	public void despawn() {
 
-	}
-
-	@EventHandler
-	public void onTick(TickEvent e) {
-		for (LivingEntity b : bosses) {
-			Player p = BossUtils.getNearestPlayer(b.getLocation(), 7);
-			if (p != null) {
-				Mob mob = (Mob) b;
-
-			}
-		}
-	}
-
-	@EventHandler
-	public void onDamage(EntityDamageByBlockEvent e) {
-		if (bosses.contains(e.getEntity()) && (e.getCause().equals(DamageCause.THORNS) || e.getCause().equals(DamageCause.SUFFOCATION))) {
-			e.setCancelled(true);
-		}
 	}
 }

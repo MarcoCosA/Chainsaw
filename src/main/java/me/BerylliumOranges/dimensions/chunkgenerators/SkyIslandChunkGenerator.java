@@ -1,4 +1,4 @@
-package me.BerylliumOranges.dimensions;
+package me.BerylliumOranges.dimensions.chunkgenerators;
 
 import java.util.List;
 import java.util.Random;
@@ -9,7 +9,10 @@ import org.bukkit.block.Biome;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.generator.WorldInfo;
 
-public class BossChunkGenerator extends ChunkGenerator {
+import me.BerylliumOranges.dimensions.FastNoiseLite;
+import me.BerylliumOranges.dimensions.FastNoiseLite.FractalType;
+
+public class SkyIslandChunkGenerator extends ChunkGenerator {
 	private final FastNoiseLite terrainNoise = new FastNoiseLite();
 	private final FastNoiseLite detailNoise = new FastNoiseLite();
 
@@ -18,7 +21,7 @@ public class BossChunkGenerator extends ChunkGenerator {
 	public List<Material> interiorMaterials;
 	public int islandSize;
 
-	public BossChunkGenerator(List<Material> surfaceMaterials, List<Material> interiorMaterials, Biome biomeType, int islandSize) {
+	public SkyIslandChunkGenerator(List<Material> surfaceMaterials, List<Material> interiorMaterials, Biome biomeType, int islandSize) {
 		this.surfaceMaterials = surfaceMaterials;
 		this.interiorMaterials = interiorMaterials;
 		this.biomeType = biomeType;
@@ -65,6 +68,9 @@ public class BossChunkGenerator extends ChunkGenerator {
 					float distanceToSurface = Math.abs(y - currentY);
 
 					if (distanceFromCenter <= radiusAtY && y < maxYAtPosition) {
+						if (distanceToSurface < 1 && surfaceMaterials.size() == 1 && surfaceMaterials.get(0).equals(Material.DIRT)) {
+							chunkData.setBlock(x, y, z, Material.GRASS_BLOCK);
+						}
 						if (distanceToSurface < 5) {
 							// Set the top block to be one of the surface materials
 							chunkData.setBlock(x, y, z, surfaceMaterials.get(random.nextInt(surfaceMaterials.size())));

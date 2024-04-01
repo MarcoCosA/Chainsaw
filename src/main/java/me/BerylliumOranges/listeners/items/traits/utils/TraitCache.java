@@ -27,8 +27,8 @@ import org.bukkit.persistence.PersistentDataType;
 
 import me.BerylliumOranges.customEvents.ItemCombineEvent;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
-import me.BerylliumOranges.listeners.items.traits.traits.PlaceholderTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait.ToolOption;
+import me.BerylliumOranges.listeners.items.traits.traits.PlaceholderTrait;
 import me.BerylliumOranges.main.PluginMain;
 
 public class TraitCache {

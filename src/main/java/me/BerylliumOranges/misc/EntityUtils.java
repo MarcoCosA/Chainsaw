@@ -1,12 +1,16 @@
 package me.BerylliumOranges.misc;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
-import java.util.ArrayList;
-import java.util.List;
+import me.BerylliumOranges.customEvents.TeleportEvent;
 
 public class EntityUtils {
 
@@ -29,5 +33,43 @@ public class EntityUtils {
 			}
 		}
 		return livingEntities;
+	}
+
+	public static void teleportEntity(Entity entity, Location location) {
+		Entity topEntity = findTopEntity(entity); // Find the top entity in the stack
+		List<Entity> stack = new ArrayList<>();
+		dismountStack(topEntity, stack); // Start dismounting from the top
+
+		// Reverse the list to start teleportation from the bottom
+		List<Entity> reversedStack = new ArrayList<>(stack);
+		java.util.Collections.reverse(reversedStack);
+
+		for (Entity stackEntity : reversedStack) {
+			TeleportEvent teleportEvent = new TeleportEvent(stackEntity, location);
+			Bukkit.getPluginManager().callEvent(teleportEvent);
+			if (!teleportEvent.isCancelled()) {
+				stackEntity.teleport(location);
+				Bukkit.broadcastMessage("Teleporting: " + stackEntity.getCustomName());
+			}
+		}
+	}
+
+	private static Entity findTopEntity(Entity entity) {
+		// If there's an entity riding this one, keep going up
+		while (entity.getPassenger() != null) {
+			entity = entity.getPassenger();
+		}
+		return entity; // This is the top entity in the stack
+	}
+
+	private static void dismountStack(Entity entity, List<Entity> stack) {
+		// Add the current entity to the stack list
+		stack.add(entity);
+		Bukkit.broadcastMessage("Processing entity: " + entity.getCustomName());
+		if (entity.getVehicle() != null) {
+			Entity vehicle = entity.getVehicle();
+			entity.leaveVehicle(); // Ensure the current entity is dismounted
+			dismountStack(vehicle, stack); // Continue with the vehicle
+		}
 	}
 }

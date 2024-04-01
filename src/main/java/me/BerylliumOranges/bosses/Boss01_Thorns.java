@@ -26,18 +26,20 @@ import me.BerylliumOranges.bosses.utils.BossBarListener;
 import me.BerylliumOranges.bosses.utils.BossUtils;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
 import me.BerylliumOranges.customEvents.TickEvent;
-import me.BerylliumOranges.dimensions.BossChunkGenerator;
+import me.BerylliumOranges.dimensions.chunkgenerators.SkyIslandChunkGenerator;
 import me.BerylliumOranges.dimensions.populators.SurfacePopulator;
 import me.BerylliumOranges.listeners.attacks.CactusAttack;
 import me.BerylliumOranges.listeners.attacks.RainbowSheepAttack;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.LesserAttackTrait;
 import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
+import net.md_5.bungee.api.ChatColor;
 
-public class Boss1_Thorns extends Boss {
+public class Boss01_Thorns extends Boss {
 
-	public Boss1_Thorns() {
-		super(BossType.THORNS, new BossChunkGenerator(Arrays.asList(Material.SAND), Arrays.asList(Material.SANDSTONE), Biome.DESERT, 35));
+	public Boss01_Thorns() {
+		super(BossType.THORNS,
+				new SkyIslandChunkGenerator(Arrays.asList(Material.SAND), Arrays.asList(Material.SANDSTONE), Biome.DESERT, 35));
 		this.islandSize = 35;
 		SurfacePopulator.placeCacti(world, islandSize);
 	}
@@ -56,22 +58,24 @@ public class Boss1_Thorns extends Boss {
 	@Override
 	public LivingEntity spawnBoss(Location loc) {
 		// Spawn a zombie at the provided location
-		Zombie zombie = (Zombie) loc.getWorld().spawnEntity(loc, EntityType.ZOMBIE);
+		Zombie boss = (Zombie) loc.getWorld().spawnEntity(loc, EntityType.ZOMBIE);
+		boss.setCustomName(ChatColor.GREEN + "Cac King");
 
 		// Ensure the zombie is an adult, is silent, and does not drop items
-		zombie.setAdult();
-		zombie.setSilent(true);
-		zombie.setCanPickupItems(false);
-
-		zombie.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0, false));
-		zombie.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, Integer.MAX_VALUE, 0, false));
+		boss.setAdult();
+		boss.setSilent(true);
+		boss.setCanPickupItems(false);
+		boss.setArrowsInBody(12);
+		
+		boss.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0, false));
+		boss.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, Integer.MAX_VALUE, 0, false));
 
 		ItemStack[] armor = new ItemStack[] { createArmorItem(Material.DIAMOND_BOOTS, Enchantment.PROTECTION_ENVIRONMENTAL, 2),
 				createArmorItem(Material.DIAMOND_LEGGINGS, Enchantment.PROTECTION_ENVIRONMENTAL, 2),
 				createArmorItem(Material.DIAMOND_CHESTPLATE, Enchantment.PROTECTION_ENVIRONMENTAL, 2), new ItemStack(Material.CACTUS) };
 
 		// Set the zombie's armor
-		EntityEquipment equipment = zombie.getEquipment();
+		EntityEquipment equipment = boss.getEquipment();
 		if (equipment != null) {
 			equipment.setArmorContents(armor);
 			equipment.setHelmetDropChance(0f);
@@ -80,7 +84,7 @@ public class Boss1_Thorns extends Boss {
 			equipment.setBootsDropChance(0f);
 		}
 
-		bosses.add(zombie);
+		bosses.add(boss);
 
 		try {
 			List<Class<? extends ItemTrait>> traitClasses = getBossType().getTraits();
@@ -88,17 +92,16 @@ public class Boss1_Thorns extends Boss {
 			for (Class<? extends ItemTrait> clazz : traitClasses) {
 				ItemTrait trait = clazz.getDeclaredConstructor().newInstance();
 
-				trait.potionRunnable(zombie);
+				trait.potionRunnable(boss);
 			}
 		} catch (ReflectiveOperationException roe) {
 			roe.printStackTrace();
 		}
 
-		new CactusAttack(zombie);
-
+		new CactusAttack(boss);
 		new BossBarListener(bosses, BarColor.GREEN, 1);
 
-		return zombie;
+		return boss;
 	}
 
 	private ItemStack createArmorItem(Material material, Enchantment enchantment, int level) {

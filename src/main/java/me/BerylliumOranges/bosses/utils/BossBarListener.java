@@ -11,6 +11,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 
 import me.BerylliumOranges.customEvents.TickEvent;
@@ -45,8 +46,10 @@ public class BossBarListener implements Listener {
 
 	public boolean isBossDead() {
 		for (LivingEntity l : bosses) {
-			if (!l.isDead())
+			if (!l.isDead()) {
 				return false;
+			}
+
 		}
 		return true;
 	}
@@ -87,6 +90,16 @@ public class BossBarListener implements Listener {
 	}
 
 	@EventHandler
+	public void onDamage(EntityDamageEvent e) {
+		if (bosses.contains(e.getEntity())) {
+			LivingEntity l = (LivingEntity) e.getEntity();
+			String name = l.getCustomName();
+			if (name != null)
+				bar.setTitle(name);
+		}
+	}
+
+	@EventHandler
 	public void onTick(TickEvent e) {
 		bar.setProgress(getBossCurrentHP(bosses) / getBossMaxHP(bosses));
 		int mod = 22 + (tier * 3) * (tier * 3);
@@ -103,7 +116,8 @@ public class BossBarListener implements Listener {
 				bar.removeAll();
 			} else {
 
-				if (p.getWorld().equals(bosses.get(0).getWorld()) && p.getLocation().distanceSquared(bosses.get(0).getLocation()) < mod * mod) {
+				if (p.getWorld().equals(bosses.get(0).getWorld())
+						&& p.getLocation().distanceSquared(bosses.get(0).getLocation()) < mod * mod) {
 					if (!bar.getPlayers().contains(p)) {
 						bar.addPlayer(p);
 					}

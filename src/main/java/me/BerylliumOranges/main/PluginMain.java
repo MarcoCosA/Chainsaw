@@ -16,9 +16,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.BerylliumOranges.bosses.utils.BossUtils;
+import me.BerylliumOranges.bosses.utils.BossesSpawnListener;
 import me.BerylliumOranges.bosses.utils.GlobalBossListener;
 import me.BerylliumOranges.dimensions.CustomChunkGenerator;
-import me.BerylliumOranges.listeners.BossesSpawnListener;
 import me.BerylliumOranges.listeners.items.traits.globallisteners.GlobalTraitListener;
 import me.BerylliumOranges.listeners.items.traits.globallisteners.InventoryListener;
 import me.BerylliumOranges.listeners.items.traits.utils.TraitCache;

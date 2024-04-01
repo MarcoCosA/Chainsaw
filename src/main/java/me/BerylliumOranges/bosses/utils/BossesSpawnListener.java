@@ -1,4 +1,4 @@
-package me.BerylliumOranges.listeners;
+package me.BerylliumOranges.bosses.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -6,7 +6,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
 
 import me.BerylliumOranges.bosses.Boss;
-import me.BerylliumOranges.bosses.utils.BossUtils;
 import me.BerylliumOranges.main.PluginMain;
 
 public class BossesSpawnListener implements Listener {

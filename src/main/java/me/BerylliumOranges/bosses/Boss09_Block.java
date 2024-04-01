@@ -1,5 +1,6 @@
 package me.BerylliumOranges.bosses;
 
+import java.awt.Color;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,33 +14,41 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import me.BerylliumOranges.bosses.utils.BossBarListener;
 import me.BerylliumOranges.bosses.utils.BossUtils;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
 import me.BerylliumOranges.customEvents.TickEvent;
-import me.BerylliumOranges.dimensions.BossChunkGenerator;
-import me.BerylliumOranges.dimensions.populators.SurfacePopulator;
+import me.BerylliumOranges.dimensions.chunkgenerators.CubeChunkGenerator;
 import me.BerylliumOranges.listeners.attacks.RainbowSheepAttack;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.LesserAttackTrait;
 import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
+import net.md_5.bungee.api.ChatColor;
 
-public class Boss3_Block extends Boss {
+public class Boss09_Block extends Boss {
 
-	public Boss3_Block() {
-		super(BossType.ENCHANTMENT,
-				new BossChunkGenerator(Arrays.asList(Material.OBSIDIAN), Arrays.asList(Material.END_STONE), Biome.THE_END, 20));
+	public static final List<String> characterNames = Arrays.asList(ChatColor.of(new Color(128, 0, 128)) + "Geometry Gordon", // Purple
+			ChatColor.of(new Color(147, 112, 219)) + "Craig", // Medium Purple
+			ChatColor.of(new Color(153, 50, 204)) + "Gary", // Dark Orchid
+			ChatColor.of(new Color(186, 85, 211)) + "Bubble Bob", // Medium Orchid
+			ChatColor.of(new Color(218, 112, 214)) + "Ned the Nook Nabber", // Orchid
+			ChatColor.of(new Color(221, 160, 221)) + "Ted the Tweaker", // Plum
+			ChatColor.of(new Color(238, 130, 238)) + "Harry the Hexahead", // Violet
+			ChatColor.of(new Color(255, 0, 255)) + "Carl the Cloud Conjurer", // Magenta / Fuchsia
+			ChatColor.of(new Color(139, 0, 139)) + "Pete Puddle Plodder", // Dark Magenta
+			ChatColor.of(new Color(216, 191, 216)) + "Smelly Sammy" // Thistle
+	);
+
+	public Boss09_Block() {
+		super(BossType.BLOCK,
+				new CubeChunkGenerator(Arrays.asList(Material.OBSIDIAN), Arrays.asList(Material.END_STONE), Biome.THE_END, 20));
 		this.islandSize = 20;
 	}
 
@@ -56,11 +65,12 @@ public class Boss3_Block extends Boss {
 
 	@Override
 	public LivingEntity spawnBoss(Location loc) {
-		// Spawn a zombie at the provided location
 		Enderman bottom = null;
 		for (int i = 0; i < 10; i++) {
 			Enderman enderman = (Enderman) loc.getWorld().spawnEntity(loc, EntityType.ENDERMAN);
+
 			enderman.setCanPickupItems(false);
+			enderman.setCustomName(characterNames.get(i));
 			bosses.add(enderman); // Add each Enderman to the bosses list
 
 			if (bottom != null) {
@@ -80,8 +90,6 @@ public class Boss3_Block extends Boss {
 		} catch (ReflectiveOperationException roe) {
 			roe.printStackTrace();
 		}
-
-		new RainbowSheepAttack(bottom);
 
 		new BossBarListener(bosses, BarColor.PURPLE, 2);
 

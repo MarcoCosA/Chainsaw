@@ -4,37 +4,47 @@ version: 0.1
 api-version: '1.20'
 commands:
    getitems:
-     description: Gets all the Purity plugin's items.
-     aliases:
-     permission:
-     usage: /<command>
+      description: Gets all the Purity plugin's items.
+      aliases: null
+      permission: null
+      usage: /<command>
    checkitem:
-     description: testing only.
-     aliases:
-     permission:
-     usage: /<command>
+      description: testing only.
+      aliases: null
+      permission: null
+      usage: /<command>
    potions:
-     description: Check what potions are still active.
-     aliases:
-     permission:
-     usage: /<command>
+      description: Check what potions are still active.
+      aliases: null
+      permission: null
+      usage: /<command>
    gpt:
-     description: Talk with chatgpt.
-     aliases:
-     permission:
-     usage: /<command>
+      description: Talk with chatgpt.
+      aliases: null
+      permission: null
+      usage: /<command>
    goto:
-     description: Teleport to a dimension
-     aliases:
-     permission:
-     usage: /<command> <dimension name>
+      description: Teleport to a dimension
+      aliases: null
+      permission: null
+      usage: /<command> <dimension name>
    listdimensions:
-     description: Lists all dimensions
-     aliases:
-     permission:
-     usage: /<command>
+      description: Lists all dimensions
+      aliases: null
+      permission: null
+      usage: /<command>
    createdimension:
-     description: Lists all dimensions
-     aliases:
-     permission:
-     usage: /<command>
+      description: Create a dimension
+      aliases: null
+      permission: null
+      usage: /<command> <name>
+   deletedimension:
+      description: Unload a dimension
+      aliases: null
+      permission: null
+      usage: /<command> <name>
+   spawnboss:
+      description: Spawn a boss
+      aliases: null
+      permission: null
+      usage: /<command> <boss id (integer)>

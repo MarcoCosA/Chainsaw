@@ -1,5 +1,6 @@
 package me.BerylliumOranges.main;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
@@ -20,6 +21,8 @@ import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.service.OpenAiService;
 
+import me.BerylliumOranges.bosses.Boss;
+import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
 import me.BerylliumOranges.bosses.utils.HazardsChestGenerator;
 import me.BerylliumOranges.dimensions.CustomChunkGenerator;
 import me.BerylliumOranges.misc.MiscItems;
@@ -39,12 +42,61 @@ public class CommandParser {
 
 				return true;
 			}
+			if (sender instanceof Player && sender.isOp() && cmd.getName().equalsIgnoreCase("deletedimension")) {
+				if (args.length < 1) {
+					sender.sendMessage(ChatColor.RED + "Usage: /deletedimension <worldName>");
+					return true;
+				}
+				String worldName = args[0];
+				World world = Bukkit.getServer().getWorld(worldName);
+				if (world == null) {
+					sender.sendMessage(ChatColor.RED + "The world " + worldName + " does not exist.");
+					return true;
+				}
+
+				// Ensure no players are in the world
+				if (!world.getPlayers().isEmpty()) {
+					sender.sendMessage(ChatColor.RED + "Cannot delete " + worldName + " because it contains players.");
+					return true;
+				}
+
+				File worldContainer = Bukkit.getServer().getWorldContainer();
+				File worldFolder = new File(worldContainer, worldName);
+
+				// Attempt to unload the world
+				if (Bukkit.getServer().unloadWorld(world, true)) {
+					sender.sendMessage(ChatColor.GREEN + "Successfully unloaded " + worldName + ". Please delete the folder manually: "
+							+ worldFolder.getPath());
+					// Note: At this point, you can attempt to delete the files, but it's risky.
+					// Manual deletion is recommended.
+				} else {
+					sender.sendMessage(ChatColor.RED + "Failed to unload " + worldName + ".");
+				}
+
+				return true;
+			}
+
 			if (sender instanceof Player && sender.isOp() && cmd.getName().equalsIgnoreCase("listdimensions")) {
 				sender.sendMessage(ChatColor.YELLOW + "List of dimensions: ");
 				for (World s : Bukkit.getServer().getWorlds()) {
 					sender.sendMessage(ChatColor.WHITE + "- " + s.getName());
 				}
 				return true;
+			}
+
+			if (sender instanceof Player && sender.isOp() && cmd.getName().equalsIgnoreCase("spawnboss")) {
+				Bukkit.broadcastMessage("I see it " + args.length);
+				int num = Integer.parseInt(args[0]);
+				Bukkit.broadcastMessage("I see " + num);
+				try {
+					Bukkit.broadcastMessage("Spawning: " + BossType.values()[num].getName());
+					Boss boss = (Boss) BossType.values()[num].getBossClass().getDeclaredConstructor().newInstance();
+					boss.spawnBoss(((Player) sender).getLocation());
+				} catch (ReflectiveOperationException roe) {
+					roe.printStackTrace();
+				}
+				return false;
+
 			}
 			if (sender instanceof Player && sender.isOp() && cmd.getName().equalsIgnoreCase("goto")) {
 				if (args.length < 1) {

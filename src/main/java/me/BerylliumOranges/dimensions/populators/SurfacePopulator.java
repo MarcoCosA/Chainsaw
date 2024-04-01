@@ -1,7 +1,10 @@
 package me.BerylliumOranges.dimensions.populators;
 
 import java.util.Random;
+
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.TreeType;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 
@@ -37,6 +40,19 @@ public class SurfacePopulator {
 					}
 				}
 			}
+		}
+	}
+
+	public static void placeTrees(World w, int islandSize) {
+		Random random = new Random();
+		int cactiCount = (int) (islandSize * islandSize * 0.04); // Adjust density as needed
+
+		for (int i = 0; i < cactiCount; i++) {
+			int x = random.nextInt(islandSize * 2) - islandSize;
+			int z = random.nextInt(islandSize * 2) - islandSize;
+			int y = w.getHighestBlockYAt(x, z);
+
+			w.generateTree(new Location(w, x, y + 1, z), TreeType.TREE);
 		}
 	}
 

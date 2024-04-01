@@ -2,21 +2,29 @@ package me.BerylliumOranges.bosses;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.inventory.ItemStack;
 
 import me.BerylliumOranges.bosses.utils.BossUtils;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
+import me.BerylliumOranges.customEvents.TickEvent;
 import me.BerylliumOranges.main.PluginMain;
+import me.BerylliumOranges.misc.EntityUtils;
 
 public abstract class Boss implements Listener {
 	public ArrayList<LivingEntity> bosses = new ArrayList<>();
@@ -46,6 +54,8 @@ public abstract class Boss implements Listener {
 		int highestY = world.getHighestBlockYAt(0, 0);
 		Location spawnLocation = new Location(world, 0.5, highestY + 1, 10.5);
 
+		world.setTime(1000);
+		world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
 		bossIntro(spawnLocation);
 	}
 
@@ -93,4 +103,36 @@ public abstract class Boss implements Listener {
 		this.islandSize = islandSize;
 	}
 
+	@EventHandler
+	public void onFall(TickEvent e) {
+		for (LivingEntity boss : bosses) {
+			if (boss.getFallDistance() > 30) {
+				if (!boss.getWorld().getPlayers().isEmpty()) {
+					if (!boss.getWorld().getPlayers().isEmpty()) {
+						// Correct way to select a random player
+
+						if (Math.random() > 0.9)
+							EntityUtils.teleportEntity(boss, new Location(boss.getWorld(), 0, 90, 0));
+						else {
+							Player randomPlayer = boss.getWorld().getPlayers()
+									.get(new Random().nextInt(boss.getWorld().getPlayers().size()));
+
+							EntityUtils.teleportEntity(boss, randomPlayer.getLocation());
+						}
+						boss.setFallDistance(0);
+					}
+				}
+			}
+		}
+	}
+
+	@EventHandler
+	public void onDamage(EntityDamageEvent e) {
+		if (bosses.contains(e.getEntity()) && (e.getCause().equals(DamageCause.VOID) || e.getCause().equals(DamageCause.FALL))) {
+			e.setCancelled(true);
+			if (e.getCause().equals(DamageCause.VOID)) {
+				EntityUtils.teleportEntity(e.getEntity(), new Location(e.getEntity().getWorld(), 0, 90, 0));
+			}
+		}
+	}
 }
