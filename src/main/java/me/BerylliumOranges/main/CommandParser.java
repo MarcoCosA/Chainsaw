@@ -91,7 +91,6 @@ public class CommandParser {
 				try {
 					Bukkit.broadcastMessage("Spawning: " + BossType.values()[num].getName());
 					Boss boss = (Boss) BossType.values()[num].getBossClass().getDeclaredConstructor().newInstance();
-					boss.spawnBoss(((Player) sender).getLocation());
 				} catch (ReflectiveOperationException roe) {
 					roe.printStackTrace();
 				}

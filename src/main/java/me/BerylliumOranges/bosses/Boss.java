@@ -10,7 +10,6 @@ import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -22,16 +21,21 @@ import org.bukkit.inventory.ItemStack;
 
 import me.BerylliumOranges.bosses.utils.BossUtils;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
+import me.BerylliumOranges.bosses.utils.Hazards;
+import me.BerylliumOranges.bosses.utils.PlayerStateSaver;
 import me.BerylliumOranges.customEvents.TickEvent;
 import me.BerylliumOranges.main.PluginMain;
 import me.BerylliumOranges.misc.EntityUtils;
 
 public abstract class Boss implements Listener {
+
+	public PlayerStateSaver saved = null;
 	public ArrayList<LivingEntity> bosses = new ArrayList<>();
 	public ArrayList<Player> participants = new ArrayList<>();
 
 	public int ticksAlive = 0;
 	public int maxTicksAlive = 7200; // 6 minutes
+	public int introAnimationTicks = 0;
 
 	public BossType bossType;
 	public String name;
@@ -44,11 +48,13 @@ public abstract class Boss implements Listener {
 		BossUtils.bossInstances.add(this);
 		PluginMain.getInstance().getServer().getPluginManager().registerEvents(this, PluginMain.getInstance());
 
-		String cleanName = name.replaceAll("[^a-z0-9/._-]", ""); // Removes any character not allowed
+		String cleanName = ChatColor.stripColor(name.toLowerCase()).replaceAll("[^a-z0-9/._-]", ""); // Removes any character not allowed
 		WorldCreator creator = new WorldCreator(cleanName);
 
 		creator.generator(chunkGenerator);
 		world = Bukkit.getServer().createWorld(creator);
+		Hazards.saveHazards(world, bossType.getHazards());
+
 		Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Created " + name);
 
 		int highestY = world.getHighestBlockYAt(0, 0);
@@ -59,13 +65,24 @@ public abstract class Boss implements Listener {
 		bossIntro(spawnLocation);
 	}
 
+	public LivingEntity summonBoss(Location loc) {
+		LivingEntity boss = BossUtils.getPlayerSubstitute(bossType);
+		if (boss != null) {
+			PlayerStateSaver.savePlayerState((Player) boss);
+		} else
+			boss = createDefaultBoss(loc);
+		bosses.add(boss);
+		equipBoss(boss);
+		return boss;
+	}
+
 	public abstract List<ItemStack> getDrops();
 
 	public abstract void bossIntro(Location loc);
 
-	public abstract LivingEntity spawnBoss(Location loc);
+	public abstract void equipBoss(LivingEntity boss);
 
-	public abstract void despawn();
+	public abstract LivingEntity createDefaultBoss(Location loc);
 
 	public String getName() {
 		return name;
@@ -128,11 +145,20 @@ public abstract class Boss implements Listener {
 
 	@EventHandler
 	public void onDamage(EntityDamageEvent e) {
-		if (bosses.contains(e.getEntity()) && (e.getCause().equals(DamageCause.VOID) || e.getCause().equals(DamageCause.FALL))) {
+		if (bosses.contains(e.getEntity()) && (e.getCause().equals(DamageCause.VOID) || e.getCause().equals(DamageCause.FALL)
+				|| e.getCause().equals(DamageCause.SUFFOCATION) || e.getCause().equals(DamageCause.THORNS))) {
 			e.setCancelled(true);
 			if (e.getCause().equals(DamageCause.VOID)) {
 				EntityUtils.teleportEntity(e.getEntity(), new Location(e.getEntity().getWorld(), 0, 90, 0));
 			}
 		}
 	}
+
+	public void despawn() {
+		for (int i = bosses.size() - 1; i >= 0; i--) {
+			bosses.get(i).remove();
+		}
+		bosses.clear();
+	}
+
 }

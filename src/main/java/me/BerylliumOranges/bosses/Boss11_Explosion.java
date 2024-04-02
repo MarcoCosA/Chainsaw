@@ -12,28 +12,17 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Illager;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mob;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Zombie;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityDamageByBlockEvent;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import me.BerylliumOranges.bosses.actions.GravityTeleportAttack;
-import me.BerylliumOranges.bosses.actions.ProjectileDefense;
+import me.BerylliumOranges.bosses.actions.AttackGravityTeleport;
 import me.BerylliumOranges.bosses.utils.BossBarListener;
-import me.BerylliumOranges.bosses.utils.BossUtils;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
-import me.BerylliumOranges.customEvents.TickEvent;
 import me.BerylliumOranges.dimensions.chunkgenerators.SkyIslandChunkGenerator;
-import me.BerylliumOranges.dimensions.populators.SurfacePopulator;
-import me.BerylliumOranges.listeners.attacks.CactusAttack;
-import me.BerylliumOranges.listeners.attacks.RainbowSheepAttack;
+import me.BerylliumOranges.dimensions.surfaceeditors.SurfacePopulator;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.LesserAttackTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.NormalArmorPenetrationTrait;
@@ -43,7 +32,7 @@ import net.md_5.bungee.api.ChatColor;
 public class Boss11_Explosion extends Boss {
 
 	public Boss11_Explosion() {
-		super(BossType.ENCHANTMENT,
+		super(BossType.EXPLOSION,
 				new SkyIslandChunkGenerator(Arrays.asList(Material.DIRT), Arrays.asList(Material.STONE), Biome.PLAINS, 55));
 		this.islandSize = 55;
 		SurfacePopulator.placeTrees(world, islandSize);
@@ -56,17 +45,21 @@ public class Boss11_Explosion extends Boss {
 	}
 
 	@Override
-	public void bossIntro(Location loc) {
-		spawnBoss(loc);
-	}
-
-	@Override
-	public LivingEntity spawnBoss(Location loc) {
+	public LivingEntity createDefaultBoss(Location loc) {
 		Illager boss = (Illager) loc.getWorld().spawnEntity(loc, EntityType.VINDICATOR);
 		boss.setCustomName(ChatColor.AQUA + "Killager");
 		boss.setSilent(true);
 		boss.setCanPickupItems(false);
+		return boss;
+	}
 
+	@Override
+	public void bossIntro(Location loc) {
+
+	}
+
+	@Override
+	public void equipBoss(LivingEntity boss) {
 		boss.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0, false));
 		boss.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, Integer.MAX_VALUE, 2, false));
 
@@ -101,11 +94,9 @@ public class Boss11_Explosion extends Boss {
 		} catch (ReflectiveOperationException roe) {
 			roe.printStackTrace();
 		}
-		new GravityTeleportAttack(boss);
+		new AttackGravityTeleport(boss);
 
 		new BossBarListener(bosses, BarColor.RED, 3);
-
-		return boss;
 	}
 
 	private ItemStack createArmorItem(Material material) {

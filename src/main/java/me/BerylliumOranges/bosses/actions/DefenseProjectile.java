@@ -12,9 +12,9 @@ import org.bukkit.util.Vector;
 
 import me.BerylliumOranges.customEvents.TickEvent;
 
-public class ProjectileDefense extends BossAction {
+public class DefenseProjectile extends BossAction {
 
-	public ProjectileDefense(LivingEntity source) {
+	public DefenseProjectile(LivingEntity source) {
 		super(source, Integer.MAX_VALUE, 10, 0);
 	}
 

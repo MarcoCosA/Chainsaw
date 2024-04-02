@@ -2,6 +2,7 @@ package me.BerylliumOranges.bosses.utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -16,9 +17,11 @@ import me.BerylliumOranges.bosses.Boss;
 import me.BerylliumOranges.bosses.Boss01_Thorns;
 import me.BerylliumOranges.bosses.Boss02_Enchantment;
 import me.BerylliumOranges.bosses.Boss09_Block;
+import me.BerylliumOranges.bosses.Boss11_Explosion;
 import me.BerylliumOranges.bosses.utils.Hazards.Hazard;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.NormalRepulsionTrait;
+import me.BerylliumOranges.listeners.items.traits.traits.SupremeRepulsionTrait;
 import me.BerylliumOranges.main.DirectoryTools;
 import me.BerylliumOranges.main.PluginMain;
 import net.md_5.bungee.api.ChatColor;
@@ -27,20 +30,23 @@ public class BossUtils {
 	public static ArrayList<Class<Boss>> bossClasses = BossUtils.loadBossClasses();
 	public static ArrayList<Boss> bossInstances = new ArrayList<>();
 
+	public static HashMap<BossType, ArrayList<Player>> bossTypeAndPlayerOwner = new HashMap<>();
+
 	protected BossUtils() {
 	}
 
 	public enum BossType {
 		THORNS(ChatColor.DARK_GREEN + "Thorns Devil", Boss01_Thorns.class, Arrays.asList(Hazard.CACTUS_DAMAGE),
-				Arrays.asList(NormalRepulsionTrait.class)),
+				Arrays.asList(SupremeRepulsionTrait.class)),
 
 		ENCHANTMENT(ChatColor.AQUA + "Enchantment Devil", Boss02_Enchantment.class,
 				Arrays.asList(Hazard.NO_LOGOUT, Hazard.EXPLODE_ON_DEATH), Arrays.asList(NormalRepulsionTrait.class)),
 
-		BLOCK(ChatColor.AQUA + "Block Devil", Boss09_Block.class, Arrays.asList(Hazard.NO_LOGOUT, Hazard.TIME_LIMIT_FIVE),
+		BLOCK(ChatColor.AQUA + "Block Devil", Boss09_Block.class,
+				Arrays.asList(Hazard.NO_LOGOUT, Hazard.NO_BUILDING, Hazard.STAND_ON_GREEN, Hazard.MOVING_MAP),
 				Arrays.asList(NormalRepulsionTrait.class)),
 
-		EXPLOSION(ChatColor.RED + "Explosion Devil", Boss09_Block.class, Arrays.asList(Hazard.NO_LOGOUT, Hazard.EXPLODE_ON_DEATH),
+		EXPLOSION(ChatColor.RED + "Explosion Devil", Boss11_Explosion.class, Arrays.asList(Hazard.NO_LOGOUT, Hazard.EXPLODE_ON_DEATH),
 				Arrays.asList(NormalRepulsionTrait.class));
 
 		private final String name;
@@ -185,5 +191,18 @@ public class BossUtils {
 			}
 			p.giveExp(xp);
 		}
+	}
+
+	public static Player getPlayerSubstitute(BossType bossType) {
+		ArrayList<Player> players = BossUtils.bossTypeAndPlayerOwner.get(bossType);
+		if (players != null && !players.isEmpty()) {
+
+			for (Player p : players) {
+				if (p.isOnline()) {
+					return p;
+				}
+			}
+		}
+		return null;
 	}
 }

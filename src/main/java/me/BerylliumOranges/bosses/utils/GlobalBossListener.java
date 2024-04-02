@@ -25,8 +25,8 @@ public class GlobalBossListener implements Listener {
 
 			BossType type = BossType.getTypeFromName(e.getView().getTitle().split(HazardsChestGenerator.DUNGEON_TAG)[0]);
 
-			if (e.getCurrentItem() != null && type != null && (e.getCurrentItem().equals(BossHazardInventory.ENTER_DUNGEON_ITEM)
-					|| e.getCurrentItem().equals(BossHazardInventory.CREATE_DUNGEON_ITEM))) {
+			if (e.getCurrentItem() != null && type != null && (e.getCurrentItem().equals(HazardInventoryGenerator.ENTER_DUNGEON_ITEM)
+					|| e.getCurrentItem().equals(HazardInventoryGenerator.CREATE_DUNGEON_ITEM))) {
 				Player player = (Player) e.getWhoClicked();
 
 				player.closeInventory();
@@ -36,7 +36,7 @@ public class GlobalBossListener implements Listener {
 						player.sendMessage(ChatColor.GRAY + "Preparing " + type.getName() + ChatColor.GRAY + "'s dungeon...");
 						boss = (Boss) type.getBossClass().getDeclaredConstructor().newInstance();
 
-						e.getInventory().setItem(e.getSlot(), BossHazardInventory.ENTER_DUNGEON_ITEM);
+						e.getInventory().setItem(e.getSlot(), HazardInventoryGenerator.ENTER_DUNGEON_ITEM);
 						player.sendMessage(ChatColor.GRAY + "Dungeon is ready.");
 					} catch (ReflectiveOperationException roe) {
 						player.sendMessage(ChatColor.RED + "An error occurred while entering the dungeon.");

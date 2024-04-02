@@ -1,15 +1,48 @@
 package me.BerylliumOranges.bosses.utils;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Instrument;
 import org.bukkit.Material;
+import org.bukkit.Note;
+import org.bukkit.Note.Tone;
+import org.bukkit.World;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByBlockEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import me.BerylliumOranges.customEvents.TickEvent;
+import me.BerylliumOranges.dimensions.surfaceeditors.TopographyGenerator;
+import me.BerylliumOranges.main.PluginMain;
 import me.BerylliumOranges.misc.LoreFormatter;
 import net.md_5.bungee.api.ChatColor;
 
-public class Hazards {
+public class Hazards implements Listener {
+
+	public static final String HAZARD_TAG = "[Hazard]";
+	private static FileConfiguration config = null;
+	private static File configFile = null;
+
+	public Hazards() {
+		PluginMain.getInstance().getServer().getPluginManager().registerEvents(this, PluginMain.getInstance());
+	}
+
+	public static final int DAMAGE_CACTUS = 5;
+	public static final int DAMAGE_STAND_ON_GREEN = 30;
+
 	public enum Hazard {
 		NO_LOGOUT(ChatColor.DARK_RED + "No Combat Logging", "Players will be killed if they log out in the boss chamber.",
 				Material.BARRIER),
@@ -20,12 +53,20 @@ public class Hazards {
 		TIME_LIMIT_FIVE(ChatColor.DARK_RED + "Time Limit: 5 Minutes", "Players must defeat the boss within 5 minutes, or they will die.",
 				Material.CLOCK),
 
+		MOVING_MAP(ChatColor.DARK_RED + "Map Moves", "The terrain changes every 7 seconds", Material.RED_CONCRETE),
+
+		STAND_ON_GREEN(ChatColor.DARK_RED + "Stand on Green",
+				"Every 7 seconds players will take " + DAMAGE_STAND_ON_GREEN + " damage if the block under them is not green",
+				Material.GREEN_CONCRETE),
+
+		NO_BUILDING(ChatColor.DARK_RED + "No Building", "Players cannot place blocks", Material.BRICKS),
+
 		TIME_LIMIT_THREE(ChatColor.DARK_RED + "Time Limit: 3 Minutes", "Players must defeat the boss within 3 minutes, or they will die.",
 				Material.CLOCK, true),
 
 		EXPLODE_ON_DEATH(ChatColor.DARK_RED + "Explode on Death", "All entities explode when they die.", Material.TNT),
-		
-		CACTUS_DAMAGE(ChatColor.DARK_RED + "Cactus Damage Boost", "Cacti deal 5x damage.", Material.CACTUS),
+
+		CACTUS_DAMAGE(ChatColor.DARK_RED + "Cactus Damage Boost", "Cacti deal " + DAMAGE_CACTUS + " damage.", Material.CACTUS),
 
 		;
 
@@ -51,7 +92,6 @@ public class Hazards {
 			item.setItemMeta(meta);
 			if (enchanted)
 				item.addUnsafeEnchantment(Enchantment.VANISHING_CURSE, 1);
-
 		}
 
 		public String getName() {
@@ -68,6 +108,109 @@ public class Hazards {
 
 		public ItemStack getItem() {
 			return item;
+		}
+	}
+
+	public static void saveHazards(World world, List<Hazard> hazards) {
+		if (config == null) {
+			configFile = new File(PluginMain.getInstance().getDataFolder(), "hazards.yml");
+			if (!configFile.exists()) {
+				configFile.getParentFile().mkdirs();
+				try {
+					configFile.createNewFile(); // Directly create the file instead
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			config = YamlConfiguration.loadConfiguration(configFile);
+		}
+
+		List<String> hazardNames = hazards.stream().map(Enum::name).collect(Collectors.toList());
+		config.set("worlds." + world.getName() + ".hazards", hazardNames);
+		try {
+			config.save(configFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static List<Hazard> loadHazards(World world) {
+		if (config == null) {
+			configFile = new File(PluginMain.getInstance().getDataFolder(), "hazards.yml");
+			config = YamlConfiguration.loadConfiguration(configFile);
+		}
+		List<String> hazardNames = config.getStringList("worlds." + world.getName() + ".hazards");
+		return hazardNames.stream().map(name -> Hazard.valueOf(name)).collect(Collectors.toList());
+	}
+
+	public static boolean hasHazard(World world, Hazard hazard) {
+		for (Hazard h : loadHazards(world)) {
+			if (h.equals(hazard))
+				return true;
+		}
+		return false;
+	}
+
+	int ticks = 0;
+	HashMap<World, TopographyGenerator> topGenerators = new HashMap<>();
+
+	@EventHandler
+	public void onTick(TickEvent e) {
+		ticks++;
+
+		for (World w : Bukkit.getServer().getWorlds()) {
+			if (ticks % 200 == 0)
+				if (hasHazard(w, Hazard.STAND_ON_GREEN) && ticks % 140 == 0) {
+					for (Player p : w.getPlayers()) {
+						if (!PlayerStateSaver.playerIsBoss(p)) {
+							boolean green = false;
+							for (int i = 0; i < 20; i++) {
+								Material b = p.getLocation().clone().add(0, -i, 0).getBlock().getType();
+								if (b.isSolid()) {
+									if (b.toString().toLowerCase().contains("green")) {
+										p.playNote(p.getLocation(), Instrument.PIANO, Note.sharp(1, Tone.D));
+										green = true;
+									}
+									break;
+								}
+							}
+							if (!green) {
+								p.playNote(p.getLocation(), Instrument.CHIME, Note.sharp(1, Tone.A));
+								p.damage(DAMAGE_STAND_ON_GREEN);
+							}
+						}
+					}
+				}
+			if (hasHazard(w, Hazard.MOVING_MAP) && (ticks + 20) % 140 == 0) {
+				if (!topGenerators.containsKey(w))
+					topGenerators.put(w, new TopographyGenerator(w, 20));
+				topGenerators.get(w).generateRandomTopographyExcludingLast();
+			}
+		}
+	}
+
+	@EventHandler
+	public void onLogout(PlayerQuitEvent e) {
+		World w = e.getPlayer().getWorld();
+		if (hasHazard(w, Hazard.NO_LOGOUT))
+			e.getPlayer().setHealth(0);
+	}
+
+	@EventHandler
+	public void onDamage(EntityDamageByBlockEvent e) {
+		World w = e.getEntity().getWorld();
+		if (e.getDamager() != null && e.getDamager().getType().equals(Material.CACTUS)) {
+			if (hasHazard(w, Hazard.CACTUS_DAMAGE))
+				e.setDamage(e.getDamage() * DAMAGE_CACTUS);
+		}
+	}
+
+	@EventHandler
+	public void o(EntityDamageByBlockEvent e) {
+		World w = e.getEntity().getWorld();
+		if (e.getDamager() != null && e.getDamager().getType().equals(Material.CACTUS)) {
+			if (hasHazard(w, Hazard.CACTUS_DAMAGE))
+				e.setDamage(DAMAGE_CACTUS);
 		}
 	}
 }

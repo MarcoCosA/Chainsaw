@@ -18,7 +18,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.util.Vector;
 
-public class RainbowSheepAttack extends BossAction {
+public class AttackRainbowSheep extends BossAction {
 
 	private Map<Sheep, Vector> sheepDirections = new HashMap<>();
 	private int sheepTicks = 0;
@@ -26,7 +26,7 @@ public class RainbowSheepAttack extends BossAction {
 	private static final DyeColor[] colors = { DyeColor.RED, DyeColor.ORANGE, DyeColor.YELLOW, DyeColor.LIME, DyeColor.LIGHT_BLUE,
 			DyeColor.BLUE, DyeColor.PURPLE };
 
-	public RainbowSheepAttack(LivingEntity source) {
+	public AttackRainbowSheep(LivingEntity source) {
 		super(source, 90, 40, 30); // Adjust maxTicksUntilAttack and attackRange as needed, damage is set to 30
 	}
 

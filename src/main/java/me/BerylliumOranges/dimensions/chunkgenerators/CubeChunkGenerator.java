@@ -38,7 +38,7 @@ public class CubeChunkGenerator extends ChunkGenerator {
 
 		// Calculate the cube's start and end points in world coordinates
 		int centerX = islandSize / 2;
-		int centerY = 100; // Arbitrary height for the cube to float
+		int centerY = 39; // Arbitrary height for the cube to float
 		int centerZ = islandSize / 2;
 		int startX = centerX - islandSize / 2;
 		int endX = centerX + islandSize / 2;

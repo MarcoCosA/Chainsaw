@@ -15,12 +15,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.util.Vector;
 
-public class CactusAttack extends BossAction {
+import me.BerylliumOranges.dimensions.surfaceeditors.SurfacePopulator;
+
+public class AttackCactus extends BossAction {
 
 	private List<FallingBlock> cacti = new ArrayList<>();
 
-	public CactusAttack(LivingEntity source) {
-		super(source, 200, 10, 5);
+	public AttackCactus(LivingEntity source) {
+		super(source, 200, 10, 1);
 	}
 
 	@Override
@@ -52,16 +54,21 @@ public class CactusAttack extends BossAction {
 		cactus.setDropItem(false);
 
 		location.getWorld().playSound(location, Sound.BLOCK_SWEET_BERRY_BUSH_PLACE, 0.5F, 0.5F);
-
 		cacti.add(cactus);
 	}
 
 	@Override
 	public void tick() {
-		for (FallingBlock b : cacti) {
-			for (Entity e : b.getNearbyEntities(1, 1, 1)) {
-				if (e instanceof LivingEntity && !source.equals(e)) {
-					applyDamage((LivingEntity) e);
+		for (int i = cacti.size() - 1; i >= 0; i--) {
+			FallingBlock b = cacti.get(i);
+			if (!b.isValid()) {
+				cacti.remove(i);
+				b.remove();
+			} else {
+				for (Entity e : b.getNearbyEntities(1, 1, 1)) {
+					if (e instanceof LivingEntity && !source.equals(e)) {
+						applyDamage((LivingEntity) e);
+					}
 				}
 			}
 		}
@@ -73,11 +80,9 @@ public class CactusAttack extends BossAction {
 		if (index >= 0) {
 			Block landedBlock = event.getBlock();
 			Block aboveBlock1 = landedBlock.getRelative(0, 1, 0);
-			Block aboveBlock2 = landedBlock.getRelative(0, 2, 0);
-			if (aboveBlock1.isEmpty() && aboveBlock2.isEmpty()) {
-				// Grow the cactus to 3 blocks tall
+			if (SurfacePopulator.canPlaceCactus(aboveBlock1)) {
 				aboveBlock1.setType(Material.CACTUS);
-				aboveBlock2.setType(Material.CACTUS);
+				aboveBlock1.getRelative(0, 1, 0).setType(Material.CACTUS);
 			}
 		}
 	}

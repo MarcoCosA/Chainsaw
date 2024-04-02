@@ -12,21 +12,18 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityDamageByBlockEvent;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import me.BerylliumOranges.bosses.utils.BossBarListener;
 import me.BerylliumOranges.bosses.utils.BossUtils;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
-import me.BerylliumOranges.customEvents.TickEvent;
+import me.BerylliumOranges.bosses.utils.PlayerStateSaver;
 import me.BerylliumOranges.dimensions.chunkgenerators.CubeChunkGenerator;
-import me.BerylliumOranges.listeners.attacks.RainbowSheepAttack;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.LesserAttackTrait;
 import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
@@ -59,12 +56,20 @@ public class Boss09_Block extends Boss {
 	}
 
 	@Override
-	public void bossIntro(Location loc) {
-		spawnBoss(loc);
+	public LivingEntity summonBoss(Location loc) {
+		LivingEntity boss = BossUtils.getPlayerSubstitute(bossType);
+
+		if (boss != null) {
+			PlayerStateSaver.savePlayerState((Player) boss);
+		} else
+			boss = createDefaultBoss(loc);
+		bosses.add(boss);
+		equipBoss(boss);
+		return boss;
 	}
 
 	@Override
-	public LivingEntity spawnBoss(Location loc) {
+	public LivingEntity createDefaultBoss(Location loc) {
 		Enderman bottom = null;
 		for (int i = 0; i < 10; i++) {
 			Enderman enderman = (Enderman) loc.getWorld().spawnEntity(loc, EntityType.ENDERMAN);
@@ -74,7 +79,7 @@ public class Boss09_Block extends Boss {
 			bosses.add(enderman); // Add each Enderman to the bosses list
 
 			if (bottom != null) {
-				bottom.setPassenger(enderman); // Stack the Enderman on the previous one
+				bottom.addPassenger(enderman); // Stack the Enderman on the previous one
 			}
 			bottom = enderman; // Update the bottom Enderman to the current one for the next iteration
 		}
@@ -90,10 +95,48 @@ public class Boss09_Block extends Boss {
 		} catch (ReflectiveOperationException roe) {
 			roe.printStackTrace();
 		}
-
-		new BossBarListener(bosses, BarColor.PURPLE, 2);
-
 		return bottom;
+	}
+
+	@Override
+	public void bossIntro(Location loc) {
+		bosses.add(summonBoss(loc));
+
+	}
+
+	@Override
+	public void equipBoss(LivingEntity boss) {
+		boss.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0, false));
+		boss.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, Integer.MAX_VALUE, 0, false));
+		boss.setRemoveWhenFarAway(false);
+		boss.setArrowsInBody(12);
+
+		ItemStack[] armor = new ItemStack[] { createArmorItem(Material.DIAMOND_BOOTS, Enchantment.PROTECTION_ENVIRONMENTAL, 2),
+				createArmorItem(Material.DIAMOND_LEGGINGS, Enchantment.PROTECTION_ENVIRONMENTAL, 2),
+				createArmorItem(Material.DIAMOND_CHESTPLATE, Enchantment.PROTECTION_ENVIRONMENTAL, 2), new ItemStack(Material.CACTUS) };
+
+		// Set the zombie's armor
+		EntityEquipment equipment = boss.getEquipment();
+		if (equipment != null) {
+			equipment.setArmorContents(armor);
+			equipment.setHelmetDropChance(0f);
+			equipment.setChestplateDropChance(0f);
+			equipment.setLeggingsDropChance(0f);
+			equipment.setBootsDropChance(0f);
+		}
+
+		try {
+			List<Class<? extends ItemTrait>> traitClasses = getBossType().getTraits();
+
+			for (Class<? extends ItemTrait> clazz : traitClasses) {
+				ItemTrait trait = clazz.getDeclaredConstructor().newInstance();
+
+				trait.potionRunnable(boss);
+			}
+		} catch (ReflectiveOperationException roe) {
+			roe.printStackTrace();
+		}
+		new BossBarListener(bosses, BarColor.GREEN, 2);
 	}
 
 	private ItemStack createArmorItem(Material material, Enchantment enchantment, int level) {
@@ -105,47 +148,5 @@ public class Boss09_Block extends Boss {
 			item.setItemMeta(meta);
 		}
 		return item;
-	}
-
-	@Override
-	public void despawn() {
-
-	}
-
-	@EventHandler
-	public void onTick(TickEvent e) {
-		for (LivingEntity b : bosses) {
-			Player p = BossUtils.getNearestPlayer(b.getLocation(), 7);
-			if (p != null) {
-				Mob mob = (Mob) b;
-
-			}
-		}
-	}
-
-	@EventHandler
-	public void onDamage(EntityDamageByBlockEvent e) {
-		if (bosses.contains(e.getEntity()) && (e.getCause().equals(DamageCause.THORNS) || e.getCause().equals(DamageCause.SUFFOCATION))) {
-			e.setCancelled(true);
-		}
-	}
-
-	@EventHandler
-	public void onEndermanDeath(EntityDeathEvent event) {
-		LivingEntity entity = event.getEntity();
-		if (bosses.contains(entity)) {
-			bosses.remove(entity); // Remove the deceased Enderman from the list
-
-			if (entity.getVehicle() != null && entity.getVehicle() instanceof Enderman) {
-				LivingEntity above = (LivingEntity) entity.getVehicle();
-				above.eject(); // Remove the above Enderman from being a passenger
-
-				if (entity.getPassenger() != null && entity.getPassenger() instanceof Enderman) {
-					LivingEntity below = (LivingEntity) entity.getPassenger();
-					entity.eject(); // Eject the below Enderman
-					above.setPassenger(below); // Set the below Enderman as the new passenger of the above Enderman
-				}
-			}
-		}
 	}
 }

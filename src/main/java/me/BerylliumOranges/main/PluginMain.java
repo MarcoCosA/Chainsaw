@@ -15,9 +15,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import me.BerylliumOranges.bosses.Boss;
 import me.BerylliumOranges.bosses.utils.BossUtils;
 import me.BerylliumOranges.bosses.utils.BossesSpawnListener;
 import me.BerylliumOranges.bosses.utils.GlobalBossListener;
+import me.BerylliumOranges.bosses.utils.Hazards;
 import me.BerylliumOranges.dimensions.CustomChunkGenerator;
 import me.BerylliumOranges.listeners.items.traits.globallisteners.GlobalTraitListener;
 import me.BerylliumOranges.listeners.items.traits.globallisteners.InventoryListener;
@@ -46,10 +48,11 @@ public class PluginMain extends JavaPlugin implements Listener {
 		BossUtils.loadBossClasses();
 		TraitCache.loadTraitsFromFile();
 
-		// load trait listeners
+		// load listeners
 		new GlobalTraitListener();
 		new GlobalBossListener();
 		new InventoryListener();
+		new Hazards();
 
 		dataKey = new NamespacedKey(this, ITEM_DATA_KEY);
 		getServer().getPluginManager().registerEvents(this, this);
@@ -72,6 +75,9 @@ public class PluginMain extends JavaPlugin implements Listener {
 	@Override
 	public void onDisable() {
 		TraitCache.saveTraitsToFile();
+		for (Boss b : BossUtils.bossInstances) {
+			b.despawn();
+		}
 	}
 
 	public static PluginMain getInstance() {

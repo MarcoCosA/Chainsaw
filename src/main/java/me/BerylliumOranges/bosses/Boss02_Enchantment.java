@@ -3,37 +3,32 @@ package me.BerylliumOranges.bosses;
 import java.util.Arrays;
 import java.util.List;
 
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Particle.DustOptions;
 import org.bukkit.block.Biome;
 import org.bukkit.boss.BarColor;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Mob;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityDamageByBlockEvent;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 
-import me.BerylliumOranges.bosses.actions.ProjectileDefense;
 import me.BerylliumOranges.bosses.utils.BossBarListener;
-import me.BerylliumOranges.bosses.utils.BossUtils;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
-import me.BerylliumOranges.customEvents.TickEvent;
 import me.BerylliumOranges.dimensions.chunkgenerators.SkyIslandChunkGenerator;
-import me.BerylliumOranges.dimensions.populators.SurfacePopulator;
-import me.BerylliumOranges.listeners.attacks.CactusAttack;
-import me.BerylliumOranges.listeners.attacks.RainbowSheepAttack;
+import me.BerylliumOranges.dimensions.surfaceeditors.SurfacePopulator;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.LesserAttackTrait;
 import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
+import me.BerylliumOranges.main.PluginMain;
 import net.md_5.bungee.api.ChatColor;
 
 public class Boss02_Enchantment extends Boss {
@@ -52,26 +47,54 @@ public class Boss02_Enchantment extends Boss {
 	}
 
 	@Override
-	public void bossIntro(Location loc) {
-		spawnBoss(loc);
-	}
-
-	@Override
-	public LivingEntity spawnBoss(Location loc) {
-		// Spawn a zombie at the provided location
+	public LivingEntity createDefaultBoss(Location loc) {
 		Zombie boss = (Zombie) loc.getWorld().spawnEntity(loc, EntityType.ZOMBIE);
-		boss.setCustomName(ChatColor.AQUA + "Shiny Guy");
-		// Ensure the zombie is an adult, is silent, and does not drop items
+		boss.setCustomName(ChatColor.GREEN + "Cac King");
 		boss.setAdult();
 		boss.setSilent(true);
 		boss.setCanPickupItems(false);
+		return boss;
+	}
 
+	@Override
+	public void bossIntro(Location loc) {
+		bosses.add(summonBoss(loc.clone().add(0, 10, 0)));
+		LivingEntity boss = bosses.get(0);
+		boss.setAI(false);
+		Location location = boss.getLocation();
+		location.setPitch(-90.0F);
+		boss.teleport(location);
+
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				world.spawnParticle(Particle.REDSTONE, boss.getEyeLocation(), 20, 0.5, 0.5, 0.5, 0, new DustOptions(Color.LIME, 1));
+				if (introAnimationTicks == 30) {
+				}
+				if (introAnimationTicks > 150) {
+					boss.setAI(true);
+					Location location = boss.getWorld().getHighestBlockAt(boss.getLocation()).getLocation().add(0, 1, 0);
+					location.setPitch(0F);
+					boss.teleport(location);
+					this.cancel();
+					return;
+				}
+				introAnimationTicks++;
+			}
+
+		}.runTaskTimer(PluginMain.getInstance(), 20L, 1L);
+	}
+
+	@Override
+	public void equipBoss(LivingEntity boss) {
 		boss.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0, false));
 		boss.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, Integer.MAX_VALUE, 0, false));
+		boss.setRemoveWhenFarAway(false);
+		boss.setArrowsInBody(12);
 
 		ItemStack[] armor = new ItemStack[] { createArmorItem(Material.DIAMOND_BOOTS, Enchantment.PROTECTION_ENVIRONMENTAL, 2),
 				createArmorItem(Material.DIAMOND_LEGGINGS, Enchantment.PROTECTION_ENVIRONMENTAL, 2),
-				createArmorItem(Material.DIAMOND_CHESTPLATE, Enchantment.PROTECTION_ENVIRONMENTAL, 2), new ItemStack(Material.PINK_WOOL) };
+				createArmorItem(Material.DIAMOND_CHESTPLATE, Enchantment.PROTECTION_ENVIRONMENTAL, 2), new ItemStack(Material.CACTUS) };
 
 		// Set the zombie's armor
 		EntityEquipment equipment = boss.getEquipment();
@@ -82,8 +105,6 @@ public class Boss02_Enchantment extends Boss {
 			equipment.setLeggingsDropChance(0f);
 			equipment.setBootsDropChance(0f);
 		}
-
-		bosses.add(boss);
 
 		try {
 			List<Class<? extends ItemTrait>> traitClasses = getBossType().getTraits();
@@ -96,12 +117,7 @@ public class Boss02_Enchantment extends Boss {
 		} catch (ReflectiveOperationException roe) {
 			roe.printStackTrace();
 		}
-
-		new ProjectileDefense(boss);
-
-		new BossBarListener(bosses, BarColor.BLUE, 1);
-
-		return boss;
+		new BossBarListener(bosses, BarColor.GREEN, 2);
 	}
 
 	private ItemStack createArmorItem(Material material, Enchantment enchantment, int level) {
@@ -113,28 +129,5 @@ public class Boss02_Enchantment extends Boss {
 			item.setItemMeta(meta);
 		}
 		return item;
-	}
-
-	@Override
-	public void despawn() {
-
-	}
-
-	@EventHandler
-	public void onTick(TickEvent e) {
-		for (LivingEntity b : bosses) {
-			Player p = BossUtils.getNearestPlayer(b.getLocation(), 7);
-			if (p != null) {
-				Mob mob = (Mob) b;
-
-			}
-		}
-	}
-
-	@EventHandler
-	public void onDamage(EntityDamageByBlockEvent e) {
-		if (bosses.contains(e.getEntity()) && (e.getCause().equals(DamageCause.THORNS) || e.getCause().equals(DamageCause.SUFFOCATION))) {
-			e.setCancelled(true);
-		}
 	}
 }

@@ -10,7 +10,6 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.generator.WorldInfo;
 
 import me.BerylliumOranges.dimensions.FastNoiseLite;
-import me.BerylliumOranges.dimensions.FastNoiseLite.FractalType;
 
 public class SkyIslandChunkGenerator extends ChunkGenerator {
 	private final FastNoiseLite terrainNoise = new FastNoiseLite();
@@ -68,7 +67,7 @@ public class SkyIslandChunkGenerator extends ChunkGenerator {
 					float distanceToSurface = Math.abs(y - currentY);
 
 					if (distanceFromCenter <= radiusAtY && y < maxYAtPosition) {
-						if (distanceToSurface < 1 && surfaceMaterials.size() == 1 && surfaceMaterials.get(0).equals(Material.DIRT)) {
+						if (distanceToSurface == 1 && surfaceMaterials.size() == 1 && surfaceMaterials.get(0).equals(Material.DIRT)) {
 							chunkData.setBlock(x, y, z, Material.GRASS_BLOCK);
 						}
 						if (distanceToSurface < 5) {

@@ -110,7 +110,7 @@ public class HazardsChestGenerator {
 			chest.setCustomName(t.getName() + DUNGEON_TAG);
 			chest.update();
 
-			new BossHazardInventory(chest.getInventory(), t);
+			new HazardInventoryGenerator(chest.getInventory(), t);
 
 		}
 	}

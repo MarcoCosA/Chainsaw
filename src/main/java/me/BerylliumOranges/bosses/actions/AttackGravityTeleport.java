@@ -6,9 +6,8 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 import me.BerylliumOranges.bosses.utils.BossUtils;
-import me.BerylliumOranges.listeners.attacks.BossAttack;
 
-public class GravityTeleportAttack extends BossAttack {
+public class AttackGravityTeleport extends BossAction {
 
 	private int phase = 0;
 	private int teleportTickCounter = 0;
@@ -17,7 +16,7 @@ public class GravityTeleportAttack extends BossAttack {
 	private final int pauseDuration = 10;
 	private int repeat = 3;
 
-	public GravityTeleportAttack(LivingEntity source) {
+	public AttackGravityTeleport(LivingEntity source) {
 		super(source, 400, 50, 40);
 	}
 

@@ -39,7 +39,7 @@ public class BossBarListener implements Listener {
 		String name = bosses.get(0).getCustomName();
 		if (name == null)
 			name = bosses.get(0).getName();
-		bar = Bukkit.createBossBar(name, color, getSegmentation(bosses), BarFlag.CREATE_FOG);
+		bar = Bukkit.createBossBar(name, color, getSegmentation(bosses), BarFlag.PLAY_BOSS_MUSIC);
 		PluginMain.getInstance().getServer().getPluginManager().registerEvents(this, PluginMain.getInstance());
 		allBossBars.add(this);
 	}

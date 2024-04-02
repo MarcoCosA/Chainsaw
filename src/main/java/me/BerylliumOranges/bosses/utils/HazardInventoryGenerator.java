@@ -9,11 +9,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
 import net.md_5.bungee.api.ChatColor;
 
-public class BossHazardInventory implements InventoryHolder {
+public class HazardInventoryGenerator implements InventoryHolder {
 	BossType bossType;
 	Inventory inventory = null;
 
-	public BossHazardInventory(Inventory inventory, BossType bossType) {
+	public HazardInventoryGenerator(Inventory inventory, BossType bossType) {
 		this.inventory = inventory;
 		this.bossType = bossType;
 
