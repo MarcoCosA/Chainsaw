@@ -22,6 +22,7 @@ public class BossBarListener implements Listener {
 	public BossBar bar;
 	public int tier;
 	public ArrayList<BossBarListener> allBossBars = new ArrayList<>();
+	private String overrideName = null;
 
 	public BossBarListener(LivingEntity boss, BarColor color, int tier) {
 		ArrayList<LivingEntity> bosses = new ArrayList<>();
@@ -72,11 +73,11 @@ public class BossBarListener implements Listener {
 
 	public static BarStyle getSegmentation(ArrayList<LivingEntity> liv) {
 		double hp = getBossMaxHP(liv);
-		if (hp > 40)
-			return BarStyle.SEGMENTED_10;
 		if (hp > 80)
+			return BarStyle.SEGMENTED_10;
+		if (hp > 110)
 			return BarStyle.SEGMENTED_12;
-		if (hp > 200)
+		if (hp > 160)
 			return BarStyle.SEGMENTED_20;
 		return BarStyle.SEGMENTED_6;
 	}
@@ -91,7 +92,7 @@ public class BossBarListener implements Listener {
 
 	@EventHandler
 	public void onDamage(EntityDamageEvent e) {
-		if (bosses.contains(e.getEntity())) {
+		if (overrideName == null && bosses.contains(e.getEntity())) {
 			LivingEntity l = (LivingEntity) e.getEntity();
 			String name = l.getCustomName();
 			if (name != null)
@@ -114,16 +115,13 @@ public class BossBarListener implements Listener {
 			}
 			if (isBossDead()) {
 				bar.removeAll();
-			} else {
-
-				if (p.getWorld().equals(bosses.get(0).getWorld())
-						&& p.getLocation().distanceSquared(bosses.get(0).getLocation()) < mod * mod) {
-					if (!bar.getPlayers().contains(p)) {
-						bar.addPlayer(p);
-					}
-				} else {
-					bar.removePlayer(p);
+			} else if (p.getWorld().equals(bosses.get(0).getWorld())
+					&& p.getLocation().distanceSquared(bosses.get(0).getLocation()) < mod * mod) {
+				if (!bar.getPlayers().contains(p)) {
+					bar.addPlayer(p);
 				}
+			} else {
+				bar.removePlayer(p);
 			}
 		}
 	}
@@ -152,4 +150,13 @@ public class BossBarListener implements Listener {
 		this.tier = tier;
 	}
 
+	public String getOverrideName() {
+		return overrideName;
+	}
+
+	public void setOverrideName(String overrideName) {
+		this.overrideName = overrideName;
+		bar.setTitle(overrideName);
+		bar.setStyle(getSegmentation(bosses));
+	}
 }

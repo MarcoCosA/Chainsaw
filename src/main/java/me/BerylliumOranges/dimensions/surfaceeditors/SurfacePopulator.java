@@ -27,12 +27,15 @@ public class SurfacePopulator {
 					return;
 				}
 
-				// Calculate number of cacti to place this tick. Gradually decreases the count
-				// as ticks progress.
 				int cactiThisTick = (int) (Math.sin(Math.PI * tick / totalTicks) * islandSize * 0.06);
 				for (int i = 0; i < cactiThisTick; i++) {
-					int x = random.nextInt(islandSize * 2) - islandSize;
-					int z = random.nextInt(islandSize * 2) - islandSize;
+					double radius = Math.sqrt(random.nextDouble()) * islandSize;
+					double angle = random.nextDouble() * Math.PI * 2;
+
+					// Convert polar coordinates (radius, angle) to Cartesian coordinates (x, z)
+					int x = (int) (radius * Math.cos(angle));
+					int z = (int) (radius * Math.sin(angle));
+
 					int y = world.getHighestBlockYAt(x, z) + 1;
 					Block surfaceBlock = world.getBlockAt(x, y, z);
 

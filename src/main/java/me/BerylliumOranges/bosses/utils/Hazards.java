@@ -12,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.Note;
 import org.bukkit.Note.Tone;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
@@ -19,6 +20,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByBlockEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -42,6 +44,7 @@ public class Hazards implements Listener {
 
 	public static final int DAMAGE_CACTUS = 5;
 	public static final int DAMAGE_STAND_ON_GREEN = 30;
+	public static final int MOVING_MAP_PERIOD = 5;
 
 	public enum Hazard {
 		NO_LOGOUT(ChatColor.DARK_RED + "No Combat Logging", "Players will be killed if they log out in the boss chamber.",
@@ -53,10 +56,11 @@ public class Hazards implements Listener {
 		TIME_LIMIT_FIVE(ChatColor.DARK_RED + "Time Limit: 5 Minutes", "Players must defeat the boss within 5 minutes, or they will die.",
 				Material.CLOCK),
 
-		MOVING_MAP(ChatColor.DARK_RED + "Map Moves", "The terrain changes every 7 seconds", Material.RED_CONCRETE),
+		MOVING_MAP(ChatColor.DARK_RED + "Map Moves", "The terrain changes every " + MOVING_MAP_PERIOD + " seconds", Material.RED_CONCRETE),
 
 		STAND_ON_GREEN(ChatColor.DARK_RED + "Stand on Green",
-				"Every 7 seconds players will take " + DAMAGE_STAND_ON_GREEN + " damage if the block under them is not green",
+				"Every " + MOVING_MAP_PERIOD + " seconds players will take " + DAMAGE_STAND_ON_GREEN
+						+ " damage if the block under them is not green",
 				Material.GREEN_CONCRETE),
 
 		NO_BUILDING(ChatColor.DARK_RED + "No Building", "Players cannot place blocks", Material.BRICKS),
@@ -66,7 +70,7 @@ public class Hazards implements Listener {
 
 		EXPLODE_ON_DEATH(ChatColor.DARK_RED + "Explode on Death", "All entities explode when they die.", Material.TNT),
 
-		CACTUS_DAMAGE(ChatColor.DARK_RED + "Cactus Damage Boost", "Cacti deal " + DAMAGE_CACTUS + " damage.", Material.CACTUS),
+		CACTUS_DAMAGE(ChatColor.DARK_RED + "Cactus Damage Boost", "Cacti deal " + DAMAGE_CACTUS + "x damage.", Material.CACTUS),
 
 		;
 
@@ -157,34 +161,43 @@ public class Hazards implements Listener {
 	@EventHandler
 	public void onTick(TickEvent e) {
 		ticks++;
-
 		for (World w : Bukkit.getServer().getWorlds()) {
-			if (ticks % 200 == 0)
-				if (hasHazard(w, Hazard.STAND_ON_GREEN) && ticks % 140 == 0) {
-					for (Player p : w.getPlayers()) {
-						if (!PlayerStateSaver.playerIsBoss(p)) {
-							boolean green = false;
-							for (int i = 0; i < 20; i++) {
-								Material b = p.getLocation().clone().add(0, -i, 0).getBlock().getType();
-								if (b.isSolid()) {
-									if (b.toString().toLowerCase().contains("green")) {
-										p.playNote(p.getLocation(), Instrument.PIANO, Note.sharp(1, Tone.D));
-										green = true;
-									}
-									break;
+			if (hasHazard(w, Hazard.STAND_ON_GREEN) && (ticks + 20) % (MOVING_MAP_PERIOD * 20) == 0 && !w.getPlayers().isEmpty()) {
+				for (Player p : w.getPlayers()) {
+					if (!PlayerStateSaver.playerIsBoss(p)) {
+						boolean green = false;
+						for (int i = 0; i < 20; i++) {
+							Material b = p.getLocation().clone().add(0, -i, 0).getBlock().getType();
+							if (b.isSolid()) {
+								if (b.toString().toLowerCase().contains("green")) {
+									p.playNote(p.getLocation(), Instrument.CHIME, Note.sharp(1, Tone.A));
+									green = true;
 								}
+								break;
 							}
-							if (!green) {
-								p.playNote(p.getLocation(), Instrument.CHIME, Note.sharp(1, Tone.A));
-								p.damage(DAMAGE_STAND_ON_GREEN);
-							}
+						}
+						if (!green) {
+							p.playNote(p.getLocation(), Instrument.FLUTE, Note.natural(0, Tone.B));
+							p.playNote(p.getLocation(), Instrument.FLUTE, Note.natural(0, Tone.C));
+							p.damage(DAMAGE_STAND_ON_GREEN);
 						}
 					}
 				}
-			if (hasHazard(w, Hazard.MOVING_MAP) && (ticks + 20) % 140 == 0) {
+			}
+			if (hasHazard(w, Hazard.MOVING_MAP) && (ticks - 20) % (MOVING_MAP_PERIOD * 20) == 0) {
 				if (!topGenerators.containsKey(w))
-					topGenerators.put(w, new TopographyGenerator(w, 20));
+					topGenerators.put(w, new TopographyGenerator(w, 30));
 				topGenerators.get(w).generateRandomTopographyExcludingLast();
+			}
+		}
+	}
+
+	@EventHandler
+	public void onPlayerMove(PlayerMoveEvent event) {
+		if (hasHazard(event.getTo().getWorld(), Hazard.MOVING_MAP)) {
+			Block block = event.getTo().getBlock();
+			if (block.getType().equals(Material.RED_CONCRETE) || block.getType().equals(Material.GREEN_CONCRETE)) {
+				event.getPlayer().teleport(event.getTo().add(0, 1, 0));
 			}
 		}
 	}
@@ -202,15 +215,6 @@ public class Hazards implements Listener {
 		if (e.getDamager() != null && e.getDamager().getType().equals(Material.CACTUS)) {
 			if (hasHazard(w, Hazard.CACTUS_DAMAGE))
 				e.setDamage(e.getDamage() * DAMAGE_CACTUS);
-		}
-	}
-
-	@EventHandler
-	public void o(EntityDamageByBlockEvent e) {
-		World w = e.getEntity().getWorld();
-		if (e.getDamager() != null && e.getDamager().getType().equals(Material.CACTUS)) {
-			if (hasHazard(w, Hazard.CACTUS_DAMAGE))
-				e.setDamage(DAMAGE_CACTUS);
 		}
 	}
 }

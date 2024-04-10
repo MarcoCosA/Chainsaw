@@ -48,6 +48,9 @@ public class SkyIslandChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public void generateNoise(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkData chunkData) {
+		if ((Math.abs(chunkX) + Math.abs(chunkZ) + 1) * 16 > islandSize * islandSize)
+			return;
+
 		for (int y = chunkData.getMinHeight(); y < chunkData.getMaxHeight(); y++) {
 			for (int x = 0; x < 16; x++) {
 				for (int z = 0; z < 16; z++) {

@@ -45,8 +45,7 @@ public class CustomChunkGenerator extends ChunkGenerator {
 
 	@Override
 	public void generateNoise(WorldInfo worldInfo, Random random, int chunkX, int chunkZ, ChunkData chunkData) {
-
-		if (Math.sqrt((chunkX + 1) * (chunkX + 1) * 16 + (chunkZ + 1) * (chunkZ + 1) * 16) > 55)
+		if ((Math.abs(chunkX) + Math.abs(chunkZ) + 1) * 16 > 55 * 55)
 			return;
 
 		for (int y = chunkData.getMinHeight(); y < chunkData.getMaxHeight(); y++) {

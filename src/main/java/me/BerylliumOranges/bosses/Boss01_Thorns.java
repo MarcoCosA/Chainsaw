@@ -3,11 +3,13 @@ package me.BerylliumOranges.bosses;
 import java.util.Arrays;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Particle.DustOptions;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
 import org.bukkit.boss.BarColor;
 import org.bukkit.enchantments.Enchantment;
@@ -54,6 +56,8 @@ public class Boss01_Thorns extends Boss {
 		boss.setAdult();
 		boss.setSilent(true);
 		boss.setCanPickupItems(false);
+		boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(60);
+		boss.setHealth(60);
 		return boss;
 	}
 
@@ -115,7 +119,7 @@ public class Boss01_Thorns extends Boss {
 
 			for (Class<? extends ItemTrait> clazz : traitClasses) {
 				ItemTrait trait = clazz.getDeclaredConstructor().newInstance();
-
+				Bukkit.broadcastMessage("ADDED: " + boss);
 				trait.potionRunnable(boss);
 			}
 		} catch (ReflectiveOperationException roe) {

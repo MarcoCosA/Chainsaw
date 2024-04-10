@@ -1,5 +1,6 @@
 package me.BerylliumOranges.bosses.utils;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,11 +16,13 @@ import org.bukkit.inventory.ItemStack;
 
 import me.BerylliumOranges.bosses.Boss;
 import me.BerylliumOranges.bosses.Boss01_Thorns;
-import me.BerylliumOranges.bosses.Boss02_Enchantment;
-import me.BerylliumOranges.bosses.Boss09_Block;
+import me.BerylliumOranges.bosses.Boss02_Trap;
+import me.BerylliumOranges.bosses.Boss04_Block;
+import me.BerylliumOranges.bosses.Boss09_Fire;
 import me.BerylliumOranges.bosses.Boss11_Explosion;
 import me.BerylliumOranges.bosses.utils.Hazards.Hazard;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
+import me.BerylliumOranges.listeners.items.traits.traits.NormalArmorPenetrationTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.NormalRepulsionTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.SupremeRepulsionTrait;
 import me.BerylliumOranges.main.DirectoryTools;
@@ -36,26 +39,32 @@ public class BossUtils {
 	}
 
 	public enum BossType {
-		THORNS(ChatColor.DARK_GREEN + "Thorns Devil", Boss01_Thorns.class, Arrays.asList(Hazard.CACTUS_DAMAGE),
+		THORNS(ChatColor.DARK_GREEN, "Thorns Devil", Boss01_Thorns.class, Arrays.asList(Hazard.CACTUS_DAMAGE),
 				Arrays.asList(SupremeRepulsionTrait.class)),
 
-		ENCHANTMENT(ChatColor.AQUA + "Enchantment Devil", Boss02_Enchantment.class,
-				Arrays.asList(Hazard.NO_LOGOUT, Hazard.EXPLODE_ON_DEATH), Arrays.asList(NormalRepulsionTrait.class)),
+		ENCHANTMENT(ChatColor.AQUA, "Enchantment Devil", Boss02_Trap.class, Arrays.asList(Hazard.NO_LOGOUT, Hazard.EXPLODE_ON_DEATH),
+				Arrays.asList(NormalRepulsionTrait.class)),
 
-		BLOCK(ChatColor.AQUA + "Block Devil", Boss09_Block.class,
+		BLOCK(ChatColor.AQUA, "Block Devil", Boss04_Block.class,
 				Arrays.asList(Hazard.NO_LOGOUT, Hazard.NO_BUILDING, Hazard.STAND_ON_GREEN, Hazard.MOVING_MAP),
 				Arrays.asList(NormalRepulsionTrait.class)),
 
-		EXPLOSION(ChatColor.RED + "Explosion Devil", Boss11_Explosion.class, Arrays.asList(Hazard.NO_LOGOUT, Hazard.EXPLODE_ON_DEATH),
+		FIRE(ChatColor.of(new Color(170, 66, 3)), "Fire Devil", Boss09_Fire.class, Arrays.asList(Hazard.NO_LOGOUT),
+				Arrays.asList(NormalArmorPenetrationTrait.class)),
+
+		EXPLOSION(ChatColor.RED, "Explosion Devil", Boss11_Explosion.class, Arrays.asList(Hazard.NO_LOGOUT, Hazard.EXPLODE_ON_DEATH),
 				Arrays.asList(NormalRepulsionTrait.class));
 
 		private final String name;
+		private final ChatColor color;
 		private final Class<? extends Boss> bossClass;
 		private final List<Hazard> hazards;
 		private final List<Class<? extends ItemTrait>> traits;
 
-		BossType(String name, Class<? extends Boss> bossClass, List<Hazard> hazards, List<Class<? extends ItemTrait>> traits) {
-			this.name = name;
+		BossType(ChatColor color, String name, Class<? extends Boss> bossClass, List<Hazard> hazards,
+				List<Class<? extends ItemTrait>> traits) {
+			this.name = color + name;
+			this.color = color;
 			this.bossClass = bossClass;
 			this.hazards = hazards;
 			this.traits = traits;
@@ -75,6 +84,10 @@ public class BossUtils {
 
 		public String getName() {
 			return name;
+		}
+
+		public ChatColor getColor() {
+			return color;
 		}
 
 		public static BossType getTypeFromName(String name) {

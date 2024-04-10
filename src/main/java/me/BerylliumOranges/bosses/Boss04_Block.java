@@ -1,43 +1,54 @@
 package me.BerylliumOranges.bosses;
 
+import java.awt.Color;
 import java.util.Arrays;
 import java.util.List;
 
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Particle.DustOptions;
 import org.bukkit.block.Biome;
 import org.bukkit.boss.BarColor;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Enderman;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Zombie;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import me.BerylliumOranges.bosses.utils.BossBarListener;
+import me.BerylliumOranges.bosses.utils.BossUtils;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
-import me.BerylliumOranges.dimensions.chunkgenerators.SkyIslandChunkGenerator;
-import me.BerylliumOranges.dimensions.surfaceeditors.SurfacePopulator;
+import me.BerylliumOranges.bosses.utils.PlayerStateSaver;
+import me.BerylliumOranges.dimensions.chunkgenerators.CubeChunkGenerator;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.LesserAttackTrait;
 import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
-import me.BerylliumOranges.main.PluginMain;
 import net.md_5.bungee.api.ChatColor;
 
-public class Boss02_Enchantment extends Boss {
+public class Boss04_Block extends Boss {
 
-	public Boss02_Enchantment() {
-		super(BossType.ENCHANTMENT,
-				new SkyIslandChunkGenerator(Arrays.asList(Material.RED_SAND), Arrays.asList(Material.SANDSTONE), Biome.DESERT, 35));
-		this.islandSize = 35;
-		SurfacePopulator.placeCacti(world, islandSize);
+	public static final int ISLAND_SIZE = 32;
+
+	public static final List<String> characterNames = Arrays.asList(ChatColor.of(new Color(128, 0, 128)) + "Geometry Gordon", // Purple
+			ChatColor.of(new Color(147, 112, 219)) + "Craig", // Medium Purple
+			ChatColor.of(new Color(153, 50, 204)) + "Gary", // Dark Orchid
+			ChatColor.of(new Color(186, 85, 211)) + "Bubble Bob", // Medium Orchid
+			ChatColor.of(new Color(218, 112, 214)) + "Ned the Nook Nabber", // Orchid
+			ChatColor.of(new Color(221, 160, 221)) + "Ted the Tweaker", // Plum
+			ChatColor.of(new Color(238, 130, 238)) + "Harry the Hexahead", // Violet
+			ChatColor.of(new Color(255, 0, 255)) + "Carl the Cloud Conjurer", // Magenta / Fuchsia
+			ChatColor.of(new Color(139, 0, 139)) + "Pete Puddle Plodder", // Dark Magenta
+			ChatColor.of(new Color(216, 191, 216)) + "Smelly Sammy" // Thistle
+	);
+
+	public Boss04_Block() {
+		super(BossType.BLOCK,
+				new CubeChunkGenerator(Arrays.asList(Material.OBSIDIAN), Arrays.asList(Material.END_STONE), Biome.THE_END, ISLAND_SIZE));
+		this.islandSize = ISLAND_SIZE;
 	}
 
 	@Override
@@ -47,42 +58,52 @@ public class Boss02_Enchantment extends Boss {
 	}
 
 	@Override
-	public LivingEntity createDefaultBoss(Location loc) {
-		Zombie boss = (Zombie) loc.getWorld().spawnEntity(loc, EntityType.ZOMBIE);
-		boss.setCustomName(ChatColor.GREEN + "Cac King");
-		boss.setAdult();
-		boss.setSilent(true);
-		boss.setCanPickupItems(false);
+	public LivingEntity summonBoss(Location loc) {
+		LivingEntity boss = BossUtils.getPlayerSubstitute(bossType);
+
+		if (boss != null) {
+			PlayerStateSaver.savePlayerState((Player) boss);
+		} else
+			boss = createDefaultBoss(loc);
+		bosses.add(boss);
+		equipBoss(boss);
 		return boss;
 	}
 
 	@Override
-	public void bossIntro(Location loc) {
-		bosses.add(summonBoss(loc.clone().add(0, 10, 0)));
-		LivingEntity boss = bosses.get(0);
-		boss.setAI(false);
-		Location location = boss.getLocation();
-		location.setPitch(-90.0F);
-		boss.teleport(location);
+	public LivingEntity createDefaultBoss(Location loc) {
+		Enderman bottom = null;
+		for (int i = 0; i < 10; i++) {
+			Enderman enderman = (Enderman) loc.getWorld().spawnEntity(loc, EntityType.ENDERMAN);
 
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				world.spawnParticle(Particle.REDSTONE, boss.getEyeLocation(), 20, 0.5, 0.5, 0.5, 0, new DustOptions(Color.LIME, 1));
-				if (introAnimationTicks == 30) {
-				}
-				if (introAnimationTicks > 150) {
-					boss.setAI(true);
-					Location location = boss.getWorld().getHighestBlockAt(boss.getLocation()).getLocation().add(0, 1, 0);
-					location.setPitch(0F);
-					boss.teleport(location);
-					this.cancel();
-					return;
-				}
-				introAnimationTicks++;
+			enderman.setCanPickupItems(false);
+			enderman.setCustomName(characterNames.get(i));
+			bosses.add(enderman); // Add each Enderman to the bosses list
+
+			if (bottom != null) {
+				bottom.addPassenger(enderman); // Stack the Enderman on the previous one
 			}
+			bottom = enderman; // Update the bottom Enderman to the current one for the next iteration
+		}
 
-		}.runTaskTimer(PluginMain.getInstance(), 20L, 1L);
+		try {
+			List<Class<? extends ItemTrait>> traitClasses = getBossType().getTraits();
+
+			for (Class<? extends ItemTrait> clazz : traitClasses) {
+				ItemTrait trait = clazz.getDeclaredConstructor().newInstance();
+
+				trait.potionRunnable(bottom);
+			}
+		} catch (ReflectiveOperationException roe) {
+			roe.printStackTrace();
+		}
+		return bottom;
+	}
+
+	@Override
+	public void bossIntro(Location loc) {
+		bosses.add(summonBoss(loc));
+
 	}
 
 	@Override

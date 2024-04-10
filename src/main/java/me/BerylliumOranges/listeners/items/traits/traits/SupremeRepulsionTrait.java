@@ -68,12 +68,14 @@ public class SupremeRepulsionTrait extends ItemTrait implements Listener {
 		return new BukkitRunnable() {
 			@Override
 			public void run() {
+				Bukkit.broadcastMessage("ADDED: " + consumer);
 				entitiesWithPotion.add(consumer);
 				new BukkitRunnable() {
 					private int ticksElapsed = 0;
 
 					@Override
 					public void run() {
+						Bukkit.broadcastMessage("RUNNING: " + consumer);
 						if (ticksElapsed >= potionDuration * 20) {
 							this.cancel();
 							alertPlayer(consumer, "Potion effect ended.");
@@ -83,7 +85,9 @@ public class SupremeRepulsionTrait extends ItemTrait implements Listener {
 
 						if (Math.random() > 0.994) {
 							for (Entity ent : consumer.getNearbyEntities(5, 5, 5)) {
+								Bukkit.broadcastMessage("HERE: " + consumer);
 								if (ent.getLocation().distanceSquared(consumer.getLocation()) < 25) {
+									Bukkit.broadcastMessage("RUNNINGLAUNCBHING " + consumer);
 									ent.setVelocity(ent.getVelocity().clone().add(ent.getLocation().subtract(consumer.getLocation())
 											.toVector().normalize().multiply(1.5).add(new Vector(0, 0.5, 0))));
 								}

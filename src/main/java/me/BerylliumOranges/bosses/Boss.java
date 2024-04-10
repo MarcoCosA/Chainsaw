@@ -19,6 +19,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.inventory.ItemStack;
 
+import me.BerylliumOranges.bosses.utils.BossBarListener;
 import me.BerylliumOranges.bosses.utils.BossUtils;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
 import me.BerylliumOranges.bosses.utils.Hazards;
@@ -36,11 +37,13 @@ public abstract class Boss implements Listener {
 	public int ticksAlive = 0;
 	public int maxTicksAlive = 7200; // 6 minutes
 	public int introAnimationTicks = 0;
+	int stage = 0;
 
 	public BossType bossType;
 	public String name;
 	public int islandSize = 30;
 	public World world;
+	public BossBarListener bossBar;
 
 	public Boss(BossType type, ChunkGenerator chunkGenerator) {
 		this.bossType = type;
@@ -161,4 +164,7 @@ public abstract class Boss implements Listener {
 		bosses.clear();
 	}
 
+	public int getStage() {
+		return stage;
+	}
 }

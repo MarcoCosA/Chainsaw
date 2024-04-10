@@ -18,6 +18,7 @@ import net.md_5.bungee.api.ChatColor;
 
 public class HazardsChestGenerator {
 
+	public static final String DUNGEON_TAG = ChatColor.DARK_GRAY + " Dungeon";
 	public static List<LocationDistancePair> locations = new ArrayList<>();
 
 	public static void placeChests(World w) {
@@ -114,8 +115,6 @@ public class HazardsChestGenerator {
 
 		}
 	}
-
-	public static final String DUNGEON_TAG = ChatColor.DARK_GRAY + " Dungeon";
 
 	private static double radius(int k, int n, int b) {
 		if (k > n - b) {
