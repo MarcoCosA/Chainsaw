@@ -3,7 +3,6 @@ package me.BerylliumOranges.bosses.actions;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -27,11 +26,12 @@ public class AttackCactus extends BossAction {
 
 	@Override
 	public void playAnimation() {
-		source.getWorld().playSound(source.getLocation(), Sound.ENTITY_CREEPER_PRIMED, 0.5F, 1F);
 	}
 
 	@Override
 	public void execute(LivingEntity target) {
+		source.getWorld().playSound(source.getLocation(), Sound.ENTITY_CREEPER_PRIMED, 0.5F, 1F);
+
 		launchCactusCluster(target, source);
 	}
 

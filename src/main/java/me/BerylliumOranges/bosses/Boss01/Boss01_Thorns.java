@@ -1,13 +1,15 @@
-package me.BerylliumOranges.bosses;
+package me.BerylliumOranges.bosses.Boss01;
 
 import java.util.Arrays;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Particle.DustOptions;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
 import org.bukkit.boss.BarColor;
 import org.bukkit.enchantments.Enchantment;
@@ -21,6 +23,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import me.BerylliumOranges.bosses.Boss;
+import me.BerylliumOranges.bosses.actions.AttackCactus;
 import me.BerylliumOranges.bosses.utils.BossBarListener;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
 import me.BerylliumOranges.dimensions.chunkgenerators.SkyIslandChunkGenerator;
@@ -31,13 +35,13 @@ import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
 import me.BerylliumOranges.main.PluginMain;
 import net.md_5.bungee.api.ChatColor;
 
-public class Boss02_Trap extends Boss {
+public class Boss01_Thorns extends Boss {
 
-	public Boss02_Trap() {
-		super(BossType.ENCHANTMENT,
-				new SkyIslandChunkGenerator(Arrays.asList(Material.RED_SAND), Arrays.asList(Material.SANDSTONE), Biome.DESERT, 35));
+	public Boss01_Thorns() {
+		super(BossType.THORNS,
+				new SkyIslandChunkGenerator(Arrays.asList(Material.SAND), Arrays.asList(Material.SANDSTONE), Biome.DESERT, 35));
 		this.islandSize = 35;
-		SurfacePopulator.placeCacti(world, islandSize);
+
 	}
 
 	@Override
@@ -53,11 +57,14 @@ public class Boss02_Trap extends Boss {
 		boss.setAdult();
 		boss.setSilent(true);
 		boss.setCanPickupItems(false);
+		boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(60);
+		boss.setHealth(60);
 		return boss;
 	}
 
 	@Override
 	public void bossIntro(Location loc) {
+		introAnimationTicks = -100;
 		bosses.add(summonBoss(loc.clone().add(0, 10, 0)));
 		LivingEntity boss = bosses.get(0);
 		boss.setAI(false);
@@ -70,6 +77,8 @@ public class Boss02_Trap extends Boss {
 			public void run() {
 				world.spawnParticle(Particle.REDSTONE, boss.getEyeLocation(), 20, 0.5, 0.5, 0.5, 0, new DustOptions(Color.LIME, 1));
 				if (introAnimationTicks == 30) {
+					SurfacePopulator.placeCacti(world, islandSize);
+					new AttackCactus(boss);
 				}
 				if (introAnimationTicks > 150) {
 					boss.setAI(true);
@@ -87,8 +96,8 @@ public class Boss02_Trap extends Boss {
 
 	@Override
 	public void equipBoss(LivingEntity boss) {
-		boss.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0, false));
-		boss.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, Integer.MAX_VALUE, 0, false));
+		boss.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true));
+		boss.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, Integer.MAX_VALUE, 0, true));
 		boss.setRemoveWhenFarAway(false);
 		boss.setArrowsInBody(12);
 
@@ -111,7 +120,7 @@ public class Boss02_Trap extends Boss {
 
 			for (Class<? extends ItemTrait> clazz : traitClasses) {
 				ItemTrait trait = clazz.getDeclaredConstructor().newInstance();
-
+				Bukkit.broadcastMessage("ADDED: " + boss);
 				trait.potionRunnable(boss);
 			}
 		} catch (ReflectiveOperationException roe) {

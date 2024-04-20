@@ -5,7 +5,6 @@ import java.util.Random;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.PigZombie;
@@ -21,28 +20,19 @@ public class ActionSummonPigmen extends BossAction {
 	private static final int SQUAD_FORMATION_LENGTH = 4;
 
 	public ActionSummonPigmen(LivingEntity source) {
-		super(source, 100, 40, 0); // Cooldown, range, and damage settings as needed
+		super(source, 100, 100, 0); // Cooldown, range, and damage settings as needed
 	}
 
 	@Override
 	public void playAnimation() {
 		Location center = source.getLocation();
-		// Play the nether portal creation animation
-		for (int i = 0; i < 50; i++) {
-			source.getWorld().spawnParticle(Particle.PORTAL, center, 100, 2.0, 0.5, 2.0, 0.5);
-			try {
-				Thread.sleep(20); // Wait for 1 tick (20ms) before spawning next set of particles
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
 		source.getWorld().playSound(center, Sound.BLOCK_PORTAL_TRIGGER, 1.0F, 1.0F);
 	}
 
 	@Override
 	public void execute(LivingEntity target) {
-		spawnPigmenSquad(target.getLocation().add(-5, 0, 0)); // First squad
-		spawnPigmenSquad(target.getLocation().add(5, 0, 0)); // Second squad
+		spawnPigmenSquad(source.getLocation().add(-5, 0, 0)); // First squad
+		spawnPigmenSquad(source.getLocation().add(5, 0, 0)); // Second squad
 	}
 
 	private void spawnPigmenSquad(Location startLocation) {
@@ -50,7 +40,7 @@ public class ActionSummonPigmen extends BossAction {
 			for (int j = 0; j < SQUAD_FORMATION_WIDTH; j++) {
 				Location spawnLocation = startLocation.clone().add(j * SPACING, 0, i * SPACING);
 				PigZombie pigman = spawnLocation.getWorld().spawn(spawnLocation, PigZombie.class, zombie -> {
-					zombie.setBaby(false);
+					zombie.setAdult();
 					zombie.setAI(false); // Disable AI initially
 					equipPigman(zombie);
 				});

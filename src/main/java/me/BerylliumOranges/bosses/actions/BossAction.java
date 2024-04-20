@@ -59,7 +59,7 @@ public abstract class BossAction implements Listener {
 	public abstract void execute(LivingEntity target);
 
 	public void applyDamage(LivingEntity target) {
-		if (!targetsOnCooldown.containsKey(target)) {
+		if (!targetsOnCooldown.containsKey(target) && !target.equals(source)) {
 			targetsOnCooldown.put(target, hitCooldown);
 			target.damage(damage, source);
 		}
@@ -81,12 +81,10 @@ public abstract class BossAction implements Listener {
 						execute(target);
 					}
 					currentTick = 0;
-				} else {
-					if (tryAgainOnMiss)
-						currentTick = maxTicksUntilAttack - animationDuration * 2;
-					else
-						currentTick = 0;
-				}
+				} else if (tryAgainOnMiss)
+					currentTick = maxTicksUntilAttack - animationDuration * 2;
+				else
+					currentTick = 0;
 			}
 		}
 

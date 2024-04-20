@@ -61,28 +61,31 @@ public class SkyIslandChunkGenerator extends ChunkGenerator {
 					double distanceFromCenter = Math.sqrt(totalX * totalX + totalZ * totalZ);
 					double radiusAtY = islandSize * Math.sqrt((double) y / 20);
 
-					// Noise application variables
-					float noise2 = (terrainNoise.GetNoise(totalX, totalZ) * 2) + (detailNoise.GetNoise(totalX, totalZ) / 10);
-					double taperFactor = Math.max(0, (100 - distanceFromCenter) / 100);
-					float maxYAtPosition = (float) (45 + noise2 * 8 * taperFactor);
+					try {
+						// Noise application variables
+						float noise2 = (terrainNoise.GetNoise(totalX, totalZ) * 2) + (detailNoise.GetNoise(totalX, totalZ) / 10);
+						double taperFactor = Math.max(0, (100 - distanceFromCenter) / 100);
+						float maxYAtPosition = (float) (45 + noise2 * 8 * taperFactor);
 
-					float currentY = (float) (45 + noise2 * 8);
-					float distanceToSurface = Math.abs(y - currentY);
+						float distanceToSurface = Math.abs(y - maxYAtPosition);
 
-					if (distanceFromCenter <= radiusAtY && y < maxYAtPosition) {
-						if (distanceToSurface == 1 && surfaceMaterials.size() == 1 && surfaceMaterials.get(0).equals(Material.DIRT)) {
-							chunkData.setBlock(x, y, z, Material.GRASS_BLOCK);
-						}
-						if (distanceToSurface < 5) {
-							// Set the top block to be one of the surface materials
-							chunkData.setBlock(x, y, z, surfaceMaterials.get(random.nextInt(surfaceMaterials.size())));
+						if (distanceFromCenter <= radiusAtY && y < maxYAtPosition) {
+							if (distanceToSurface == 1 && surfaceMaterials.size() == 1 && surfaceMaterials.get(0).equals(Material.DIRT)) {
+								chunkData.setBlock(x, y, z, Material.GRASS_BLOCK);
+							}
+							if (distanceToSurface < 4) {
+								// Set the top block to be one of the surface materials
+								chunkData.setBlock(x, y, z, surfaceMaterials.get(random.nextInt(surfaceMaterials.size())));
+							} else {
+								// Set other blocks as interior materials
+								chunkData.setBlock(x, y, z, interiorMaterials.get(random.nextInt(interiorMaterials.size())));
+							}
 						} else {
-							// Set other blocks as interior materials
-							chunkData.setBlock(x, y, z, interiorMaterials.get(random.nextInt(interiorMaterials.size())));
+							// Set the block to air if it's outside the terrain
+							chunkData.setBlock(x, y, z, Material.AIR);
 						}
-					} else {
-						// Set the block to air if it's outside the terrain
-						chunkData.setBlock(x, y, z, Material.AIR);
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
 				}
 			}

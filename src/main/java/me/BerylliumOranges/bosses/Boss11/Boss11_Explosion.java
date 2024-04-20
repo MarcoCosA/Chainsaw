@@ -1,4 +1,4 @@
-package me.BerylliumOranges.bosses;
+package me.BerylliumOranges.bosses.Boss11;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +18,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import me.BerylliumOranges.bosses.Boss;
 import me.BerylliumOranges.bosses.actions.AttackGravityTeleport;
 import me.BerylliumOranges.bosses.utils.BossBarListener;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;

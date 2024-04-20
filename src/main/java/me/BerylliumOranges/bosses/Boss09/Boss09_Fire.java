@@ -1,12 +1,12 @@
-package me.BerylliumOranges.bosses;
+package me.BerylliumOranges.bosses.Boss09;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
-import org.bukkit.Particle.DustOptions;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Biome;
@@ -26,7 +26,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import me.BerylliumOranges.bosses.actions.AttackCactus;
+import me.BerylliumOranges.bosses.Boss;
+import me.BerylliumOranges.bosses.actions.ActionSummonPigmen;
 import me.BerylliumOranges.bosses.actions.AttackMeteorStrike;
 import me.BerylliumOranges.bosses.utils.BossBarListener;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
@@ -41,8 +42,9 @@ import net.md_5.bungee.api.ChatColor;
 public class Boss09_Fire extends Boss {
 
 	public Boss09_Fire() {
-		super(BossType.FIRE, new SkyIslandChunkGenerator(Arrays.asList(Material.DIRT), Arrays.asList(Material.STONE), Biome.PLAINS, 80));
-		this.islandSize = 80;
+		super(BossType.FIRE, new SkyIslandChunkGenerator(Arrays.asList(Material.GRASS_BLOCK),
+				Arrays.asList(Material.STONE, Material.STONE, Material.STONE, Material.ANDESITE), Biome.PLAINS, 75));
+		this.islandSize = 75;
 		SurfacePopulator.placeTrees(world, islandSize);
 	}
 
@@ -59,7 +61,7 @@ public class Boss09_Fire extends Boss {
 		boss.setAdult();
 		boss.setSilent(true);
 		boss.setCanPickupItems(false);
-		boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(500);
+		boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(150);
 		boss.setHealth(150);
 		return boss;
 	}
@@ -71,17 +73,14 @@ public class Boss09_Fire extends Boss {
 		LivingEntity boss = bosses.get(0);
 		boss.setAI(false);
 		Location location = boss.getLocation();
-		location.setPitch(-90.0F);
 		boss.teleport(location);
 
 		new BukkitRunnable() {
 			@Override
 			public void run() {
-				world.spawnParticle(Particle.REDSTONE, boss.getEyeLocation(), 20, 0.5, 0.5, 0.5, 0,
-						new DustOptions(org.bukkit.Color.LIME, 1));
+				world.spawnParticle(Particle.SOUL_FIRE_FLAME, boss.getEyeLocation(), 1, 0.5, 0.5, 0.5);
 				if (introAnimationTicks == 30) {
-					SurfacePopulator.placeCacti(world, islandSize);
-					new AttackCactus(boss);
+					new ActionSummonPigmen(boss);
 				}
 				if (introAnimationTicks > 150) {
 					boss.setAI(true);
@@ -103,15 +102,17 @@ public class Boss09_Fire extends Boss {
 			LivingEntity boss = (LivingEntity) event.getEntity();
 			if (stage == 0) {
 				double healthAfterDamage = boss.getHealth() - event.getFinalDamage();
-				if (healthAfterDamage / boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue() <= 0.5) {
+				if (healthAfterDamage <= 0) {
 					event.setCancelled(true);
 					transitionToStageTwo(boss);
+					stage++;
 				}
 			} else if (stage == 1) {
 				double healthAfterDamage = boss.getHealth() - event.getFinalDamage();
 				if (healthAfterDamage <= 0) {
 					event.setCancelled(true); // Cancel the death
 					transitionToStageThree(boss);
+					stage++;
 				}
 			}
 		}
@@ -119,7 +120,7 @@ public class Boss09_Fire extends Boss {
 
 	private void transitionToStageTwo(LivingEntity boss) {
 		boss.setHealth(boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
-		bossBar.setOverrideName(ChatColor.RED + ChatColor.stripColor(boss.getCustomName()) + " THE UNDYING");
+		bossBar.setOverrideName(ChatColor.RED + ChatColor.stripColor(boss.getCustomName()) + " the " + ChatColor.BOLD + "Undying");
 		boss.getWorld().spawnParticle(Particle.VILLAGER_ANGRY, boss.getLocation(), 10);
 		boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0F, 1.0F);
 	}
@@ -127,7 +128,8 @@ public class Boss09_Fire extends Boss {
 	private void transitionToStageThree(LivingEntity boss) {
 		boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(200);
 		boss.setHealth(boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
-		bossBar.setOverrideName(ChatColor.BOLD + "" + ChatColor.RED + ChatColor.stripColor(boss.getCustomName()) + " HARBINGER OF DOOM");
+		bossBar.setOverrideName(
+				ChatColor.RED + "" + ChatColor.BOLD + ChatColor.stripColor(boss.getCustomName()).toUpperCase() + " HARBINGER OF DOOM");
 		boss.getWorld().spawnParticle(Particle.VILLAGER_ANGRY, boss.getLocation(), 10);
 		boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0F, 1.0F);
 		new AttackMeteorStrike(boss);
@@ -160,7 +162,7 @@ public class Boss09_Fire extends Boss {
 		} catch (ReflectiveOperationException roe) {
 			roe.printStackTrace();
 		}
-		bossBar = new BossBarListener(bosses, BarColor.GREEN, 2);
+		bossBar = new BossBarListener(bosses, BarColor.GREEN, 4);
 		if (!(boss instanceof Player))
 			bossBar.setOverrideName(bossBar.getBar().getTitle() + ": Rekindled");
 	}
@@ -174,6 +176,20 @@ public class Boss09_Fire extends Boss {
 		ItemMeta meta = item.getItemMeta();
 		item.setItemMeta(meta);
 		return item;
+	}
+
+	public ArrayList<LivingEntity> generals = new ArrayList<>();
+
+	public void createGenerals(Location loc) {
+		PigZombie boss1 = (PigZombie) loc.getWorld().spawnEntity(loc.clone().add(30, -3, 30), EntityType.ZOMBIFIED_PIGLIN);
+		boss1.setCustomName(bossType.getColor() + "Gen. Zil");
+		boss1.setAdult();
+		boss1.setSilent(true);
+		boss1.setCanPickupItems(false);
+		boss1.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(75);
+		boss1.setHealth(75);
+
+		generals.add(boss1);
 	}
 
 }

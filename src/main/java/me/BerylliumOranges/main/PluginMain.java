@@ -116,7 +116,9 @@ public class PluginMain extends JavaPlugin implements Listener {
 	public static ArrayList<Player> getNearbyPlayers(Location l, double radius) {
 		ArrayList<Player> ps = new ArrayList<>();
 		for (Player p : Bukkit.getServer().getOnlinePlayers()) {
-			if (p.getWorld().equals(l.getWorld()) && p.getLocation().distanceSquared(l) < radius * radius) {
+			Location loc = p.getLocation().clone();
+			loc.setY(0);
+			if (p.getWorld().equals(l.getWorld()) && loc.distanceSquared(l) < radius * radius) {
 				ps.add(p);
 			}
 		}

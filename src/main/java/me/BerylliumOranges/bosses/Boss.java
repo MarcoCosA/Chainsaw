@@ -37,7 +37,7 @@ public abstract class Boss implements Listener {
 	public int ticksAlive = 0;
 	public int maxTicksAlive = 7200; // 6 minutes
 	public int introAnimationTicks = 0;
-	int stage = 0;
+	protected int stage = 0;
 
 	public BossType bossType;
 	public String name;

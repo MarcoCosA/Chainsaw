@@ -27,6 +27,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import me.BerylliumOranges.customEvents.TickEvent;
+import me.BerylliumOranges.dimensions.surfaceeditors.SinWaveGenerator;
 import me.BerylliumOranges.dimensions.surfaceeditors.TopographyGenerator;
 import me.BerylliumOranges.main.PluginMain;
 import me.BerylliumOranges.misc.LoreFormatter;
@@ -69,6 +70,8 @@ public class Hazards implements Listener {
 				Material.CLOCK, true),
 
 		EXPLODE_ON_DEATH(ChatColor.DARK_RED + "Explode on Death", "All entities explode when they die.", Material.TNT),
+
+		SIN_WAVES(ChatColor.DARK_RED + "Sin Waves", "Stand under the sin function that cancels the given one.", Material.STRING),
 
 		CACTUS_DAMAGE(ChatColor.DARK_RED + "Cactus Damage Boost", "Cacti deal " + DAMAGE_CACTUS + "x damage.", Material.CACTUS),
 
@@ -157,6 +160,7 @@ public class Hazards implements Listener {
 
 	int ticks = 0;
 	HashMap<World, TopographyGenerator> topGenerators = new HashMap<>();
+	HashMap<World, SinWaveGenerator> sinGenerators = new HashMap<>();
 
 	@EventHandler
 	public void onTick(TickEvent e) {
@@ -188,6 +192,13 @@ public class Hazards implements Listener {
 				if (!topGenerators.containsKey(w))
 					topGenerators.put(w, new TopographyGenerator(w, 30));
 				topGenerators.get(w).generateRandomTopographyExcludingLast();
+			}
+
+			if (hasHazard(w, Hazard.SIN_WAVES) && (ticks - 20) % (15 * 20) == 0) {
+				Bukkit.broadcastMessage("generating sin waves");
+				if (!sinGenerators.containsKey(w))
+					sinGenerators.put(w, new SinWaveGenerator(w, 0.1));
+				sinGenerators.get(w).generateWaves();
 			}
 		}
 	}

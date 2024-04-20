@@ -1,21 +1,20 @@
-package me.BerylliumOranges.bosses;
+package me.BerylliumOranges.bosses.Boss02;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
-import org.bukkit.Particle.DustOptions;
-import org.bukkit.attribute.Attribute;
+import org.bukkit.Sound;
 import org.bukkit.block.Biome;
+import org.bukkit.block.Block;
 import org.bukkit.boss.BarColor;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Evoker;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Zombie;
+import org.bukkit.entity.Spellcaster.Spell;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -23,24 +22,23 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import me.BerylliumOranges.bosses.actions.AttackCactus;
+import me.BerylliumOranges.bosses.Boss;
+import me.BerylliumOranges.bosses.actions.AttackBlockWhip;
 import me.BerylliumOranges.bosses.utils.BossBarListener;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
 import me.BerylliumOranges.dimensions.chunkgenerators.SkyIslandChunkGenerator;
-import me.BerylliumOranges.dimensions.surfaceeditors.SurfacePopulator;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.LesserAttackTrait;
 import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
 import me.BerylliumOranges.main.PluginMain;
 import net.md_5.bungee.api.ChatColor;
 
-public class Boss01_Thorns extends Boss {
+public class Boss02_Trap extends Boss {
 
-	public Boss01_Thorns() {
-		super(BossType.THORNS,
-				new SkyIslandChunkGenerator(Arrays.asList(Material.SAND), Arrays.asList(Material.SANDSTONE), Biome.DESERT, 35));
-		this.islandSize = 35;
-
+	public Boss02_Trap() {
+		super(BossType.TRAP, new SkyIslandChunkGenerator(Arrays.asList(Material.STONE, Material.STONE, Material.STONE, Material.ANDESITE),
+				Arrays.asList(Material.COAL_BLOCK), Biome.FOREST, 40));
+		this.islandSize = 40;
 	}
 
 	@Override
@@ -51,35 +49,44 @@ public class Boss01_Thorns extends Boss {
 
 	@Override
 	public LivingEntity createDefaultBoss(Location loc) {
-		Zombie boss = (Zombie) loc.getWorld().spawnEntity(loc, EntityType.ZOMBIE);
-		boss.setCustomName(ChatColor.GREEN + "Cac King");
-		boss.setAdult();
+		Evoker boss = (Evoker) loc.getWorld().spawnEntity(loc, EntityType.EVOKER);
+		boss.setCustomName(ChatColor.GRAY + "Dez Moss");
 		boss.setSilent(true);
 		boss.setCanPickupItems(false);
-		boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(60);
-		boss.setHealth(60);
+		boss.setSpell(Spell.BLINDNESS);
 		return boss;
 	}
 
 	@Override
 	public void bossIntro(Location loc) {
-		introAnimationTicks = -100;
 		bosses.add(summonBoss(loc.clone().add(0, 10, 0)));
 		LivingEntity boss = bosses.get(0);
 		boss.setAI(false);
 		Location location = boss.getLocation();
-		location.setPitch(-90.0F);
 		boss.teleport(location);
 
+		new AttackBlockWhip(boss);
 		new BukkitRunnable() {
+			Block b = boss.getLocation().getBlock();
+
 			@Override
 			public void run() {
-				world.spawnParticle(Particle.REDSTONE, boss.getEyeLocation(), 20, 0.5, 0.5, 0.5, 0, new DustOptions(Color.LIME, 1));
-				if (introAnimationTicks == 30) {
-					SurfacePopulator.placeCacti(world, islandSize);
-					new AttackCactus(boss);
+				if (introAnimationTicks == 60) {
+					b = boss.getLocation().clone().add(boss.getLocation().getDirection()).getBlock();
+					b.setType(Material.BARRIER);
+					b.getRelative(1, 0, 0).setType(Material.LEVER);
+					b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LEVER_CLICK, 1, 10F);
 				}
-				if (introAnimationTicks > 150) {
+				if (introAnimationTicks == 100) {
+					b.getWorld().spawnParticle(Particle.FIREWORKS_SPARK, b.getLocation(), 1);
+					b.setType(Material.AIR);
+					b.getRelative(1, 0, 0).setType(Material.AIR);
+				}
+				if (introAnimationTicks == 110) {
+					LeverPopulator p = new LeverPopulator();
+					p.placeTowers(location);
+				}
+				if (introAnimationTicks > 320) {
 					boss.setAI(true);
 					Location location = boss.getWorld().getHighestBlockAt(boss.getLocation()).getLocation().add(0, 1, 0);
 					location.setPitch(0F);
@@ -102,7 +109,10 @@ public class Boss01_Thorns extends Boss {
 
 		ItemStack[] armor = new ItemStack[] { createArmorItem(Material.DIAMOND_BOOTS, Enchantment.PROTECTION_ENVIRONMENTAL, 2),
 				createArmorItem(Material.DIAMOND_LEGGINGS, Enchantment.PROTECTION_ENVIRONMENTAL, 2),
-				createArmorItem(Material.DIAMOND_CHESTPLATE, Enchantment.PROTECTION_ENVIRONMENTAL, 2), new ItemStack(Material.CACTUS) };
+				createArmorItem(Material.DIAMOND_CHESTPLATE, Enchantment.PROTECTION_ENVIRONMENTAL, 2), new ItemStack(Material.TRIPWIRE) };
+
+		boss.getEquipment().setItemInMainHand(new ItemStack(Material.TRIPWIRE_HOOK));
+		boss.getEquipment().setItemInOffHand(new ItemStack(Material.TRIPWIRE_HOOK));
 
 		// Set the zombie's armor
 		EntityEquipment equipment = boss.getEquipment();
@@ -119,13 +129,13 @@ public class Boss01_Thorns extends Boss {
 
 			for (Class<? extends ItemTrait> clazz : traitClasses) {
 				ItemTrait trait = clazz.getDeclaredConstructor().newInstance();
-				Bukkit.broadcastMessage("ADDED: " + boss);
+
 				trait.potionRunnable(boss);
 			}
 		} catch (ReflectiveOperationException roe) {
 			roe.printStackTrace();
 		}
-		new BossBarListener(bosses, BarColor.GREEN, 2);
+		new BossBarListener(bosses, BarColor.WHITE, 4);
 	}
 
 	private ItemStack createArmorItem(Material material, Enchantment enchantment, int level) {

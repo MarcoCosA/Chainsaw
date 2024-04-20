@@ -1,4 +1,4 @@
-package me.BerylliumOranges.bosses;
+package me.BerylliumOranges.bosses.Boss04;
 
 import java.awt.Color;
 import java.util.Arrays;
@@ -19,6 +19,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import me.BerylliumOranges.bosses.Boss;
 import me.BerylliumOranges.bosses.utils.BossBarListener;
 import me.BerylliumOranges.bosses.utils.BossUtils;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;

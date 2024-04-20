@@ -15,11 +15,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import me.BerylliumOranges.bosses.Boss;
-import me.BerylliumOranges.bosses.Boss01_Thorns;
-import me.BerylliumOranges.bosses.Boss02_Trap;
-import me.BerylliumOranges.bosses.Boss04_Block;
-import me.BerylliumOranges.bosses.Boss09_Fire;
-import me.BerylliumOranges.bosses.Boss11_Explosion;
+import me.BerylliumOranges.bosses.Boss01.Boss01_Thorns;
+import me.BerylliumOranges.bosses.Boss02.Boss02_Trap;
+import me.BerylliumOranges.bosses.Boss04.Boss04_Block;
+import me.BerylliumOranges.bosses.Boss09.Boss09_Fire;
+import me.BerylliumOranges.bosses.Boss11.Boss11_Explosion;
 import me.BerylliumOranges.bosses.utils.Hazards.Hazard;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.NormalArmorPenetrationTrait;
@@ -42,7 +42,7 @@ public class BossUtils {
 		THORNS(ChatColor.DARK_GREEN, "Thorns Devil", Boss01_Thorns.class, Arrays.asList(Hazard.CACTUS_DAMAGE),
 				Arrays.asList(SupremeRepulsionTrait.class)),
 
-		ENCHANTMENT(ChatColor.AQUA, "Enchantment Devil", Boss02_Trap.class, Arrays.asList(Hazard.NO_LOGOUT, Hazard.EXPLODE_ON_DEATH),
+		TRAP(ChatColor.GRAY, "Trap Devil", Boss02_Trap.class, Arrays.asList(Hazard.NO_LOGOUT, Hazard.SIN_WAVES),
 				Arrays.asList(NormalRepulsionTrait.class)),
 
 		BLOCK(ChatColor.AQUA, "Block Devil", Boss04_Block.class,
@@ -92,7 +92,7 @@ public class BossUtils {
 
 		public static BossType getTypeFromName(String name) {
 			for (BossType t : values()) {
-				if (t.getName().equals(name))
+				if (ChatColor.stripColor(t.getName()).equals(ChatColor.stripColor(name)))
 					return t;
 			}
 			return null;
@@ -140,7 +140,9 @@ public class BossUtils {
 		if (source instanceof Mob) {
 			for (Player p : Bukkit.getServer().getOnlinePlayers()) {
 				if (p.getWorld().equals(l.getWorld())) {
-					double d = p.getLocation().distanceSquared(l);
+					Location loc = p.getLocation().clone();
+					loc.setY(0);
+					double d = loc.distanceSquared(l);
 					if (min > d) {
 						min = d;
 						closest = p;
@@ -150,7 +152,9 @@ public class BossUtils {
 		} else {
 			for (Entity p : l.getWorld().getEntities()) {
 				if ((p instanceof Mob || p instanceof Player) && p.getWorld().equals(l.getWorld())) {
-					double d = p.getLocation().distanceSquared(l);
+					Location loc = p.getLocation().clone();
+					loc.setY(0);
+					double d = loc.distanceSquared(l);
 					if (min > d) {
 						min = d;
 						closest = (LivingEntity) p;

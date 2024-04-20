@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Particle.DustOptions;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -21,18 +23,21 @@ public class AttackMeteorStrike extends BossAction {
 
 	private static final double EFFECT_RADIUS = 12.0;
 	private static final double DAMAGE_RADIUS = 12.0;
-	private static final double DAMAGE = 80.0;
-	private static final double TRANSFORMATION_CHANCE = 0.5; // 50% chance to transform surrounding blocks
+	private static final double TRANSFORMATION_CHANCE = 0.4; // 50% chance to transform surrounding blocks
 
 	public ArrayList<Fireball> fireballs = new ArrayList<>();
 
 	public AttackMeteorStrike(LivingEntity source) {
-		super(source, 200, 100, 0); // Cool down, range, damage (not used directly here)
+		super(source, 150, 1000, 80); // Cool down, range, damage (not used directly here)
 	}
 
 	@Override
-	public void playAnimation() {
-		source.getWorld().playSound(source.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0F, 0.5F);
+	public void tick() {
+		for (Entity fb : fireballs) {
+			fb.setVelocity(new Vector(0, -1, 0));
+			Location l = fb.getWorld().getHighestBlockAt(fb.getLocation()).getLocation().clone().add(0, 0.5, 0);
+			fb.getWorld().spawnParticle(Particle.REDSTONE, l, 1, 0.05, 0.05, 0.05, 0, new DustOptions(Color.RED, 10));
+		}
 	}
 
 	@Override
@@ -47,6 +52,7 @@ public class AttackMeteorStrike extends BossAction {
 			fb.setVelocity(new Vector(0, -1, 0)); // Directly downwards
 			fb.setShooter(source);
 		});
+		source.getWorld().playSound(source.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_BLAST, 1.0F, 0.5F);
 		fireballs.add(fireball);
 	}
 
@@ -60,7 +66,7 @@ public class AttackMeteorStrike extends BossAction {
 
 	// Custom explosion logic to handle block destruction and player damage
 	public void handleExplosion(Entity fireball) {
-		Location impactLocation = fireball.getLocation();
+		Location impactLocation = fireball.getLocation().clone().add(0, EFFECT_RADIUS / 2, 0);
 		List<Player> nearbyPlayers = fireball.getWorld().getPlayers().stream()
 				.filter(p -> p.getLocation().distance(impactLocation) <= DAMAGE_RADIUS).toList();
 
@@ -93,12 +99,27 @@ public class AttackMeteorStrike extends BossAction {
 				for (int dz = -blockEffectDistance; dz <= blockEffectDistance; dz++) {
 					if (dx * dx + dy * dy + dz * dz <= (blockEffectDistance) * (blockEffectDistance)) {
 						Location blockLocation = impactLocation.clone().add(dx, dy, dz);
-						if (new Random().nextDouble() < TRANSFORMATION_CHANCE) {
-							blockLocation.getBlock().setType(Material.MAGMA_BLOCK);
+						if (blockLocation.getBlock().getType().isFlammable()) {
+							blockLocation.getBlock().setType(Material.FIRE);
+						} else if (!blockLocation.getBlock().getType().isAir()) {
+							if (new Random().nextDouble() < TRANSFORMATION_CHANCE) {
+								if (Math.random() < 0.9)
+									blockLocation.getBlock().setType(Material.MAGMA_BLOCK);
+								else {
+									blockLocation.getBlock().setType(Material.NETHERRACK);
+									if (blockLocation.getBlock().getRelative(0, 1, 0).getType().equals(Material.AIR)) {
+										blockLocation.getBlock().setType(Material.FIRE);
+									}
+								}
+							}
 						}
 					}
 				}
 			}
 		}
+	}
+
+	@Override
+	public void playAnimation() {
 	}
 }

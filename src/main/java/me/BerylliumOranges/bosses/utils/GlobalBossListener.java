@@ -34,7 +34,7 @@ public class GlobalBossListener implements Listener {
 				if (boss == null) {
 					try {
 						player.sendMessage(ChatColor.GRAY + "Preparing " + type.getName() + ChatColor.GRAY + "'s dungeon...");
-						boss = (Boss) type.getBossClass().getDeclaredConstructor().newInstance();
+						boss = type.getBossClass().getDeclaredConstructor().newInstance();
 
 						e.getInventory().setItem(e.getSlot(), HazardInventoryGenerator.ENTER_DUNGEON_ITEM);
 						player.sendMessage(ChatColor.GRAY + "Dungeon is ready.");
