@@ -75,11 +75,6 @@ public class AttackGravityTeleport extends BossAction {
 	}
 
 	@Override
-	public void playAnimation() {
-		// Implement any visual effects here
-	}
-
-	@Override
 	public void execute(LivingEntity target) {
 		// This method can be used to apply any direct effects to the target, if needed
 	}

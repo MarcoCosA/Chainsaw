@@ -17,8 +17,10 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Spider;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -47,6 +49,8 @@ public class Hazards implements Listener {
 	public static final int DAMAGE_STAND_ON_GREEN = 30;
 	public static final int MOVING_MAP_PERIOD = 5;
 
+	public static final int SPIDER_SPAWN_CHANCE = 5;
+
 	public enum Hazard {
 		NO_LOGOUT(ChatColor.DARK_RED + "No Combat Logging", "Players will be killed if they log out in the boss chamber.",
 				Material.BARRIER),
@@ -72,6 +76,9 @@ public class Hazards implements Listener {
 		EXPLODE_ON_DEATH(ChatColor.DARK_RED + "Explode on Death", "All entities explode when they die.", Material.TNT),
 
 		SIN_WAVES(ChatColor.DARK_RED + "Sin Waves", "Stand under the sin function that cancels the given one.", Material.STRING),
+
+		SPIDER_SPAWN(ChatColor.DARK_RED + "Spider Spawn",
+				"Spiders have a " + SPIDER_SPAWN_CHANCE + "% chance to spawn when coal blocks break.", Material.COAL_BLOCK),
 
 		CACTUS_DAMAGE(ChatColor.DARK_RED + "Cactus Damage Boost", "Cacti deal " + DAMAGE_CACTUS + "x damage.", Material.CACTUS),
 
@@ -209,6 +216,16 @@ public class Hazards implements Listener {
 			Block block = event.getTo().getBlock();
 			if (block.getType().equals(Material.RED_CONCRETE) || block.getType().equals(Material.GREEN_CONCRETE)) {
 				event.getPlayer().teleport(event.getTo().add(0, 1, 0));
+			}
+		}
+	}
+
+	@EventHandler
+	public void onBlockBreak(BlockEvent event) {
+		if (hasHazard(event.getBlock().getWorld(), Hazard.SPIDER_SPAWN)) {
+			if (event.getBlock().getType().equals(Material.COAL_BLOCK)) {
+				if (Math.random() <= (SPIDER_SPAWN_CHANCE) / 100.0)
+					event.getBlock().getWorld().spawn(event.getBlock().getLocation(), Spider.class);
 			}
 		}
 	}

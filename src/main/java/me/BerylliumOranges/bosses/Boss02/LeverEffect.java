@@ -41,10 +41,13 @@ public abstract class LeverEffect implements Listener {
 	protected Random random = new Random();
 	protected boolean isEnabled = false;
 
-	public LeverEffect(Location loc) {
+	public LeverEffect() {
 		Bukkit.getPluginManager().registerEvents(this, PluginMain.getInstance());
-		this.loc = loc;
-		this.block = loc.getBlock();
+
+	}
+
+	public void apply(Location loc) {
+		setLocation(loc);
 	}
 
 	public void triggerOn() {
@@ -57,7 +60,7 @@ public abstract class LeverEffect implements Listener {
 
 	@EventHandler
 	public void onChange(BlockEvent e) {
-		if (e.getBlock().equals(block)) {
+		if (block != null && e.getBlock().equals(block)) {
 			if (isEnabled) {
 				triggerOff();
 			} else {
@@ -65,13 +68,24 @@ public abstract class LeverEffect implements Listener {
 			}
 		}
 	}
+
+	public Location getLocation() {
+		return loc;
+	}
+
+	public void setLocation(Location loc) {
+		this.loc = loc;
+		if (loc == null)
+			this.block = null;
+		else
+			this.block = loc.getBlock();
+	}
 }
 
 class MakeInvulerable extends LeverEffect {
 	Entity ent;
 
-	public MakeInvulerable(Location loc, Entity ent) {
-		super(loc);
+	public MakeInvulerable(Entity ent) {
 		this.ent = ent;
 	}
 
@@ -90,10 +104,6 @@ class MakeInvulerable extends LeverEffect {
 
 //Example
 class InstantHarvest extends LeverEffect {
-	public InstantHarvest(Location loc) {
-		super(loc);
-	}
-
 	@EventHandler
 	public void onInteract(PlayerInteractEvent e) {
 		if (isEnabled && e.getAction().equals(Action.LEFT_CLICK_BLOCK)
@@ -104,10 +114,6 @@ class InstantHarvest extends LeverEffect {
 }
 
 class NightVisionBoost extends LeverEffect {
-	public NightVisionBoost(Location loc) {
-		super(loc);
-	}
-
 	@Override
 	public void triggerOn() {
 		super.triggerOn();
@@ -126,10 +132,6 @@ class NightVisionBoost extends LeverEffect {
 }
 
 class ResourceRush extends LeverEffect {
-	public ResourceRush(Location loc) {
-		super(loc);
-	}
-
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent e) {
 		if (isEnabled) {
@@ -141,10 +143,6 @@ class ResourceRush extends LeverEffect {
 }
 
 class RandomTeleport extends LeverEffect {
-	public RandomTeleport(Location loc) {
-		super(loc);
-	}
-
 	@EventHandler
 	public void onMove(PlayerMoveEvent e) {
 		if (isEnabled && random.nextDouble() < 0.1) { // 10% chance on movement to trigger
@@ -155,10 +153,6 @@ class RandomTeleport extends LeverEffect {
 }
 
 class SuddenStorm extends LeverEffect {
-	public SuddenStorm(Location loc) {
-		super(loc);
-	}
-
 	@Override
 	public void triggerOn() {
 		super.triggerOn();
@@ -176,10 +170,6 @@ class SuddenStorm extends LeverEffect {
 }
 
 class MobConfusion extends LeverEffect {
-	public MobConfusion(Location loc) {
-		super(loc);
-	}
-
 	@EventHandler
 	public void onMobMove(PlayerMoveEvent e) {
 		if (isEnabled) {
@@ -194,10 +184,6 @@ class MobConfusion extends LeverEffect {
 }
 
 class InvisibilityBurst extends LeverEffect {
-	public InvisibilityBurst(Location loc) {
-		super(loc);
-	}
-
 	@Override
 	public void triggerOn() {
 		super.triggerOn();
@@ -213,10 +199,6 @@ class InvisibilityBurst extends LeverEffect {
 
 class GravityFlip extends LeverEffect implements Listener {
 	private Set<UUID> affectedEntities = new HashSet<>(); // Track entities affected by gravity flip
-
-	public GravityFlip(Location loc) {
-		super(loc);
-	}
 
 	@Override
 	public void triggerOn() {
@@ -271,10 +253,6 @@ class GravityFlip extends LeverEffect implements Listener {
 }
 
 class Heal extends LeverEffect {
-	public Heal(Location loc) {
-		super(loc);
-	}
-
 	@Override
 	public void triggerOn() {
 		super.triggerOn();
@@ -293,10 +271,6 @@ class Heal extends LeverEffect {
 }
 
 class BlockShuffle extends LeverEffect {
-	public BlockShuffle(Location loc) {
-		super(loc);
-	}
-
 	@Override
 	public void triggerOn() {
 		super.triggerOn();
@@ -326,10 +300,6 @@ class BlockShuffle extends LeverEffect {
 class Magnet extends LeverEffect {
 	private int radius = 20; // Radius to attract mobs
 
-	public Magnet(Location loc) {
-		super(loc);
-	}
-
 	@Override
 	public void triggerOn() {
 		super.triggerOn();
@@ -356,10 +326,6 @@ class Magnet extends LeverEffect {
 class BlastAway extends LeverEffect {
 	private int radius = 20;
 
-	public BlastAway(Location loc) {
-		super(loc);
-	}
-
 	@Override
 	public void triggerOn() {
 		super.triggerOn();
@@ -382,10 +348,6 @@ class SpawnCow extends LeverEffect {
 	Entity ent = null;
 	EntityType type = EntityType.COW;
 
-	public SpawnCow(Location loc) {
-		super(loc);
-	}
-
 	@Override
 	public void triggerOn() {
 		super.triggerOn();
@@ -402,26 +364,14 @@ class SpawnCow extends LeverEffect {
 
 class SpawnSilverfish extends SpawnCow {
 	EntityType type = EntityType.SILVERFISH;
-
-	public SpawnSilverfish(Location loc) {
-		super(loc);
-	}
 }
 
 class SpawnTnt extends SpawnCow {
 	EntityType type = EntityType.PRIMED_TNT;
-
-	public SpawnTnt(Location loc) {
-		super(loc);
-	}
 }
 
 class BonusHealth extends LeverEffect {
 	private int radius = 50;
-
-	public BonusHealth(Location loc) {
-		super(loc);
-	}
 
 	List<LivingEntity> affected = new ArrayList<LivingEntity>();
 
@@ -448,10 +398,7 @@ class BonusHealth extends LeverEffect {
 	}
 }
 
-class Hole extends LeverEffect {
-	public Hole(Location loc) {
-		super(loc);
-	}
+class SpawnHole extends LeverEffect {
 
 	@Override
 	public void triggerOn() {
@@ -471,106 +418,123 @@ class Hole extends LeverEffect {
 enum LeverEffectType {
 	INSTANT_HARVEST {
 		@Override
-		public LeverEffect createEffect(Location loc) {
-			return new InstantHarvest(loc);
+		public LeverEffect createEffect() {
+			LeverEffect e = new InstantHarvest();
+			return e;
 		}
 	},
 	NIGHT_VISION_BOOST {
 		@Override
-		public LeverEffect createEffect(Location loc) {
-			return new NightVisionBoost(loc);
+		public LeverEffect createEffect() {
+			LeverEffect e = new NightVisionBoost();
+			return e;
 		}
 	},
 	RESOURCE_RUSH {
 		@Override
-		public LeverEffect createEffect(Location loc) {
-			return new ResourceRush(loc);
+		public LeverEffect createEffect() {
+			LeverEffect e = new ResourceRush();
+			return e;
 		}
 	},
 	RANDOM_TELEPORT {
 		@Override
-		public LeverEffect createEffect(Location loc) {
-			return new RandomTeleport(loc);
+		public LeverEffect createEffect() {
+			LeverEffect e = new RandomTeleport();
+			return e;
 		}
 	},
 	SUDDEN_STORM {
 		@Override
-		public LeverEffect createEffect(Location loc) {
-			return new SuddenStorm(loc);
+		public LeverEffect createEffect() {
+			LeverEffect e = new SuddenStorm();
+			return e;
 		}
 	},
 	MOB_CONFUSION {
 		@Override
-		public LeverEffect createEffect(Location loc) {
-			return new MobConfusion(loc);
+		public LeverEffect createEffect() {
+			LeverEffect e = new MobConfusion();
+			return e;
 		}
 	},
 	INVISIBILITY_BURST {
 		@Override
-		public LeverEffect createEffect(Location loc) {
-			return new InvisibilityBurst(loc);
+		public LeverEffect createEffect() {
+			LeverEffect e = new InvisibilityBurst();
+			return e;
 		}
 	},
 	GRAVITY_FLIP {
 		@Override
-		public LeverEffect createEffect(Location loc) {
-			return new GravityFlip(loc);
+		public LeverEffect createEffect() {
+			LeverEffect e = new GravityFlip();
+			return e;
 		}
 	},
-	HEALING_RAIN {
+	HEAL {
 		@Override
-		public LeverEffect createEffect(Location loc) {
-			return new Heal(loc);
+		public LeverEffect createEffect() {
+			LeverEffect e = new Heal();
+			return e;
 		}
 	},
 	BLOCK_SHUFFLE {
 		@Override
-		public LeverEffect createEffect(Location loc) {
-			return new BlockShuffle(loc);
+		public LeverEffect createEffect() {
+			LeverEffect e = new BlockShuffle();
+			return e;
 		}
 	},
 	MAGNET {
 		@Override
-		public LeverEffect createEffect(Location loc) {
-			return new Magnet(loc);
+		public LeverEffect createEffect() {
+			LeverEffect e = new Magnet();
+			return e;
 		}
 	},
 	BLAST {
 		@Override
-		public LeverEffect createEffect(Location loc) {
-			return new BlastAway(loc);
+		public LeverEffect createEffect() {
+			LeverEffect e = new BlastAway();
+			return e;
 		}
 	},
 	SPAWN_COW {
 		@Override
-		public LeverEffect createEffect(Location loc) {
-			return new SpawnCow(loc);
+		public LeverEffect createEffect() {
+			LeverEffect e = new SpawnCow();
+			return e;
 		}
 	},
 	SPAWN_SILVERFISH {
 		@Override
-		public LeverEffect createEffect(Location loc) {
-			return new SpawnSilverfish(loc);
+		public LeverEffect createEffect() {
+			LeverEffect e = new SpawnSilverfish();
+			return e;
 		}
 	},
 	SPAWN_TNT {
 		@Override
-		public LeverEffect createEffect(Location loc) {
-			return new SpawnTnt(loc);
+		public LeverEffect createEffect() {
+			LeverEffect e = new SpawnTnt();
+			return e;
 		}
 	},
 	BONUS_HEALTH {
 		@Override
-		public LeverEffect createEffect(Location loc) {
-			return new BonusHealth(loc);
+		public LeverEffect createEffect() {
+			LeverEffect e = new BonusHealth();
+			return e;
 		}
 	},
 	SPAWN_HOLE {
 		@Override
-		public LeverEffect createEffect(Location loc) {
-			return new Hole(loc);
+		public LeverEffect createEffect() {
+			LeverEffect e = new SpawnHole();
+			return e;
 		}
 	};
 
-	public abstract LeverEffect createEffect(Location loc);
+	public abstract LeverEffect createEffect();
 }

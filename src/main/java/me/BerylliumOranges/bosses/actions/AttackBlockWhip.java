@@ -18,16 +18,9 @@ public class AttackBlockWhip extends BossAction {
 	private Location startLoc;
 
 	public AttackBlockWhip(LivingEntity source) {
-		super(source, 75, 100, 50); // Adjust maxTicksUntilAttack and attackRange as needed, damage is set to 30
+		super(source, 400, 100, 50); // Adjust maxTicksUntilAttack and attackRange as needed, damage is set to 30
+		animationDuration = 10;
 		startLoc = source.getLocation();
-	}
-
-	@Override
-	public void playAnimation() {
-
-		
-		
-		
 	}
 
 	@Override
@@ -104,7 +97,16 @@ public class AttackBlockWhip extends BossAction {
 		double frequency = Math.PI / 4.0; // Frequency of the sine wave
 
 		Location loc = source.getLocation().add(-0.5, 0.5, -0.5);
-		double yawRadians = Math.toRadians(loc.getYaw() + 90); // Offset by 90 degrees to align the wave side-to-side
+
+		int yawAdd = 90;
+		if (playAnimation) {
+			if (currentAnimationTick < 9) {
+				yawAdd = 0;
+			} else if (currentAnimationTick >= 9) {
+				yawAdd = 180;
+			}
+		}
+		double yawRadians = Math.toRadians(loc.getYaw() + yawAdd); // Offset by 90 degrees to align the wave side-to-side
 
 		// Direction vectors based on yaw, rotated by 90 degrees for perpendicular
 		// generation

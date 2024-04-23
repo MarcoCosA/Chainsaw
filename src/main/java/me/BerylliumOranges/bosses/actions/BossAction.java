@@ -25,6 +25,8 @@ public abstract class BossAction implements Listener {
 	protected int attackRange;
 	protected double attackFrequencyModifier;
 	protected boolean tryAgainOnMiss = true;
+	protected boolean playAnimation = false;
+	protected int currentAnimationTick = 0;
 
 	protected int hitCooldown = 8; // 8 ticks
 	protected double damage;
@@ -43,8 +45,6 @@ public abstract class BossAction implements Listener {
 	public void tick() {
 		// Logic to tick the attack. This method should be implemented as needed.
 	}
-
-	public abstract void playAnimation();
 
 	public List<LivingEntity> selectTargets() {
 		List<LivingEntity> targets = new ArrayList<>();
@@ -71,9 +71,12 @@ public abstract class BossAction implements Listener {
 		currentTick++;
 		if (!source.isDead()) {
 			if (currentTick + animationDuration >= maxTicksUntilAttack * (1.0 / attackFrequencyModifier)) {
-				playAnimation();
+				playAnimation = true;
+				currentAnimationTick++;
 			}
 			if (currentTick >= maxTicksUntilAttack * (1.0 / attackFrequencyModifier)) {
+				playAnimation = false;
+				currentAnimationTick = 0;
 				// Assuming you'll implement a method to select a single target
 				List<LivingEntity> targets = selectTargets(); // You'll need to define 'source' context or pass it as a parameter
 				if (!targets.isEmpty()) {

@@ -118,8 +118,4 @@ public class AttackMeteorStrike extends BossAction {
 			}
 		}
 	}
-
-	@Override
-	public void playAnimation() {
-	}
 }

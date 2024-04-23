@@ -9,6 +9,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.boss.BarColor;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
@@ -18,6 +19,7 @@ import org.bukkit.entity.Spellcaster.Spell;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.Lever;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -34,6 +36,7 @@ import me.BerylliumOranges.main.PluginMain;
 import net.md_5.bungee.api.ChatColor;
 
 public class Boss02_Trap extends Boss {
+	public static final LeverEffectType[] STAGE_1_TOWERS = LeverEffectType.values();
 
 	public Boss02_Trap() {
 		super(BossType.TRAP, new SkyIslandChunkGenerator(Arrays.asList(Material.STONE, Material.STONE, Material.STONE, Material.ANDESITE),
@@ -50,12 +53,14 @@ public class Boss02_Trap extends Boss {
 	@Override
 	public LivingEntity createDefaultBoss(Location loc) {
 		Evoker boss = (Evoker) loc.getWorld().spawnEntity(loc, EntityType.EVOKER);
-		boss.setCustomName(ChatColor.GRAY + "Dez Moss");
+		boss.setCustomName(ChatColor.GRAY + "TBD");
 		boss.setSilent(true);
 		boss.setCanPickupItems(false);
 		boss.setSpell(Spell.BLINDNESS);
 		return boss;
 	}
+
+	MakeInvulerable invulLever = null;
 
 	@Override
 	public void bossIntro(Location loc) {
@@ -65,7 +70,6 @@ public class Boss02_Trap extends Boss {
 		Location location = boss.getLocation();
 		boss.teleport(location);
 
-		new AttackBlockWhip(boss);
 		new BukkitRunnable() {
 			Block b = boss.getLocation().getBlock();
 
@@ -75,16 +79,34 @@ public class Boss02_Trap extends Boss {
 					b = boss.getLocation().clone().add(boss.getLocation().getDirection()).getBlock();
 					b.setType(Material.BARRIER);
 					b.getRelative(1, 0, 0).setType(Material.LEVER);
-					b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LEVER_CLICK, 1, 10F);
+					b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LEVER_CLICK, 10, 1F);
+				}
+
+				if (introAnimationTicks == 90) {
+					BlockState state = b.getRelative(1, 0, 0).getState();
+					Lever lever = (Lever) state.getData();
+					invulLever = new MakeInvulerable(boss);
+					invulLever.apply(b.getRelative(1, 0, 0).getLocation());
+					lever.setPowered(true);
+					state.setData(lever);
+					state.update(true);
+
 				}
 				if (introAnimationTicks == 100) {
-					b.getWorld().spawnParticle(Particle.FIREWORKS_SPARK, b.getLocation(), 1);
+					b.getWorld().spawnParticle(Particle.FIREWORKS_SPARK, b.getLocation(), 50);
 					b.setType(Material.AIR);
 					b.getRelative(1, 0, 0).setType(Material.AIR);
 				}
 				if (introAnimationTicks == 110) {
 					LeverPopulator p = new LeverPopulator();
-					p.placeTowers(location);
+					p.makeTowers(location, STAGE_1_TOWERS.length);
+					for (LeverEffectType type : STAGE_1_TOWERS)
+						p.addLeverEffect(type.createEffect());
+					p.addLeverEffect(invulLever);
+					p.placeTowersAndLevers();
+				}
+				if (introAnimationTicks == 250) {
+					new AttackBlockWhip(boss);
 				}
 				if (introAnimationTicks > 320) {
 					boss.setAI(true);

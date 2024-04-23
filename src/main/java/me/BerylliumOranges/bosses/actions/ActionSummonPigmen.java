@@ -24,18 +24,14 @@ public class ActionSummonPigmen extends BossAction {
 	}
 
 	@Override
-	public void playAnimation() {
-		Location center = source.getLocation();
-		source.getWorld().playSound(center, Sound.BLOCK_PORTAL_TRIGGER, 1.0F, 1.0F);
-	}
-
-	@Override
 	public void execute(LivingEntity target) {
 		spawnPigmenSquad(source.getLocation().add(-5, 0, 0)); // First squad
 		spawnPigmenSquad(source.getLocation().add(5, 0, 0)); // Second squad
 	}
 
 	private void spawnPigmenSquad(Location startLocation) {
+		Location center = source.getLocation();
+		source.getWorld().playSound(center, Sound.BLOCK_PORTAL_TRIGGER, 1.0F, 1.0F);
 		for (int i = 0; i < SQUAD_FORMATION_LENGTH; i++) {
 			for (int j = 0; j < SQUAD_FORMATION_WIDTH; j++) {
 				Location spawnLocation = startLocation.clone().add(j * SPACING, 0, i * SPACING);

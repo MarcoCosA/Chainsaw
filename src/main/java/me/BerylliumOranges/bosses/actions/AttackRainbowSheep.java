@@ -31,11 +31,6 @@ public class AttackRainbowSheep extends BossAction {
 	}
 
 	@Override
-	public void playAnimation() {
-//		source.getWorld().playSound(source.getLocation(), Sound.ENTITY_SHEEP_AMBIENT, 0.5F, 1F);
-	}
-
-	@Override
 	public void execute(LivingEntity target) {
 		spawnRainbowSheep(source.getLocation());
 	}

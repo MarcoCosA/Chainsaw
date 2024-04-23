@@ -25,10 +25,6 @@ public class AttackCactus extends BossAction {
 	}
 
 	@Override
-	public void playAnimation() {
-	}
-
-	@Override
 	public void execute(LivingEntity target) {
 		source.getWorld().playSound(source.getLocation(), Sound.ENTITY_CREEPER_PRIMED, 0.5F, 1F);
 

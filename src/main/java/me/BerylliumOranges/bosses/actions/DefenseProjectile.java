@@ -1,6 +1,5 @@
 package me.BerylliumOranges.bosses.actions;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -19,11 +18,6 @@ public class DefenseProjectile extends BossAction {
 	}
 
 	@Override
-	public void playAnimation() {
-		source.getWorld().playSound(source.getLocation(), Sound.BLOCK_HANGING_SIGN_HIT, 1F, 1F);
-	}
-
-	@Override
 	public void execute(LivingEntity target) {
 	}
 
@@ -38,7 +32,7 @@ public class DefenseProjectile extends BossAction {
 				if (!projectile.isOnGround() && isProjectileApproaching(projectile, source)) {
 					// Logic here if the projectile is approaching the entity
 					System.out.println("Projectile is approaching " + source.getName());
-
+					source.getWorld().playSound(source.getLocation(), Sound.BLOCK_HANGING_SIGN_HIT, 1F, 1F);
 					Location loc = ent.getLocation();
 					loc.add(ent.getLocation().getDirection());
 					loc.getBlock().setType(Material.COBBLESTONE);
