@@ -42,7 +42,8 @@ public class BossUtils {
 		THORNS(ChatColor.DARK_GREEN, "Thorns Devil", Boss01_Thorns.class, Arrays.asList(Hazard.CACTUS_DAMAGE),
 				Arrays.asList(SupremeRepulsionTrait.class)),
 
-		TRAP(ChatColor.GRAY, "Trap Devil", Boss02_Trap.class, Arrays.asList(Hazard.NO_LOGOUT), Arrays.asList(NormalRepulsionTrait.class)),
+		TRAP(ChatColor.GRAY, "Trap Devil", Boss02_Trap.class, Arrays.asList(Hazard.NO_LOGOUT, Hazard.SPIDER_SPAWN),
+				Arrays.asList(NormalRepulsionTrait.class)),
 
 		BLOCK(ChatColor.AQUA, "Block Devil", Boss04_Block.class,
 				Arrays.asList(Hazard.NO_LOGOUT, Hazard.NO_BUILDING, Hazard.STAND_ON_GREEN, Hazard.MOVING_MAP),

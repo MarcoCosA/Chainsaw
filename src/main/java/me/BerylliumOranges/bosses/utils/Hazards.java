@@ -20,7 +20,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Spider;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockEvent;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -49,7 +49,7 @@ public class Hazards implements Listener {
 	public static final int DAMAGE_STAND_ON_GREEN = 30;
 	public static final int MOVING_MAP_PERIOD = 5;
 
-	public static final int SPIDER_SPAWN_CHANCE = 5;
+	public static final int SPIDER_SPAWN_CHANCE = 10;
 
 	public enum Hazard {
 		NO_LOGOUT(ChatColor.DARK_RED + "No Combat Logging", "Players will be killed if they log out in the boss chamber.",
@@ -221,7 +221,7 @@ public class Hazards implements Listener {
 	}
 
 	@EventHandler
-	public void onBlockBreak(BlockEvent event) {
+	public void onBlockBreak(BlockBreakEvent event) {
 		if (hasHazard(event.getBlock().getWorld(), Hazard.SPIDER_SPAWN)) {
 			if (event.getBlock().getType().equals(Material.COAL_BLOCK)) {
 				if (Math.random() <= (SPIDER_SPAWN_CHANCE) / 100.0)

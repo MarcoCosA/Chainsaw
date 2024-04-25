@@ -62,7 +62,7 @@ public class Boss11_Explosion extends Boss {
 	@Override
 	public void equipBoss(LivingEntity boss) {
 		boss.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0, false));
-		boss.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, Integer.MAX_VALUE, 2, false));
+		boss.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, 2, false));
 
 		boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(200);
 		boss.setHealth(200);
@@ -79,7 +79,7 @@ public class Boss11_Explosion extends Boss {
 			equipment.setBootsDropChance(0f);
 
 			ItemStack sword = new ItemStack(Material.IRON_AXE);
-			sword.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 3);
+			sword.addUnsafeEnchantment(Enchantment.SHARPNESS, 3);
 			equipment.setItemInMainHand(
 					ItemBuilder.buildItem(new ItemStack(Material.IRON_SWORD), Arrays.asList(new NormalArmorPenetrationTrait())));
 		}
@@ -104,9 +104,9 @@ public class Boss11_Explosion extends Boss {
 		ItemStack item = new ItemStack(material);
 		ItemMeta meta = item.getItemMeta();
 		if (meta != null) {
-			meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 4, true);
-			meta.addEnchant(Enchantment.PROTECTION_EXPLOSIONS, 4, true);
-			meta.addEnchant(Enchantment.PROTECTION_FIRE, 4, true);
+			meta.addEnchant(Enchantment.PROTECTION, 4, true);
+			meta.addEnchant(Enchantment.BLAST_PROTECTION, 4, true);
+			meta.addEnchant(Enchantment.FIRE_PROTECTION, 4, true);
 			meta.setUnbreakable(true);
 			item.setItemMeta(meta);
 		}

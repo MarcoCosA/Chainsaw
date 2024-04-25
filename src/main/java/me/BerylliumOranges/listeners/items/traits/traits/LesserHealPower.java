@@ -42,7 +42,7 @@ public class LesserHealPower extends ItemTrait {
 
 	@Override
 	public PotionType getPotionType() {
-		return PotionType.REGEN;
+		return PotionType.REGENERATION;
 	}
 
 	@Override

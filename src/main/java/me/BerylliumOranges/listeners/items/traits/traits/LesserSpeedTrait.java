@@ -56,7 +56,7 @@ public class LesserSpeedTrait extends ItemTrait implements Listener {
 
 	@Override
 	public PotionType getPotionType() {
-		return PotionType.SPEED;
+		return PotionType.SWIFTNESS;
 	}
 
 	@Override
@@ -91,11 +91,9 @@ public class LesserSpeedTrait extends ItemTrait implements Listener {
 					meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, mod);
 					Bukkit.broadcastMessage("Applied!");
 				}
-			} else {
-				if (hasModifier) {
-					meta.removeAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, mod);
-					Bukkit.broadcastMessage("Removed");
-				}
+			} else if (hasModifier) {
+				meta.removeAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, mod);
+				Bukkit.broadcastMessage("Removed");
 			}
 			e.getItem().setItemMeta(meta);
 		}

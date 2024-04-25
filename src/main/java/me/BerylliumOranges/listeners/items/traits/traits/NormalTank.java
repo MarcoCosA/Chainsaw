@@ -86,7 +86,7 @@ public class NormalTank extends ItemTrait implements Listener {
 											mob.setTarget(mob);
 											Particle.DustOptions orangeDust = new Particle.DustOptions(org.bukkit.Color.fromRGB(255, 85, 0),
 													1F);
-											mob.getWorld().spawnParticle(Particle.REDSTONE,
+											mob.getWorld().spawnParticle(Particle.DUST,
 													mob.getLocation().clone().add(0, mob.getHeight(), 0), 50, 0.3, 0.3, 0.3, 0, orangeDust);
 										}
 									}
@@ -127,10 +127,8 @@ public class NormalTank extends ItemTrait implements Listener {
 				if (!hasModifier) {
 					meta.addAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, mod);
 				}
-			} else {
-				if (hasModifier) {
-					meta.removeAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, mod);
-				}
+			} else if (hasModifier) {
+				meta.removeAttributeModifier(Attribute.GENERIC_KNOCKBACK_RESISTANCE, mod);
 			}
 			e.getItem().setItemMeta(meta);
 		}
@@ -145,7 +143,7 @@ public class NormalTank extends ItemTrait implements Listener {
 
 	@Override
 	public void toolEffect(LivingEntity owner) {
-		owner.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, potionDuration * 5, 0));
+		owner.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, potionDuration * 5, 0));
 	}
 
 }

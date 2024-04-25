@@ -56,7 +56,7 @@ public class NormalAttackTrait extends ItemTrait {
 		return new BukkitRunnable() {
 			@Override
 			public void run() {
-				consumer.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, potionDuration, 1));
+				consumer.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, potionDuration, 1));
 			}
 		};
 	}

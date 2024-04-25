@@ -50,7 +50,7 @@ public class LesserAttackTrait extends ItemTrait {
 		return new BukkitRunnable() {
 			@Override
 			public void run() {
-				consumer.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, getPotionDuration() * 20, 0));
+				consumer.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, getPotionDuration() * 20, 0));
 			}
 		};
 	}

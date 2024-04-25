@@ -27,8 +27,6 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import me.BerylliumOranges.bosses.Boss;
-import me.BerylliumOranges.bosses.actions.ActionSummonPigmen;
-import me.BerylliumOranges.bosses.actions.AttackMeteorStrike;
 import me.BerylliumOranges.bosses.utils.BossBarListener;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
 import me.BerylliumOranges.dimensions.chunkgenerators.SkyIslandChunkGenerator;
@@ -121,7 +119,7 @@ public class Boss09_Fire extends Boss {
 	private void transitionToStageTwo(LivingEntity boss) {
 		boss.setHealth(boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
 		bossBar.setOverrideName(ChatColor.RED + ChatColor.stripColor(boss.getCustomName()) + " the " + ChatColor.BOLD + "Undying");
-		boss.getWorld().spawnParticle(Particle.VILLAGER_ANGRY, boss.getLocation(), 10);
+		boss.getWorld().spawnParticle(Particle.ANGRY_VILLAGER, boss.getLocation(), 10);
 		boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0F, 1.0F);
 	}
 
@@ -130,14 +128,14 @@ public class Boss09_Fire extends Boss {
 		boss.setHealth(boss.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
 		bossBar.setOverrideName(
 				ChatColor.RED + "" + ChatColor.BOLD + ChatColor.stripColor(boss.getCustomName()).toUpperCase() + " HARBINGER OF DOOM");
-		boss.getWorld().spawnParticle(Particle.VILLAGER_ANGRY, boss.getLocation(), 10);
+		boss.getWorld().spawnParticle(Particle.ANGRY_VILLAGER, boss.getLocation(), 10);
 		boss.getWorld().playSound(boss.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0F, 1.0F);
 		new AttackMeteorStrike(boss);
 	}
 
 	@Override
 	public void equipBoss(LivingEntity boss) {
-		boss.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, Integer.MAX_VALUE, 5, true));
+		boss.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, 5, true));
 		boss.setRemoveWhenFarAway(false);
 		boss.getEquipment().setItemInMainHand(new ItemStack(Material.TRIDENT));
 		ItemStack[] armor = new ItemStack[] { createArmorItem(Material.NETHERITE_BOOTS), createArmorItem(Material.NETHERITE_LEGGINGS),
@@ -169,10 +167,10 @@ public class Boss09_Fire extends Boss {
 
 	private ItemStack createArmorItem(Material material) {
 		ItemStack item = new ItemStack(material);
-		item.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 4);
-		item.addUnsafeEnchantment(Enchantment.PROTECTION_FIRE, 6);
-		item.addUnsafeEnchantment(Enchantment.PROTECTION_EXPLOSIONS, 6);
-		item.addUnsafeEnchantment(Enchantment.PROTECTION_PROJECTILE, 6);
+		item.addUnsafeEnchantment(Enchantment.PROTECTION, 4);
+		item.addUnsafeEnchantment(Enchantment.FIRE_PROTECTION, 6);
+		item.addUnsafeEnchantment(Enchantment.BLAST_PROTECTION, 6);
+		item.addUnsafeEnchantment(Enchantment.PROJECTILE_PROTECTION, 6);
 		ItemMeta meta = item.getItemMeta();
 		item.setItemMeta(meta);
 		return item;

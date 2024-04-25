@@ -47,7 +47,7 @@ public class LeverPopulator {
 				if (tick >= totalTicks) {
 					BlockFace[] faces = { BlockFace.EAST, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH };
 					for (int i = 0; i < towers.size(); i++) {
-						Location t = towers.get(i);
+						Location t = towers.get(i).add(0, -1, 0);
 						BlockFace face = faces[random.nextInt(faces.length)];
 						Block blockToAttach = t.getBlock().getRelative(face);
 						blockToAttach.setType(Material.LEVER);
@@ -55,7 +55,7 @@ public class LeverPopulator {
 						BlockState state = blockToAttach.getState();
 						Lever lever = (Lever) state.getData();
 						lever.setPowered(false);
-						lever.setFacingDirection(face.getOppositeFace());
+						lever.setFacingDirection(face);
 						state.setData(lever);
 						state.update(true);
 

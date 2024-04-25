@@ -1,4 +1,4 @@
-package me.BerylliumOranges.bosses.actions;
+package me.BerylliumOranges.bosses.Boss01;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.util.Vector;
 
+import me.BerylliumOranges.bosses.actions.BossAction;
 import me.BerylliumOranges.dimensions.surfaceeditors.SurfacePopulator;
 
 public class AttackCactus extends BossAction {

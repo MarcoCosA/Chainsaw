@@ -72,7 +72,7 @@ public class AttackRainbowSheep extends BossAction {
 		// Move each sheep forward a bit in its stored direction
 		sheepDirections.forEach((sheep, direction) -> {
 			if (!sheep.isDead()) {
-				sheep.getWorld().spawnParticle(Particle.REDSTONE, sheep.getLocation().add(0, 1, 0), 10,
+				sheep.getWorld().spawnParticle(Particle.DUST, sheep.getLocation().add(0, 1, 0), 10,
 						new Particle.DustOptions(sheep.getColor().getColor(), 1));
 
 				Location originalLocation = sheep.getLocation().add(direction);

@@ -52,7 +52,7 @@ public class LesserDefenseTrait extends ItemTrait {
 		return new BukkitRunnable() {
 			@Override
 			public void run() {
-				consumer.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, getPotionDuration() * 20, 0));
+				consumer.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, getPotionDuration() * 20, 0));
 			}
 		};
 	}

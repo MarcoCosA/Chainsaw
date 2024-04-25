@@ -1,4 +1,4 @@
-package me.BerylliumOranges.bosses.actions;
+package me.BerylliumOranges.bosses.Boss09;
 
 import java.util.List;
 import java.util.Random;
@@ -12,6 +12,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+
+import me.BerylliumOranges.bosses.actions.BossAction;
 
 public class ActionSummonPigmen extends BossAction {
 

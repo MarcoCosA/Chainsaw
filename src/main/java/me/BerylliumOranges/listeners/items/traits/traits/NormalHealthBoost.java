@@ -56,7 +56,7 @@ public class NormalHealthBoost extends ItemTrait implements Listener {
 
 	@Override
 	public PotionType getPotionType() {
-		return PotionType.INSTANT_HEAL;
+		return PotionType.HEALING;
 	}
 
 	@Override
@@ -90,10 +90,8 @@ public class NormalHealthBoost extends ItemTrait implements Listener {
 				if (!hasModifier) {
 					meta.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, mod);
 				}
-			} else {
-				if (hasModifier) {
-					meta.removeAttributeModifier(Attribute.GENERIC_MAX_HEALTH, mod);
-				}
+			} else if (hasModifier) {
+				meta.removeAttributeModifier(Attribute.GENERIC_MAX_HEALTH, mod);
 			}
 			e.getItem().setItemMeta(meta);
 		}

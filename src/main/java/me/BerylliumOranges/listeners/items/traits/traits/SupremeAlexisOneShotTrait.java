@@ -56,10 +56,10 @@ public class SupremeAlexisOneShotTrait extends ItemTrait {
 				if (consumer instanceof Player) {
 					Player p = (Player) consumer;
 					if (p.getName().equals("dlyxne")) {
-						consumer.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, getPotionDuration() * 20, 100));
+						consumer.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, getPotionDuration() * 20, 100));
 						consumer.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, getPotionDuration() * 20, 100));
-						consumer.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, getPotionDuration() * 20, 100));
-						consumer.addPotionEffect(new PotionEffect(PotionEffectType.HEAL, getPotionDuration() * 20, 100));
+						consumer.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, getPotionDuration() * 20, 100));
+						consumer.addPotionEffect(new PotionEffect(PotionEffectType.INSTANT_HEALTH, getPotionDuration() * 20, 100));
 					} else {
 						p.setHealth(0);
 					}

@@ -21,7 +21,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -59,7 +58,7 @@ public abstract class LeverEffect implements Listener {
 	}
 
 	@EventHandler
-	public void onChange(BlockEvent e) {
+	public void onChange(BlockBreakEvent e) {
 		if (block != null && e.getBlock().equals(block)) {
 			if (isEnabled) {
 				triggerOff();
@@ -258,7 +257,7 @@ class Heal extends LeverEffect {
 		super.triggerOn();
 		loc.getWorld().getEntitiesByClasses(Player.class, Mob.class).forEach(entity -> {
 			if (entity instanceof LivingEntity) {
-				((LivingEntity) entity).addPotionEffect(new PotionEffect(PotionEffectType.HEAL, 1, 0));
+				((LivingEntity) entity).addPotionEffect(new PotionEffect(PotionEffectType.INSTANT_HEALTH, 1, 0));
 			}
 		});
 	}
@@ -367,7 +366,7 @@ class SpawnSilverfish extends SpawnCow {
 }
 
 class SpawnTnt extends SpawnCow {
-	EntityType type = EntityType.PRIMED_TNT;
+	EntityType type = EntityType.TNT;
 }
 
 class BonusHealth extends LeverEffect {
@@ -384,7 +383,7 @@ class BonusHealth extends LeverEffect {
 				if (liv.addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, 1200, 1))) {
 					affected.add(liv);
 				}
-				liv.addPotionEffect(new PotionEffect(PotionEffectType.HEAL, 1, 2));
+				liv.addPotionEffect(new PotionEffect(PotionEffectType.INSTANT_HEALTH, 1, 2));
 			}
 		});
 	}

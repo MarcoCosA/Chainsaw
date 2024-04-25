@@ -15,7 +15,6 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionData;
 
 import com.google.common.collect.Multimap;
 
@@ -65,7 +64,7 @@ public class ItemBuilder {
 	public static ItemStack buildPotionItem(ItemTrait trait, boolean locked) {
 		ItemStack item = new ItemStack(Material.POTION);
 		PotionMeta pm = (PotionMeta) item.getItemMeta();
-		pm.setBasePotionData(new PotionData(trait.getPotionType()));
+		pm.setBasePotionType(trait.getPotionType());
 		item.setItemMeta(pm);
 
 		return buildPotionItem(item, trait, locked);
@@ -82,9 +81,7 @@ public class ItemBuilder {
 		ArrayList<String> lore = new ArrayList<>();
 		Multimap<Attribute, AttributeModifier> att = meta.getAttributeModifiers();
 		List<ItemTrait> traits = new ArrayList<>();
-		for (ItemTrait trait : TraitCache.getTraitsFromItem(item)) {
-			traits.add(trait);
-		}
+		traits.addAll(TraitCache.getTraitsFromItem(item));
 
 		for (ItemTrait p : traits) {
 			lore.add("");

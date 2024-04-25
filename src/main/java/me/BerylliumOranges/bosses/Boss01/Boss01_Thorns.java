@@ -24,7 +24,6 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import me.BerylliumOranges.bosses.Boss;
-import me.BerylliumOranges.bosses.actions.AttackCactus;
 import me.BerylliumOranges.bosses.utils.BossBarListener;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
 import me.BerylliumOranges.dimensions.chunkgenerators.SkyIslandChunkGenerator;
@@ -75,7 +74,7 @@ public class Boss01_Thorns extends Boss {
 		new BukkitRunnable() {
 			@Override
 			public void run() {
-				world.spawnParticle(Particle.REDSTONE, boss.getEyeLocation(), 20, 0.5, 0.5, 0.5, 0, new DustOptions(Color.LIME, 1));
+				world.spawnParticle(Particle.DUST, boss.getEyeLocation(), 20, 0.5, 0.5, 0.5, 0, new DustOptions(Color.LIME, 1));
 				if (introAnimationTicks == 30) {
 					SurfacePopulator.placeCacti(world, islandSize);
 					new AttackCactus(boss);
@@ -97,13 +96,13 @@ public class Boss01_Thorns extends Boss {
 	@Override
 	public void equipBoss(LivingEntity boss) {
 		boss.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true));
-		boss.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, Integer.MAX_VALUE, 0, true));
+		boss.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, 0, true));
 		boss.setRemoveWhenFarAway(false);
 		boss.setArrowsInBody(12);
 
-		ItemStack[] armor = new ItemStack[] { createArmorItem(Material.DIAMOND_BOOTS, Enchantment.PROTECTION_ENVIRONMENTAL, 2),
-				createArmorItem(Material.DIAMOND_LEGGINGS, Enchantment.PROTECTION_ENVIRONMENTAL, 2),
-				createArmorItem(Material.DIAMOND_CHESTPLATE, Enchantment.PROTECTION_ENVIRONMENTAL, 2), new ItemStack(Material.CACTUS) };
+		ItemStack[] armor = new ItemStack[] { createArmorItem(Material.DIAMOND_BOOTS, Enchantment.PROTECTION, 2),
+				createArmorItem(Material.DIAMOND_LEGGINGS, Enchantment.PROTECTION, 2),
+				createArmorItem(Material.DIAMOND_CHESTPLATE, Enchantment.PROTECTION, 2), new ItemStack(Material.CACTUS) };
 
 		// Set the zombie's armor
 		EntityEquipment equipment = boss.getEquipment();

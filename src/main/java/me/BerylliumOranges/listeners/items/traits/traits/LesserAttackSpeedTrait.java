@@ -63,7 +63,7 @@ public class LesserAttackSpeedTrait extends ItemTrait implements Listener {
 		return new BukkitRunnable() {
 			@Override
 			public void run() {
-				consumer.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, getPotionDuration() * 20, 0));
+				consumer.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, getPotionDuration() * 20, 0));
 			}
 		};
 	}
@@ -89,10 +89,8 @@ public class LesserAttackSpeedTrait extends ItemTrait implements Listener {
 				if (!hasModifier) {
 					meta.addAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, mod);
 				}
-			} else {
-				if (hasModifier) {
-					meta.removeAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, mod);
-				}
+			} else if (hasModifier) {
+				meta.removeAttributeModifier(Attribute.GENERIC_ATTACK_SPEED, mod);
 			}
 			e.getItem().setItemMeta(meta);
 		}

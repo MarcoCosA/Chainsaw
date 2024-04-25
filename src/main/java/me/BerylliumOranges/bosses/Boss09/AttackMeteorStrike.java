@@ -1,4 +1,4 @@
-package me.BerylliumOranges.bosses.actions;
+package me.BerylliumOranges.bosses.Boss09;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +19,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.util.Vector;
 
+import me.BerylliumOranges.bosses.actions.BossAction;
+
 public class AttackMeteorStrike extends BossAction {
 
 	private static final double EFFECT_RADIUS = 12.0;
@@ -36,7 +38,7 @@ public class AttackMeteorStrike extends BossAction {
 		for (Entity fb : fireballs) {
 			fb.setVelocity(new Vector(0, -1, 0));
 			Location l = fb.getWorld().getHighestBlockAt(fb.getLocation()).getLocation().clone().add(0, 0.5, 0);
-			fb.getWorld().spawnParticle(Particle.REDSTONE, l, 1, 0.05, 0.05, 0.05, 0, new DustOptions(Color.RED, 10));
+			fb.getWorld().spawnParticle(Particle.DUST, l, 1, 0.05, 0.05, 0.05, 0, new DustOptions(Color.RED, 10));
 		}
 	}
 
@@ -76,7 +78,7 @@ public class AttackMeteorStrike extends BossAction {
 		}
 
 		// Create a visual effect
-		fireball.getWorld().spawnParticle(Particle.EXPLOSION_HUGE, impactLocation, 5);
+		fireball.getWorld().spawnParticle(Particle.EXPLOSION, impactLocation, 5);
 		fireball.getWorld().playSound(fireball.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 5F, 0);
 
 		// Block destruction and transformation
