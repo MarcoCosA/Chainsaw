@@ -1,12 +1,15 @@
 package me.BerylliumOranges.main;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -20,7 +23,10 @@ import me.BerylliumOranges.bosses.utils.BossUtils;
 import me.BerylliumOranges.bosses.utils.BossesSpawnListener;
 import me.BerylliumOranges.bosses.utils.GlobalBossListener;
 import me.BerylliumOranges.bosses.utils.Hazards;
+import me.BerylliumOranges.bosses.utils.Hazards.Hazard;
+import me.BerylliumOranges.bosses.utils.HazardsChestGenerator;
 import me.BerylliumOranges.dimensions.CustomChunkGenerator;
+import me.BerylliumOranges.listeners.ItemsAndTradesListener;
 import me.BerylliumOranges.listeners.items.traits.globallisteners.GlobalTraitListener;
 import me.BerylliumOranges.listeners.items.traits.globallisteners.InventoryListener;
 import me.BerylliumOranges.listeners.items.traits.utils.TraitCache;
@@ -30,18 +36,21 @@ public class PluginMain extends JavaPlugin implements Listener {
 	private static PluginMain instance;
 
 	private static final String ITEM_DATA_KEY = "custom_item_data";
+	public static final String DIMENSION_1_NAME = "dimension1";
 	private NamespacedKey dataKey;
 
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onEnable() {
 		instance = this;
-
-		if (getServer().getWorld("CustomDimension") == null) {
-			// Create the custom world with your generator
-			WorldCreator creator = new WorldCreator("CustomDimension");
+		if (getServer().getWorld(DIMENSION_1_NAME) == null) {
+			WorldCreator creator = new WorldCreator(DIMENSION_1_NAME);
 			creator.generator(new CustomChunkGenerator());
-			getServer().createWorld(creator);
+			World w = Bukkit.getServer().createWorld(creator);
+			HazardsChestGenerator.placeChests(w);
+			Hazards.saveHazards(w, Arrays.asList(Hazard.IS_BOSS_WORLD));
+			w.setSpawnLocation(0, w.getHighestBlockYAt(0, 0), 0);
+			Boss.createEndPortal(w.getSpawnLocation().clone().add(-4, 0, 0), Material.BELL);
 		}
 
 		// This is just here to ensure the BossAbstract class is loaded first
@@ -52,6 +61,7 @@ public class PluginMain extends JavaPlugin implements Listener {
 		new GlobalTraitListener();
 		new GlobalBossListener();
 		new InventoryListener();
+		new ItemsAndTradesListener(); // Testing only
 		new Hazards();
 
 		dataKey = new NamespacedKey(this, ITEM_DATA_KEY);

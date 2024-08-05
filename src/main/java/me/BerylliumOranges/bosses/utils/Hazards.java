@@ -52,6 +52,8 @@ public class Hazards implements Listener {
 	public static final int SPIDER_SPAWN_CHANCE = 10;
 
 	public enum Hazard {
+		IS_BOSS_WORLD(ChatColor.DARK_RED + "Is Boss World", "This world was generated for a boss fight.", Material.SPAWNER),
+
 		NO_LOGOUT(ChatColor.DARK_RED + "No Combat Logging", "Players will be killed if they log out in the boss chamber.",
 				Material.BARRIER),
 

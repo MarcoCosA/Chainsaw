@@ -89,7 +89,7 @@ public class BossUtils {
 		public ChatColor getColor() {
 			return color;
 		}
-
+		
 		public static BossType getTypeFromName(String name) {
 			for (BossType t : values()) {
 				if (ChatColor.stripColor(t.getName()).equals(ChatColor.stripColor(name)))

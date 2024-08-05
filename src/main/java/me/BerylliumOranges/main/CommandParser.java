@@ -90,7 +90,7 @@ public class CommandParser {
 				Bukkit.broadcastMessage("I see " + num);
 				try {
 					Bukkit.broadcastMessage("Spawning: " + BossType.values()[num].getName());
-					Boss boss = (Boss) BossType.values()[num].getBossClass().getDeclaredConstructor().newInstance();
+					Boss boss = BossType.values()[num].getBossClass().getDeclaredConstructor().newInstance();
 				} catch (ReflectiveOperationException roe) {
 					roe.printStackTrace();
 				}
@@ -106,7 +106,7 @@ public class CommandParser {
 					if (args[0].equalsIgnoreCase(s.getName())) {
 						sender.sendMessage(ChatColor.YELLOW + "Teleporting to " + s.getName());
 						if (sender instanceof Player) {
-							((Player) sender).teleport(new Location(s, 0, 16, 0));
+							((Player) sender).teleport(new Location(s, 0, s.getHighestBlockYAt(0, 0), 0));
 						}
 						break;
 					}

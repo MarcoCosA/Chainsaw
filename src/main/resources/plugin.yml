@@ -1,7 +1,7 @@
 name: Chainsaw
 main: me.BerylliumOranges.main.PluginMain
 version: 0.1
-api-version: '1.20'
+api-version: '1.21'
 commands:
    getitems:
       description: Gets all the Purity plugin's items.

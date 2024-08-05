@@ -1,5 +1,8 @@
 package me.BerylliumOranges.listeners.items.traits.globallisteners;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -7,6 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -26,8 +30,11 @@ public class InventoryListener implements Listener {
 
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent e) {
+		if (e.getView() == null)
+			return;
+
 		ItemStack item = e.getCurrentItem();
-		Inventory inv = e.getView().getTopInventory();
+		Inventory inv = getTopInventory(e);
 
 		if (inv.getHolder() instanceof TraitInventoryHolder) {
 			TraitInventoryHolder holder = (TraitInventoryHolder) inv.getHolder();
@@ -84,7 +91,7 @@ public class InventoryListener implements Listener {
 	public void onInventoryClose(InventoryCloseEvent e) {
 		Player p = (Player) e.getPlayer();
 		if (e.getInventory().getHolder() instanceof TraitInventoryHolder)
-			TraitCache.saveItemInventory(e.getView().getTopInventory());
+			TraitCache.saveItemInventory(getTopInventory(e));
 		p.updateInventory();
 	}
 
@@ -101,6 +108,28 @@ public class InventoryListener implements Listener {
 		if (type.contains("boots"))
 			return true;
 		return false;
+	}
+
+	public static Inventory getTopInventory(InventoryEvent event) {
+		try {
+			Object view = event.getView();
+			Method getTopInventory = view.getClass().getMethod("getTopInventory");
+			getTopInventory.setAccessible(true);
+			return (Inventory) getTopInventory.invoke(view);
+		} catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static String getInventoryTitle(InventoryEvent event) {
+		try {
+			Object view = event.getView();
+			Method getTopInventory = view.getClass().getMethod("getTitle");
+			getTopInventory.setAccessible(true);
+			return (String) getTopInventory.invoke(view);
+		} catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }

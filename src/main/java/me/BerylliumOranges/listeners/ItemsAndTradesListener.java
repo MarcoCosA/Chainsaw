@@ -1,13 +1,40 @@
 package me.BerylliumOranges.listeners;
 
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Zombie;
+import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 
+import me.BerylliumOranges.listeners.items.traits.utils.TraitCache;
 import me.BerylliumOranges.main.PluginMain;
 
 public class ItemsAndTradesListener implements Listener {
 	public ItemsAndTradesListener() {
 		PluginMain.getInstance().getServer().getPluginManager().registerEvents(this, PluginMain.getInstance());
 	}
+
+	@EventHandler
+	public void rightClick(PlayerInteractEntityEvent e) {
+		Bukkit.broadcastMessage("Here");
+		ItemStack item = e.getPlayer().getEquipment().getItem(EquipmentSlot.HAND);
+		if (e.getHand().equals(EquipmentSlot.HAND) && e.getPlayer().getGameMode().equals(GameMode.CREATIVE) && item != null) {
+			if (e.getRightClicked().getType().equals(EntityType.ZOMBIE)) {
+				Zombie z = (Zombie) e.getRightClicked();
+				
+				if(TraitCache.hasItemId(item))
+				
+				z.getEquipment().setItemInHand(item);
+				
+				
+			}
+		}
+	}
+
 //
 //	@EventHandler
 //	public void potionDrink(PlayerItemConsumeEvent e) {

@@ -8,21 +8,33 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Container;
+import org.bukkit.block.data.type.Leaves;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import me.BerylliumOranges.bosses.utils.BossBarListener;
 import me.BerylliumOranges.bosses.utils.BossUtils;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
 import me.BerylliumOranges.bosses.utils.Hazards;
+import me.BerylliumOranges.bosses.utils.Hazards.Hazard;
 import me.BerylliumOranges.bosses.utils.PlayerStateSaver;
 import me.BerylliumOranges.customEvents.TickEvent;
 import me.BerylliumOranges.main.PluginMain;
@@ -56,7 +68,9 @@ public abstract class Boss implements Listener {
 
 		creator.generator(chunkGenerator);
 		world = Bukkit.getServer().createWorld(creator);
-		Hazards.saveHazards(world, bossType.getHazards());
+		List<Hazard> hazards = new ArrayList<>(bossType.getHazards());
+		hazards.add(Hazard.IS_BOSS_WORLD);
+		Hazards.saveHazards(world, hazards);
 
 		Bukkit.getConsoleSender().sendMessage(ChatColor.GREEN + "Created " + name);
 
@@ -155,6 +169,158 @@ public abstract class Boss implements Listener {
 				EntityUtils.teleportEntity(e.getEntity(), new Location(e.getEntity().getWorld(), 0, 90, 0));
 			}
 		}
+	}
+
+	public boolean dead = false;
+
+	@EventHandler
+	public void onDeath(EntityDeathEvent e) {
+		if (bosses.contains(e.getEntity())) {
+			boolean found = false;
+			for (LivingEntity b : bosses) {
+				if (!b.equals(e.getEntity()) && !b.isDead()) {
+					found = true;
+					break;
+				}
+			}
+			dead = !found;
+			if (dead)
+				doDeathAnimation(e.getEntity());
+		}
+	}
+
+	public static void startWorldRemoval(World w) {
+		new BukkitRunnable() {
+			int count = 0;
+
+			@Override
+			public void run() {
+				if (count < 200) {
+
+				} else {
+					this.cancel();
+				}
+			}
+		}.runTaskTimer(PluginMain.getInstance(), 40L, 1L); // Starts after 2 seconds, repeats every tick
+	}
+
+	public void doDeathAnimation(LivingEntity lastAlive) {
+		World world = lastAlive.getWorld();
+		Location center = lastAlive.getLocation();
+		world.playSound(center, Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
+		world.spawnParticle(Particle.EXPLOSION, center, 20, 0.5, 0.5, 0.5, 0.1);
+		double radius = 10.0;
+		for (Entity entity : world.getNearbyEntities(center, radius, radius, radius)) {
+			if (entity instanceof LivingEntity && entity != lastAlive) {
+				LivingEntity target = (LivingEntity) entity;
+				Location targetLocation = target.getLocation();
+				Vector direction = targetLocation.toVector().subtract(center.toVector()).normalize();
+				double distance = center.distance(targetLocation);
+				double knockbackIntensity = 1.0 - (distance / radius);
+				target.setVelocity(direction.multiply(knockbackIntensity * 2));
+			}
+		}
+
+		new BukkitRunnable() {
+			int count = 0;
+
+			@Override
+			public void run() {
+				if (count < 200) {
+					double radius = 4.0;
+					double u = Math.random();
+					double v = Math.random();
+					double theta = 2 * Math.PI * u;
+					double phi = Math.acos(2 * v - 1);
+					double x = radius * Math.sin(phi) * Math.cos(theta);
+					double y = radius * Math.sin(phi) * Math.sin(theta);
+					double z = radius * Math.cos(phi);
+					Location randomLocation = center.clone().add(x, y, z);
+
+					// Spawn 1 cherry leaf particle at the generated location
+					world.spawnParticle(Particle.CHERRY_LEAVES, randomLocation, 1);
+					if (count == 0)
+						world.playSound(center, Sound.ITEM_GOAT_HORN_SOUND_6, 1f, 0f);
+					if (count == 150)
+						world.playSound(center, Sound.ITEM_GOAT_HORN_SOUND_7, 0.3f, 2f);
+					count++;
+				} else {
+					this.cancel();
+				}
+			}
+		}.runTaskTimer(PluginMain.getInstance(), 40L, 1L); // Starts after 2 seconds, repeats every tick
+
+		int blockRadius = 5;
+		new BukkitRunnable() {
+			int step = 0; // This represents the current radius being filled
+			double radius = blockRadius; // Maximum radius of the sphere
+
+			@Override
+			public void run() {
+				if (step <= radius) {
+					for (int x = -step; x <= step; x++) {
+						for (int z = -step; z <= step; z++) {
+							for (int y = -step; y <= step; y++) {
+								// Check if the block is within a spherical radius
+								if (x * x + y * y + z * z <= step * step) {
+									Block block = world.getBlockAt(center.clone().add(x, y, z));
+									if (!(block.getState() instanceof Container) && (block.getType().isBlock() && block.getType().isSolid())
+											|| step <= 2) {
+										block.setType(Material.CHERRY_LEAVES);
+										BlockState state = block.getState();
+										Leaves leaves = (Leaves) state.getBlockData();
+										leaves.setPersistent(true); // Make leaves persistent to prevent decay
+										state.setBlockData(leaves);
+										state.update(true, false);
+									}
+								}
+							}
+						}
+					}
+					step++;
+				} else {
+					this.cancel();
+					createEndPortal(center, Material.POPPY);
+				}
+			}
+		}.runTaskTimer(PluginMain.getInstance(), 120L, 20L); // Start after 6 seconds, repeat every second
+
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				world.spawnParticle(Particle.CHERRY_LEAVES, center.getX(), center.getY() + 0.5, center.getZ(), 4, 3, 2, 3);
+			}
+		}.runTaskTimer(PluginMain.getInstance(), 200L, 7L);
+
+	}
+
+	public static void createEndPortal(Location center, Material middle) {
+		World world = center.getWorld();
+		for (int x = -1; x <= 1; x++) {
+			for (int z = -1; z <= 1; z++) {
+
+				for (int i = 0; i < 2; i++) {
+					Block blockAbove = world.getBlockAt(center.clone().add(x, i + 1, z));
+					blockAbove.setType(Material.AIR);
+				}
+
+				Block block = world.getBlockAt(center.clone().add(x, 0, z));
+				block.setType(Material.END_PORTAL);
+			}
+		}
+
+		Block block = world.getBlockAt(center.clone().add(0, 3, 0));
+		block.setType(middle);
+
+		for (int x = -2; x <= 2; x++) {
+			for (int z = -2; z <= 2; z++) {
+				if ((Math.abs(x) == 2 || Math.abs(z) == 2) && !(Math.abs(x) == 2 && Math.abs(z) == 2)) {
+					Block pillar = world.getBlockAt(center.clone().add(x, 0, z));
+					pillar.setType(Material.POLISHED_BASALT);
+				}
+			}
+		}
+		world.playSound(center, Sound.ENTITY_ENDER_EYE_DEATH, 1.0f, 1.0f);
 	}
 
 	public void despawn() {

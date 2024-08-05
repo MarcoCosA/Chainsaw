@@ -55,7 +55,7 @@ public class ItemBuilder {
 			meta.setDisplayName(displayName + ChatColor.RESET + ChatColor.WHITE + " Potion " + ItemTrait.LOCKED_INDICATOR);
 			meta.setLocalizedName(meta.getLocalizedName() + ItemTrait.LOCKED_INDICATOR);
 		}
-		meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+		meta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
 		meta.setLore(lore);
 		item.setItemMeta(meta);
 		return item;

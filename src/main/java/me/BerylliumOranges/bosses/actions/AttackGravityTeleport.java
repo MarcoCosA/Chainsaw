@@ -15,7 +15,7 @@ public class AttackGravityTeleport extends BossAction {
 	private final int teleportDuration = 20;
 	private final int pauseDuration = 10;
 	private int repeat = 3;
-
+	
 	public AttackGravityTeleport(LivingEntity source) {
 		super(source, 400, 50, 40);
 	}

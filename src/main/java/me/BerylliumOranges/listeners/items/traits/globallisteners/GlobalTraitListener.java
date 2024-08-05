@@ -19,7 +19,6 @@ import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import me.BerylliumOranges.customEvents.ItemCombineEvent;
-import me.BerylliumOranges.customEvents.KnockbackEvent;
 import me.BerylliumOranges.listeners.items.traits.dummyevents.DummyHealEvent;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 import me.BerylliumOranges.listeners.items.traits.utils.TraitCache;
@@ -40,7 +39,7 @@ public class GlobalTraitListener implements Listener {
 			for (ItemTrait trait : traits) {
 				BukkitRunnable r = trait.potionRunnable(e.getPlayer());
 				ItemTrait.activePotions.put(r, e.getPlayer());
-				r.run();
+				r.runTask(PluginMain.getInstance());
 			}
 			e.setCancelled(true);
 			e.getPlayer().getInventory().removeItem(e.getItem());
