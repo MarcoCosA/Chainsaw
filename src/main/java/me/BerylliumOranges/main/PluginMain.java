@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Random;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -47,9 +48,15 @@ public class PluginMain extends JavaPlugin implements Listener {
 			WorldCreator creator = new WorldCreator(DIMENSION_1_NAME);
 			creator.generator(new CustomChunkGenerator());
 			World w = Bukkit.getServer().createWorld(creator);
+			w.setGameRule(GameRule.DO_MOB_SPAWNING, false);
+			w.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+			w.setGameRule(GameRule.DO_FIRE_TICK, false);
+			w.setGameRule(GameRule.DO_VINES_SPREAD, false);
+			w.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
+			w.setTime(23150);
 			HazardsChestGenerator.placeChests(w);
 			Hazards.saveHazards(w, Arrays.asList(Hazard.IS_BOSS_WORLD));
-			w.setSpawnLocation(0, w.getHighestBlockYAt(0, 0), 0);
+			w.setSpawnLocation(0, w.getHighestBlockYAt(0, 0) + 1, 0);
 			Boss.createEndPortal(w.getSpawnLocation().clone().add(-4, 0, 0), Material.BELL);
 		}
 

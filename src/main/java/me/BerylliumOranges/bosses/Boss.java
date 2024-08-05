@@ -312,11 +312,16 @@ public abstract class Boss implements Listener {
 		Block block = world.getBlockAt(center.clone().add(0, 3, 0));
 		block.setType(middle);
 
+		int yHeight = 0;
+		if (middle.equals(Material.BELL))
+			yHeight = -1;
 		for (int x = -2; x <= 2; x++) {
 			for (int z = -2; z <= 2; z++) {
-				if ((Math.abs(x) == 2 || Math.abs(z) == 2) && !(Math.abs(x) == 2 && Math.abs(z) == 2)) {
-					Block pillar = world.getBlockAt(center.clone().add(x, 0, z));
-					pillar.setType(Material.POLISHED_BASALT);
+				for (int y = yHeight; y < 1; y++) {
+					if ((Math.abs(x) == 2 || Math.abs(z) == 2) && !(Math.abs(x) == 2 && Math.abs(z) == 2)) {
+						Block pillar = world.getBlockAt(center.clone().add(x, y, z));
+						pillar.setType(Material.POLISHED_BASALT);
+					}
 				}
 			}
 		}
