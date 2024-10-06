@@ -2,20 +2,17 @@ package me.BerylliumOranges.listeners.items.traits.traits;
 
 import java.awt.Color;
 
-import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import me.BerylliumOranges.listeners.items.traits.dummyevents.DummyHealEvent;
 import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
 import me.BerylliumOranges.listeners.items.traits.utils.TraitOperation;
 import net.md_5.bungee.api.ChatColor;
 
-public class LesserHealPower extends ItemTrait {
+public class BasicHealPower extends ItemTraitBasic {
 	private static final long serialVersionUID = 8917561592248776081L;
 	public int healPowerPercentage = 10;
 
@@ -46,20 +43,10 @@ public class LesserHealPower extends ItemTrait {
 	}
 
 	@Override
-	public BukkitRunnable potionRunnable(final LivingEntity consumer) {
-		return new BukkitRunnable() {
-			@Override
-			public void run() {
-				consumer.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, getPotionDuration() * 20, 0));
-			}
-		};
+	public PotionEffectType getPotionEffectType() {
+		return PotionEffectType.REGENERATION;
 	}
-
-	@Override
-	public int getRarity() {
-		return 1;
-	}
-
+	
 	@Override
 	public ToolOption getToolOption() {
 		return ToolOption.ANY;
@@ -74,10 +61,4 @@ public class LesserHealPower extends ItemTrait {
 		}
 		return false;
 	}
-
-	@Override
-	public void toolEffect(LivingEntity center) {
-		center.setHealth(Math.min(center.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue(), center.getHealth() + 1));
-	}
-
 }

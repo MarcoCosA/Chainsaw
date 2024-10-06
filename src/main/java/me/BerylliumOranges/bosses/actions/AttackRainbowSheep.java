@@ -27,7 +27,7 @@ public class AttackRainbowSheep extends BossAction {
 			DyeColor.BLUE, DyeColor.PURPLE };
 
 	public AttackRainbowSheep(LivingEntity source) {
-		super(source, 90, 40, 30); // Adjust maxTicksUntilAttack and attackRange as needed, damage is set to 30
+		super(source, 90, 40, 30, 0.3); // Adjust maxTicksUntilAttack and attackRange as needed, damage is set to 30
 	}
 
 	@Override

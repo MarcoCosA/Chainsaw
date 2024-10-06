@@ -19,7 +19,6 @@ import me.BerylliumOranges.bosses.Boss01.Boss01_Thorns;
 import me.BerylliumOranges.bosses.Boss02.Boss02_Trap;
 import me.BerylliumOranges.bosses.Boss04.Boss04_Block;
 import me.BerylliumOranges.bosses.Boss09.Boss09_Fire;
-import me.BerylliumOranges.bosses.Boss11.Boss11_Explosion;
 import me.BerylliumOranges.bosses.utils.Hazards.Hazard;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.NormalArmorPenetrationTrait;
@@ -42,9 +41,6 @@ public class BossUtils {
 		THORNS(ChatColor.DARK_GREEN, "Thorns Devil", Boss01_Thorns.class, Arrays.asList(Hazard.CACTUS_DAMAGE),
 				Arrays.asList(SupremeRepulsionTrait.class)),
 
-		TRAP(ChatColor.GRAY, "Trap Devil", Boss02_Trap.class, Arrays.asList(Hazard.NO_LOGOUT, Hazard.SPIDER_SPAWN),
-				Arrays.asList(NormalRepulsionTrait.class)),
-
 		BLOCK(ChatColor.AQUA, "Block Devil", Boss04_Block.class,
 				Arrays.asList(Hazard.NO_LOGOUT, Hazard.NO_BUILDING, Hazard.STAND_ON_GREEN, Hazard.MOVING_MAP),
 				Arrays.asList(NormalRepulsionTrait.class)),
@@ -52,7 +48,7 @@ public class BossUtils {
 		FIRE(ChatColor.of(new Color(170, 66, 3)), "Fire Devil", Boss09_Fire.class, Arrays.asList(Hazard.NO_LOGOUT),
 				Arrays.asList(NormalArmorPenetrationTrait.class)),
 
-		EXPLOSION(ChatColor.RED, "Explosion Devil", Boss11_Explosion.class, Arrays.asList(Hazard.NO_LOGOUT, Hazard.EXPLODE_ON_DEATH),
+		TRAP(ChatColor.GRAY, "Trap Devil", Boss02_Trap.class, Arrays.asList(Hazard.NO_LOGOUT, Hazard.SPIDER_SPAWN),
 				Arrays.asList(NormalRepulsionTrait.class));
 
 		private final String name;
@@ -89,7 +85,7 @@ public class BossUtils {
 		public ChatColor getColor() {
 			return color;
 		}
-		
+
 		public static BossType getTypeFromName(String name) {
 			for (BossType t : values()) {
 				if (ChatColor.stripColor(t.getName()).equals(ChatColor.stripColor(name)))
@@ -101,7 +97,7 @@ public class BossUtils {
 
 	public static Boss getExistingBoss(BossType t) {
 		for (Boss b : bossInstances) {
-			if (b.getBossType().equals(t)) {
+			if (b.getBossType().equals(t) && !b.dead) {
 				return b;
 			}
 		}

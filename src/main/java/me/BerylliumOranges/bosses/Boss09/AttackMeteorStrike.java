@@ -30,7 +30,7 @@ public class AttackMeteorStrike extends BossAction {
 	public ArrayList<Fireball> fireballs = new ArrayList<>();
 
 	public AttackMeteorStrike(LivingEntity source) {
-		super(source, 150, 1000, 80); // Cool down, range, damage (not used directly here)
+		super(source, 150, 1000, 80, 0.1); // Cool down, range, damage (not used directly here)
 	}
 
 	@Override

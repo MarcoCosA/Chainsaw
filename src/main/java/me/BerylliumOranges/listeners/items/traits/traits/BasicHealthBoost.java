@@ -6,30 +6,25 @@ import java.util.UUID;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import me.BerylliumOranges.customEvents.ItemCombineEvent;
 import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
-import me.BerylliumOranges.listeners.items.traits.utils.TraitOperation;
 import me.BerylliumOranges.main.PluginMain;
 import net.md_5.bungee.api.ChatColor;
 
-public class LesserHealthBoost extends ItemTrait implements Listener {
+public class BasicHealthBoost extends ItemTraitBasic implements Listener {
 
 	private static final long serialVersionUID = -7709915568319277958L;
 	public UUID id = UUID.randomUUID();
 	public int healthBonus = 2;
 	public AttributeModifier mod = new AttributeModifier(id, "Max Health", healthBonus, Operation.ADD_NUMBER);
 
-	public LesserHealthBoost() {
+	public BasicHealthBoost() {
 		PluginMain.getInstance().getServer().getPluginManager().registerEvents(this, PluginMain.getInstance());
 	}
 
@@ -60,18 +55,8 @@ public class LesserHealthBoost extends ItemTrait implements Listener {
 	}
 
 	@Override
-	public BukkitRunnable potionRunnable(LivingEntity consumer) {
-		return new BukkitRunnable() {
-			@Override
-			public void run() {
-				consumer.addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, getPotionDuration() * 20, 0));
-			}
-		};
-	}
-
-	@Override
-	public int getRarity() {
-		return 1;
+	public PotionEffectType getPotionEffectType() {
+		return PotionEffectType.HEALTH_BOOST;
 	}
 
 	@Override
@@ -95,15 +80,5 @@ public class LesserHealthBoost extends ItemTrait implements Listener {
 			}
 			e.getItem().setItemMeta(meta);
 		}
-	}
-
-	@Override
-	public boolean executeTrait(TraitOperation op, LivingEntity owner, ItemStack item, boolean victim) {
-		return false;
-	}
-
-	@Override
-	public void toolEffect(LivingEntity center) {
-		center.addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, getPotionDuration() * 5, 0));
 	}
 }

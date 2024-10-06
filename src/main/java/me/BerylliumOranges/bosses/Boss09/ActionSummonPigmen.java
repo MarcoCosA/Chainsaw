@@ -22,7 +22,7 @@ public class ActionSummonPigmen extends BossAction {
 	private static final int SQUAD_FORMATION_LENGTH = 4;
 
 	public ActionSummonPigmen(LivingEntity source) {
-		super(source, 100, 100, 0); // Cooldown, range, and damage settings as needed
+		super(source, 100, 100, 0, 0); // Cooldown, range, and damage settings as needed
 	}
 
 	@Override

@@ -1,35 +1,41 @@
-package me.BerylliumOranges.bosses.utils;
+package me.BerylliumOranges.listeners;
 
-import org.bukkit.Bukkit;
+import java.util.List;
+
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityPortalEvent;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerPortalEvent;
 
 import me.BerylliumOranges.bosses.Boss;
+import me.BerylliumOranges.bosses.utils.BossUtils;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
-import me.BerylliumOranges.bosses.utils.Hazards.Hazard;
+import me.BerylliumOranges.bosses.utils.HazardInventoryGenerator;
+import me.BerylliumOranges.bosses.utils.DungeonChestGenerator;
 import me.BerylliumOranges.listeners.items.traits.globallisteners.InventoryListener;
 import me.BerylliumOranges.main.PluginMain;
 import net.md_5.bungee.api.ChatColor;
 
-public class GlobalBossListener implements Listener {
+public class DungeonChestsListener implements Listener {
 
-	public GlobalBossListener() {
+	public DungeonChestsListener() {
 		PluginMain.getInstance().getServer().getPluginManager().registerEvents(this, PluginMain.getInstance());
 	}
 
 	@EventHandler
 	public void onInventoryClick(InventoryClickEvent e) {
 		String title = InventoryListener.getInventoryTitle(e);
-		if (title.contains(HazardsChestGenerator.DUNGEON_TAG)) {
+		if (title.contains(DungeonChestGenerator.DUNGEON_TAG)) {
 			e.setCancelled(true);
 
-			BossType type = BossType.getTypeFromName(title.split(HazardsChestGenerator.DUNGEON_TAG)[0]);
+			BossType type = BossType.getTypeFromName(title.split(DungeonChestGenerator.DUNGEON_TAG)[0]);
 
 			if (e.getCurrentItem() != null && type != null && (e.getCurrentItem().equals(HazardInventoryGenerator.ENTER_DUNGEON_ITEM)
 					|| e.getCurrentItem().equals(HazardInventoryGenerator.CREATE_DUNGEON_ITEM))) {
@@ -62,17 +68,29 @@ public class GlobalBossListener implements Listener {
 	}
 
 	@EventHandler
-	public void onPortal(EntityPortalEvent e) {
-		if (Hazards.hasHazard(e.getEntity().getWorld(), Hazard.IS_BOSS_WORLD)) {
-			e.setTo(Bukkit.getWorlds().get(0).getSpawnLocation());
+	public void onBlockBreak(BlockBreakEvent event) {
+		Block block = event.getBlock();
+		if (block.getState() instanceof Chest) {
+			Chest chest = (Chest) block.getState();
+			String title = chest.getCustomName();
+			if (!event.getPlayer().getGameMode().equals(GameMode.CREATIVE) && title != null
+					&& title.contains(DungeonChestGenerator.DUNGEON_TAG)) {
+				event.setCancelled(true);
+			}
 		}
 	}
 
 	@EventHandler
-	public void onPortal(PlayerPortalEvent e) {
-		if (Hazards.hasHazard(e.getPlayer().getWorld(), Hazard.IS_BOSS_WORLD)) {
-			e.setTo(e.getPlayer().getRespawnLocation() != null ? e.getPlayer().getRespawnLocation()
-					: Bukkit.getWorlds().get(0).getSpawnLocation());
-		}
+	public void onEntityExplode(EntityExplodeEvent event) {
+		List<Block> blocks = event.blockList();
+		blocks.removeIf(block -> {
+			if (block.getState() instanceof Chest) {
+				Chest chest = (Chest) block.getState();
+				String title = chest.getCustomName();
+				return title != null && title.contains(DungeonChestGenerator.DUNGEON_TAG);
+			}
+			return false;
+		});
 	}
+
 }

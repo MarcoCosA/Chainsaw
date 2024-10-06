@@ -49,7 +49,7 @@ public class SupremeAlexisOneShotTrait extends ItemTrait {
 	}
 
 	@Override
-	public BukkitRunnable potionRunnable(LivingEntity consumer) {
+	public BukkitRunnable potionConsume(LivingEntity consumer) {
 		return new BukkitRunnable() {
 			@Override
 			public void run() {

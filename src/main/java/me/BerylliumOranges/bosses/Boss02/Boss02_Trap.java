@@ -1,8 +1,12 @@
 package me.BerylliumOranges.bosses.Boss02;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -16,6 +20,8 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Evoker;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Spellcaster.Spell;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntitySpellCastEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -25,11 +31,11 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import me.BerylliumOranges.bosses.Boss;
-import me.BerylliumOranges.bosses.utils.BossBarListener;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
 import me.BerylliumOranges.dimensions.chunkgenerators.SkyIslandChunkGenerator;
+import me.BerylliumOranges.listeners.BossBarListener;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
-import me.BerylliumOranges.listeners.items.traits.traits.LesserAttackTrait;
+import me.BerylliumOranges.listeners.items.traits.traits.BasicAttackTrait;
 import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
 import me.BerylliumOranges.main.PluginMain;
 import net.md_5.bungee.api.ChatColor;
@@ -39,14 +45,15 @@ public class Boss02_Trap extends Boss {
 
 	public Boss02_Trap() {
 		super(BossType.TRAP, new SkyIslandChunkGenerator(Arrays.asList(Material.STONE, Material.STONE, Material.STONE, Material.ANDESITE),
-				Arrays.asList(Material.COAL_BLOCK), Biome.FOREST, 40));
-		this.islandSize = 40;
+				Arrays.asList(Material.COAL_BLOCK), Biome.FOREST, 60));
+		this.islandSize = 60;
+		world.setTime(24000);
 	}
 
 	@Override
 	public List<ItemStack> getDrops() {
-		return Arrays.asList(ItemBuilder.buildPotionItem(new LesserAttackTrait(), false),
-				ItemBuilder.buildItem(new ItemStack(Material.DIAMOND_SWORD), Arrays.asList(new LesserAttackTrait())));
+		return Arrays.asList(ItemBuilder.buildPotionItem(new BasicAttackTrait(), false),
+				ItemBuilder.buildItem(new ItemStack(Material.DIAMOND_SWORD), Arrays.asList(new BasicAttackTrait())));
 	}
 
 	@Override
@@ -63,7 +70,7 @@ public class Boss02_Trap extends Boss {
 
 	@Override
 	public void bossIntro(Location loc) {
-		bosses.add(summonBoss(loc.clone().add(0, 10, 0)));
+		summonBoss(loc.clone().add(0, 10, 0));
 		LivingEntity boss = bosses.get(0);
 		boss.setAI(false);
 		Location location = boss.getLocation();
@@ -74,35 +81,44 @@ public class Boss02_Trap extends Boss {
 
 			@Override
 			public void run() {
+				introAnimationTicks++;
 				if (introAnimationTicks == 60) {
-					b = boss.getLocation().clone().add(boss.getLocation().getDirection()).getBlock();
-					b.setType(Material.BARRIER);
-					b.getRelative(1, 0, 0).setType(Material.LEVER);
-					b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LEVER_CLICK, 10, 1F);
+					b = boss.getLocation().add(0, 1, 1).getBlock();
+					b.setType(Material.LEVER);
+					b.getRelative(0, 0, 1).setType(TowerPopulator.TOWER_UNUSED);
+					b.getWorld().playSound(b.getLocation(), Sound.BLOCK_STONE_PLACE, 10, 1F);
 				}
-
-				if (introAnimationTicks == 90) {
-					BlockState state = b.getRelative(1, 0, 0).getState();
-					Lever lever = (Lever) state.getData();
+				if (introAnimationTicks == 85) {
+					if (b.getType().equals(Material.LEVER)) {
+						BlockState state = b.getState();
+						Lever lever = (Lever) state.getData();
+						lever.setPowered(true);
+						state.setData(lever);
+						state.update(true);
+					}
 					invulLever = new MakeInvulerable(boss);
-					invulLever.apply(b.getRelative(1, 0, 0).getLocation());
-					lever.setPowered(true);
-					state.setData(lever);
-					state.update(true);
+					invulLever.apply(b.getLocation(), b.getRelative(0, 0, 1));
+					b.getWorld().playSound(b.getLocation(), Sound.BLOCK_LEVER_CLICK, 10, 1F);
+					b.getWorld().spawnParticle(Particle.END_ROD, b.getLocation().clone().add(0.5, 0.5, 0.5), 10);
+					invulLever.triggerOff();
 
 				}
 				if (introAnimationTicks == 100) {
-					b.getWorld().spawnParticle(Particle.FIREWORK, b.getLocation(), 50);
 					b.setType(Material.AIR);
-					b.getRelative(1, 0, 0).setType(Material.AIR);
+					b.getWorld().spawnParticle(Particle.BLOCK, b.getLocation().clone().add(0.5, 0.5, 1.5), 30,
+							Bukkit.createBlockData(b.getRelative(0, 0, 1).getType()));
+					b.getRelative(0, 0, 1).setType(Material.AIR);
 				}
 				if (introAnimationTicks == 110) {
-					LeverPopulator p = new LeverPopulator();
-					p.makeTowers(location, STAGE_1_TOWERS.length);
+					TowerPopulator p = new TowerPopulator();
+					ArrayList<LeverEffect> types = new ArrayList<>();
 					for (LeverEffectType type : STAGE_1_TOWERS)
-						p.addLeverEffect(type.createEffect());
-					p.addLeverEffect(invulLever);
-					p.placeTowersAndLevers();
+						types.add(type.createEffect());
+
+					Collections.shuffle(types, new Random(1));
+					types.add(types.set((int) (Math.random() * types.size()), invulLever));
+					p.makeTowers(location, types);
+					p.levers = types;
 				}
 				if (introAnimationTicks == 250) {
 					new AttackBlockWhip(boss);
@@ -115,9 +131,7 @@ public class Boss02_Trap extends Boss {
 					this.cancel();
 					return;
 				}
-				introAnimationTicks++;
 			}
-
 		}.runTaskTimer(PluginMain.getInstance(), 20L, 1L);
 	}
 
@@ -151,10 +165,16 @@ public class Boss02_Trap extends Boss {
 			for (Class<? extends ItemTrait> clazz : traitClasses) {
 				ItemTrait trait = clazz.getDeclaredConstructor().newInstance();
 
-				trait.potionRunnable(boss);
+				trait.potionConsume(boss);
 			}
 		} catch (ReflectiveOperationException roe) {
+			Bukkit.broadcastMessage("Errored here");
 			roe.printStackTrace();
+		}
+
+		Bukkit.broadcastMessage("Bosses Size: " + bosses.size());
+		for (LivingEntity b : bosses) {
+			Bukkit.broadcastMessage("-  " + b.getName());
 		}
 		new BossBarListener(bosses, BarColor.WHITE, 4);
 	}
@@ -169,4 +189,14 @@ public class Boss02_Trap extends Boss {
 		}
 		return item;
 	}
+
+	
+	//Stops the Evoker Boss from spawning Vexes
+	@EventHandler
+	public void onVex(EntitySpellCastEvent e) {
+		if (bosses.contains(e.getEntity())) {
+			e.setCancelled(true);
+		}
+	}
+
 }

@@ -4,37 +4,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionType;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import me.BerylliumOranges.listeners.items.traits.utils.TraitOperation;
 import me.BerylliumOranges.main.PluginMain;
 import net.md_5.bungee.api.ChatColor;
 
-public class CursedFrictionTrait extends ItemTrait implements Listener {
+public class CursedFrictionTrait extends ItemTraitCursed implements Listener {
 
 	private static final long serialVersionUID = -7709915568319277958L;
 
 	public double maxSpeed = 0.2;
 
 	public CursedFrictionTrait() {
-		curse = true;
 		potionDuration = 150;
 	}
 
 	@Override
 	public String getTraitName() {
 		return getTraitColor() + "Curse of Friction";
-	}
-
-	@Override
-	public ChatColor getTraitColor() {
-		return ChatColor.DARK_RED;
 	}
 
 	@Override
@@ -47,15 +37,10 @@ public class CursedFrictionTrait extends ItemTrait implements Listener {
 		return ChatColor.WHITE + "Your velocity is capped";
 	}
 
-	@Override
-	public PotionType getPotionType() {
-		return PotionType.WEAKNESS;
-	}
-
 	List<LivingEntity> entitiesWithPotion = new ArrayList<>();
 
 	// Untested
-	public BukkitRunnable potionRunnable(LivingEntity consumer) {
+	public BukkitRunnable potionConsume(LivingEntity consumer) {
 		return new BukkitRunnable() {
 			@Override
 			public void run() {
@@ -94,11 +79,6 @@ public class CursedFrictionTrait extends ItemTrait implements Listener {
 	}
 
 	@Override
-	public int getRarity() {
-		return 2;
-	}
-
-	@Override
 	public ToolOption getToolOption() {
 		return ToolOption.ANY;
 	}
@@ -117,12 +97,6 @@ public class CursedFrictionTrait extends ItemTrait implements Listener {
 //		}
 	}
 
-	@Override
-	public boolean executeTrait(TraitOperation op, LivingEntity owner, ItemStack item, boolean victim) {
-		return false;
-	}
-
-	@Override
 	public void toolEffect(LivingEntity center) {
 		new BukkitRunnable() {
 			private final long startTime = System.currentTimeMillis(); // Store the start time

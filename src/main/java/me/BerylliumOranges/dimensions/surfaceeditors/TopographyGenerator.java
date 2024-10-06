@@ -86,19 +86,19 @@ public class TopographyGenerator {
 				}
 				int yMod = ticksElapsed - 10;
 
-				for (Vector position : blockPlacementMap) {
-					Block block = world.getBlockAt(position.getBlockX(), position.getBlockY() + yMod - 1, position.getBlockZ());
-
-					if (!block.getType().equals(Material.OBSIDIAN)) {
-
-						block.setType(Material.AIR);
-//						for (Entity ent : world.getEntities()) {
-//							if (ent.getLocation().getBlock().equals(block)) {
-//								ent.teleport(ent.getLocation().add(0, 1, 0));
-//							}
-//						}
-					}
-				}
+//				for (Vector position : blockPlacementMap) {
+//					Block block = world.getBlockAt(position.getBlockX(), position.getBlockY() + yMod - 1, position.getBlockZ());
+//
+//					if (!block.getType().equals(Material.OBSIDIAN)) {
+//
+//						block.setType(Material.AIR);
+////						for (Entity ent : world.getEntities()) {
+////							if (ent.getLocation().getBlock().equals(block)) {
+////								ent.teleport(ent.getLocation().add(0, 1, 0));
+////							}
+////						}
+//					}
+//				}
 
 				for (Vector position : blockPlacementMap) {
 					Material mat = Material.RED_CONCRETE;

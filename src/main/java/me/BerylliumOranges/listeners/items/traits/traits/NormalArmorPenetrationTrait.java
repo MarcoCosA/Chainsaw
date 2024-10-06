@@ -9,7 +9,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
 import me.BerylliumOranges.listeners.items.traits.utils.TraitOperation;
@@ -48,18 +47,8 @@ public class NormalArmorPenetrationTrait extends ItemTrait {
 	}
 
 	@Override
-	public BukkitRunnable potionRunnable(LivingEntity consumer) {
-		return new BukkitRunnable() {
-			@Override
-			public void run() {
-				consumer.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, getPotionDuration() * 20, 0));
-			}
-		};
-	}
-
-	@Override
-	public int getRarity() {
-		return 1;
+	public void handlePotionEffectStart() {
+		consumer.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, getPotionDuration() * 20, 0));
 	}
 
 	@Override
@@ -77,10 +66,5 @@ public class NormalArmorPenetrationTrait extends ItemTrait {
 		} else
 			Bukkit.broadcastMessage("Ignored");
 		return false;
-	}
-
-	@Override
-	public void toolEffect(LivingEntity center) {
-		center.damage(1);
 	}
 }

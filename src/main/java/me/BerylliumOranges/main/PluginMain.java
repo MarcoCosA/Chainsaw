@@ -1,5 +1,6 @@
 package me.BerylliumOranges.main;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -20,14 +21,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.BerylliumOranges.bosses.Boss;
+import me.BerylliumOranges.bosses.Boss11.Screen;
 import me.BerylliumOranges.bosses.utils.BossUtils;
-import me.BerylliumOranges.bosses.utils.BossesSpawnListener;
-import me.BerylliumOranges.bosses.utils.GlobalBossListener;
+import me.BerylliumOranges.bosses.utils.DungeonChestGenerator;
 import me.BerylliumOranges.bosses.utils.Hazards;
 import me.BerylliumOranges.bosses.utils.Hazards.Hazard;
-import me.BerylliumOranges.bosses.utils.HazardsChestGenerator;
 import me.BerylliumOranges.dimensions.CustomChunkGenerator;
+import me.BerylliumOranges.listeners.BossesSpawnListener;
+import me.BerylliumOranges.listeners.DungeonChestsListener;
 import me.BerylliumOranges.listeners.ItemsAndTradesListener;
+import me.BerylliumOranges.listeners.PortalTracker;
 import me.BerylliumOranges.listeners.items.traits.globallisteners.GlobalTraitListener;
 import me.BerylliumOranges.listeners.items.traits.globallisteners.InventoryListener;
 import me.BerylliumOranges.listeners.items.traits.utils.TraitCache;
@@ -38,23 +41,27 @@ public class PluginMain extends JavaPlugin implements Listener {
 
 	private static final String ITEM_DATA_KEY = "custom_item_data";
 	public static final String DIMENSION_1_NAME = "dimension1";
+	public static World dimension1;
 	private NamespacedKey dataKey;
+	private PortalTracker portalTracker;
 
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onEnable() {
 		instance = this;
-		if (getServer().getWorld(DIMENSION_1_NAME) == null) {
+		dimension1 = getServer().getWorld(DIMENSION_1_NAME);
+		if (dimension1 == null) {
 			WorldCreator creator = new WorldCreator(DIMENSION_1_NAME);
 			creator.generator(new CustomChunkGenerator());
 			World w = Bukkit.getServer().createWorld(creator);
+			dimension1 = w;
 			w.setGameRule(GameRule.DO_MOB_SPAWNING, false);
 			w.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
 			w.setGameRule(GameRule.DO_FIRE_TICK, false);
 			w.setGameRule(GameRule.DO_VINES_SPREAD, false);
 			w.setGameRule(GameRule.RANDOM_TICK_SPEED, 0);
 			w.setTime(23150);
-			HazardsChestGenerator.placeChests(w);
+			DungeonChestGenerator.placeChests(w);
 			Hazards.saveHazards(w, Arrays.asList(Hazard.IS_BOSS_WORLD));
 			w.setSpawnLocation(0, w.getHighestBlockYAt(0, 0) + 1, 0);
 			Boss.createEndPortal(w.getSpawnLocation().clone().add(-4, 0, 0), Material.BELL);
@@ -65,11 +72,13 @@ public class PluginMain extends JavaPlugin implements Listener {
 		TraitCache.loadTraitsFromFile();
 
 		// load listeners
+		portalTracker = new PortalTracker();
 		new GlobalTraitListener();
-		new GlobalBossListener();
+		new DungeonChestsListener();
 		new InventoryListener();
 		new ItemsAndTradesListener(); // Testing only
 		new Hazards();
+		new Screen.FrameListener();
 
 		dataKey = new NamespacedKey(this, ITEM_DATA_KEY);
 		getServer().getPluginManager().registerEvents(this, this);
@@ -91,10 +100,18 @@ public class PluginMain extends JavaPlugin implements Listener {
 
 	@Override
 	public void onDisable() {
+		portalTracker.disable();
 		TraitCache.saveTraitsToFile();
 		for (Boss b : BossUtils.bossInstances) {
 			b.despawn();
 		}
+
+		for (World w : Bukkit.getServer().getWorlds()) {
+			if (Hazards.hasHazard(w, Hazard.IS_BOSS_WORLD) && !w.equals(dimension1)) {
+				Boss.removeWorld(w, false);
+			}
+		}
+
 	}
 
 	public static PluginMain getInstance() {
@@ -140,5 +157,10 @@ public class PluginMain extends JavaPlugin implements Listener {
 			}
 		}
 		return ps;
+	}
+
+	@Override
+	public File getFile() {
+		return super.getFile();
 	}
 }

@@ -27,12 +27,12 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import me.BerylliumOranges.bosses.Boss;
-import me.BerylliumOranges.bosses.utils.BossBarListener;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
 import me.BerylliumOranges.dimensions.chunkgenerators.SkyIslandChunkGenerator;
 import me.BerylliumOranges.dimensions.surfaceeditors.SurfacePopulator;
+import me.BerylliumOranges.listeners.BossBarListener;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
-import me.BerylliumOranges.listeners.items.traits.traits.LesserAttackTrait;
+import me.BerylliumOranges.listeners.items.traits.traits.BasicAttackTrait;
 import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
 import me.BerylliumOranges.main.PluginMain;
 import net.md_5.bungee.api.ChatColor;
@@ -48,8 +48,8 @@ public class Boss09_Fire extends Boss {
 
 	@Override
 	public List<ItemStack> getDrops() {
-		return Arrays.asList(ItemBuilder.buildPotionItem(new LesserAttackTrait(), false),
-				ItemBuilder.buildItem(new ItemStack(Material.DIAMOND_SWORD), Arrays.asList(new LesserAttackTrait())));
+		return Arrays.asList(ItemBuilder.buildPotionItem(new BasicAttackTrait(), false),
+				ItemBuilder.buildItem(new ItemStack(Material.DIAMOND_SWORD), Arrays.asList(new BasicAttackTrait())));
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class Boss09_Fire extends Boss {
 	@Override
 	public void bossIntro(Location loc) {
 		introAnimationTicks = -100;
-		bosses.add(summonBoss(loc.clone().add(0, 10, 0)));
+		summonBoss(loc.clone().add(0, 10, 0));
 		LivingEntity boss = bosses.get(0);
 		boss.setAI(false);
 		Location location = boss.getLocation();
@@ -155,7 +155,7 @@ public class Boss09_Fire extends Boss {
 			List<Class<? extends ItemTrait>> traitClasses = getBossType().getTraits();
 			for (Class<? extends ItemTrait> clazz : traitClasses) {
 				ItemTrait trait = clazz.getDeclaredConstructor().newInstance();
-				trait.potionRunnable(boss);
+				trait.potionConsume(boss);
 			}
 		} catch (ReflectiveOperationException roe) {
 			roe.printStackTrace();

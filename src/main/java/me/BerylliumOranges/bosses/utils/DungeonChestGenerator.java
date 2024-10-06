@@ -16,7 +16,7 @@ import org.bukkit.block.data.Directional;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
 import net.md_5.bungee.api.ChatColor;
 
-public class HazardsChestGenerator {
+public class DungeonChestGenerator {
 
 	public static final String DUNGEON_TAG = ChatColor.DARK_GRAY + " Dungeon";
 	public static List<LocationDistancePair> locations = new ArrayList<>();

@@ -64,7 +64,7 @@ public class NormalTank extends ItemTrait implements Listener {
 	List<LivingEntity> entitiesWithPotion = new ArrayList<>();
 
 	@Override
-	public BukkitRunnable potionRunnable(LivingEntity consumer) {
+	public BukkitRunnable potionConsume(LivingEntity consumer) {
 		return new BukkitRunnable() {
 			@Override
 			public void run() {

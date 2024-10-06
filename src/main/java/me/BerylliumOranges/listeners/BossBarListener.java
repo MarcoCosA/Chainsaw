@@ -1,4 +1,4 @@
-package me.BerylliumOranges.bosses.utils;
+package me.BerylliumOranges.listeners;
 
 import java.util.ArrayList;
 
@@ -20,6 +20,7 @@ import me.BerylliumOranges.main.PluginMain;
 public class BossBarListener implements Listener {
 	public ArrayList<LivingEntity> bosses;
 	public BossBar bar;
+	public BarColor color;
 	public int tier;
 	public ArrayList<BossBarListener> allBossBars = new ArrayList<>();
 	private String overrideName = null;
@@ -37,6 +38,8 @@ public class BossBarListener implements Listener {
 	private void makeBossBar(ArrayList<LivingEntity> bosses, BarColor color, int tier) {
 		this.bosses = bosses;
 		this.tier = tier;
+		this.color = color;
+		Bukkit.broadcastMessage("Name is " + bosses.get(0).getCustomName());
 		String name = bosses.get(0).getCustomName();
 		if (name == null)
 			name = bosses.get(0).getName();
@@ -106,6 +109,21 @@ public class BossBarListener implements Listener {
 		int mod = 22 + (tier * 3) * (tier * 3);
 		outerloop: for (Player p : Bukkit.getServer().getOnlinePlayers()) {
 			for (BossBarListener b : allBossBars) {
+				boolean found = false;
+				for (LivingEntity boss : b.getBosses()) {
+					if (boss.isInvulnerable()) {
+						bar.setColor(BarColor.BLUE);
+						bar.setStyle(BarStyle.SOLID);
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					bar.setColor(color);
+					BarStyle s = getSegmentation(bosses);
+					if (!bar.getStyle().equals(s))
+						bar.setStyle(s);
+				}
 				if (b.getBar().getPlayers().contains(p)) {
 					if (b.getTier() > this.getTier()) {
 						bar.removePlayer(p);

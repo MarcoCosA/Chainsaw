@@ -22,7 +22,7 @@ public class AttackCactus extends BossAction {
 	private List<FallingBlock> cacti = new ArrayList<>();
 
 	public AttackCactus(LivingEntity source) {
-		super(source, 200, 10, 1);
+		super(source, 200, 10, 1, 0.1);
 	}
 
 	@Override

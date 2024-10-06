@@ -19,14 +19,13 @@ import me.BerylliumOranges.listeners.items.traits.utils.TraitOperation;
 import me.BerylliumOranges.main.PluginMain;
 import net.md_5.bungee.api.ChatColor;
 
-public class CursedPanicTrait extends ItemTrait implements Listener {
+public class CursedPanicTrait extends ItemTraitCursed implements Listener {
 
 	private static final long serialVersionUID = -7709915568319277958L;
 
 	public double maxSpeed = 0.2;
 
 	public CursedPanicTrait() {
-		curse = true;
 		potionDuration = 150;
 	}
 
@@ -58,7 +57,7 @@ public class CursedPanicTrait extends ItemTrait implements Listener {
 	List<LivingEntity> entitiesWithPotion = new ArrayList<>();
 
 	// Untested
-	public BukkitRunnable potionRunnable(LivingEntity consumer) {
+	public BukkitRunnable potionConsume(LivingEntity consumer) {
 		return new BukkitRunnable() {
 			@Override
 			public void run() {
@@ -95,11 +94,6 @@ public class CursedPanicTrait extends ItemTrait implements Listener {
 	}
 
 	@Override
-	public int getRarity() {
-		return 2;
-	}
-
-	@Override
 	public ToolOption getToolOption() {
 		return ToolOption.ARMOR_EXCLUSIVE;
 	}
@@ -107,15 +101,14 @@ public class CursedPanicTrait extends ItemTrait implements Listener {
 	@Override
 	public boolean executeTrait(TraitOperation op, LivingEntity owner, ItemStack item, boolean victim) {
 		if (op.getEvent() instanceof EntityDamageByEntityEvent && victim && Math.random() > 0.9) {
-			toolEffect(owner);
+			doDizzinessEffect(owner);
 			return true;
 		} else
 			Bukkit.broadcastMessage("Ignored");
 		return false;
 	}
 
-	@Override
-	public void toolEffect(LivingEntity target) {
+	public void doDizzinessEffect(LivingEntity target) {
 		new BukkitRunnable() {
 			private int ticksElapsed = 0;
 			private final int potionDuration = 15;
@@ -130,7 +123,7 @@ public class CursedPanicTrait extends ItemTrait implements Listener {
 				}
 
 				if (target instanceof LivingEntity) {
-					LivingEntity entity = (LivingEntity) target;
+					LivingEntity entity = target;
 					float yaw = random.nextFloat() * 360 - 180;
 					float pitch = random.nextFloat() * 360 - 180;
 					Location newDirection = entity.getLocation().clone();
@@ -143,5 +136,4 @@ public class CursedPanicTrait extends ItemTrait implements Listener {
 			}
 		}.runTaskTimer(PluginMain.getInstance(), 0L, 1L);
 	}
-
 }

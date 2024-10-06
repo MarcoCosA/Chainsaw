@@ -1,13 +1,14 @@
 package me.BerylliumOranges.misc;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
-import me.BerylliumOranges.listeners.items.traits.traits.LesserHealPower;
+import me.BerylliumOranges.listeners.items.traits.traits.BasicHealPower;
 import me.BerylliumOranges.listeners.items.traits.traits.PlaceholderTrait;
 import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
 import me.BerylliumOranges.main.DirectoryTools;
@@ -17,7 +18,7 @@ public class MiscItems {
 	public static ItemStack getFreeChestplate() {
 		ItemStack item = new ItemStack(Material.DIAMOND_CHESTPLATE);
 		List<ItemTrait> traits = new ArrayList<>();
-		traits.add(new LesserHealPower());
+		traits.add(new BasicHealPower());
 		ItemBuilder.buildItem(item, traits);
 		return item;
 	}
@@ -47,6 +48,7 @@ public class MiscItems {
 		ArrayList<ItemStack> items = new ArrayList<>();
 		ArrayList<Class<? extends ItemTrait>> classes = DirectoryTools.getClasses("me.BerylliumOranges.listeners.items.traits.traits",
 				ItemTrait.class);
+		classes.sort(Comparator.comparing(Class<? extends ItemTrait>::getName)); // Sort items by name
 		for (Class<? extends ItemTrait> clazz : classes) {
 			try {
 				ItemTrait itemTrait = clazz.getDeclaredConstructor().newInstance();
@@ -55,6 +57,8 @@ public class MiscItems {
 				e.printStackTrace();
 			}
 		}
+
 		return items;
 	}
+
 }

@@ -1,7 +1,6 @@
 package me.BerylliumOranges.main;
 
 import java.io.File;
-import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -10,20 +9,17 @@ import org.bukkit.Location;
 import org.bukkit.TreeType;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
+import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
-
-import com.theokanning.openai.completion.chat.ChatCompletionRequest;
-import com.theokanning.openai.completion.chat.ChatMessage;
-import com.theokanning.openai.service.OpenAiService;
 
 import me.BerylliumOranges.bosses.Boss;
+import me.BerylliumOranges.bosses.Boss11.Screen;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
-import me.BerylliumOranges.bosses.utils.HazardsChestGenerator;
+import me.BerylliumOranges.bosses.utils.DungeonChestGenerator;
 import me.BerylliumOranges.dimensions.CustomChunkGenerator;
 import me.BerylliumOranges.misc.MiscItems;
 
@@ -38,10 +34,24 @@ public class CommandParser {
 				creator.generator(new CustomChunkGenerator());
 				World w = Bukkit.getServer().createWorld(creator);
 				sender.sendMessage(ChatColor.GREEN + "Created " + args[0]);
-				HazardsChestGenerator.placeChests(w);
+				DungeonChestGenerator.placeChests(w);
 
 				return true;
 			}
+			if (sender instanceof Player && sender.isOp() && cmd.getName().equalsIgnoreCase("screen")) {
+				Player player = (Player) sender;
+
+				new Screen(player.getLocation(), args[0], BlockFace.valueOf(args[1].toUpperCase()));
+
+				return true;
+			} else if (sender instanceof Player && sender.isOp() && cmd.getName().equalsIgnoreCase("wall")) {
+				Player player = (Player) sender;
+
+				Screen.makeWall(player.getLocation(), args[0], BlockFace.valueOf(args[1].toUpperCase()), Integer.parseInt(args[2]));
+
+				return true;
+			}
+
 			if (sender instanceof Player && sender.isOp() && cmd.getName().equalsIgnoreCase("deletedimension")) {
 				if (args.length < 1) {
 					sender.sendMessage(ChatColor.RED + "Usage: /deletedimension <worldName>");
@@ -127,46 +137,6 @@ public class CommandParser {
 
 			if (sender instanceof Player && sender.isOp() && cmd.getName().equalsIgnoreCase("getitems")) {
 				getItems(sender, args);
-				return true;
-			}
-			if (sender instanceof Player && sender.isOp() && cmd.getName().equalsIgnoreCase("gpt")) {
-				OpenAiService service = new OpenAiService("OPEN_API_KEY_HERE");
-				ArrayList<ChatMessage> messages = new ArrayList<>();
-
-				String input = "";
-				for (String s : args)
-					input += s + " ";
-				messages.add(new ChatMessage("system",
-						"As an enigmatic Minecraft mage, express your thoughts somewhat simply, ambiguously and while only using 1-2 sentences of actual content. You can include a greeting outside the 1-2 sentence limit."));
-				messages.add(new ChatMessage("system", "Player " + sender.getName() + " is talking to you for the first time."));
-				messages.add(new ChatMessage("user", input));
-				sender.sendMessage("[" + ChatColor.GREEN + sender.getName() + ChatColor.WHITE + "] " + input);
-
-				ChatCompletionRequest completionRequest = ChatCompletionRequest.builder().messages(messages).model("gpt-3.5-turbo").build();
-
-				new BukkitRunnable() {
-					@Override
-					public void run() {
-						try {
-							StringBuilder chatBuilder = new StringBuilder();
-							chatBuilder.append("\n[" + ChatColor.YELLOW + "Wizard" + ChatColor.WHITE + "] ");
-							service.createChatCompletion(completionRequest).getChoices()
-									.forEach(e -> chatBuilder.append(e.getMessage().getContent()));
-							String chat = chatBuilder.toString();
-
-							Bukkit.getScheduler().runTask(PluginMain.getInstance(), new Runnable() {
-								@Override
-								public void run() {
-									sender.sendMessage(chat);
-								}
-							});
-						} catch (Exception er) {
-							sender.sendMessage(
-									"\n[" + ChatColor.YELLOW + "Wizard" + ChatColor.WHITE + "] I'm not feeling too well, come back later.");
-						}
-					}
-				}.runTaskAsynchronously(PluginMain.getInstance());
-
 				return true;
 			}
 		}

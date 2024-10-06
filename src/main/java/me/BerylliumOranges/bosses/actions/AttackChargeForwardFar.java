@@ -6,7 +6,7 @@ import org.bukkit.entity.LivingEntity;
 public class AttackChargeForwardFar extends BossAction {
 
 	public AttackChargeForwardFar(LivingEntity source) {
-		super(source, 500, 100, 20);
+		super(source, 500, 100, 20, 0.2);
 		this.currentTick = 490;
 	}
 

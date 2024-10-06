@@ -11,10 +11,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import me.BerylliumOranges.customEvents.ItemCombineEvent;
 import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
@@ -22,14 +20,14 @@ import me.BerylliumOranges.listeners.items.traits.utils.TraitOperation;
 import me.BerylliumOranges.main.PluginMain;
 import net.md_5.bungee.api.ChatColor;
 
-public class LesserSpeedTrait extends ItemTrait implements Listener {
+public class BasicSpeedTrait extends ItemTraitBasic implements Listener {
 
 	private static final long serialVersionUID = -7709915568319277958L;
 	public UUID id = UUID.randomUUID();
 	public int speedPercentage = 7;
 	public AttributeModifier mod = new AttributeModifier(id, "Speed", speedPercentage / 100.0, Operation.ADD_SCALAR);
 
-	public LesserSpeedTrait() {
+	public BasicSpeedTrait() {
 		PluginMain.getInstance().getServer().getPluginManager().registerEvents(this, PluginMain.getInstance());
 	}
 
@@ -60,18 +58,8 @@ public class LesserSpeedTrait extends ItemTrait implements Listener {
 	}
 
 	@Override
-	public BukkitRunnable potionRunnable(LivingEntity consumer) {
-		return new BukkitRunnable() {
-			@Override
-			public void run() {
-				consumer.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, getPotionDuration() * 20, 0));
-			}
-		};
-	}
-
-	@Override
-	public int getRarity() {
-		return 1;
+	public PotionEffectType getPotionEffectType() {
+		return PotionEffectType.SPEED;
 	}
 
 	@Override
@@ -104,8 +92,4 @@ public class LesserSpeedTrait extends ItemTrait implements Listener {
 		return false;
 	}
 
-	@Override
-	public void toolEffect(LivingEntity center) {
-		center.damage(1);
-	}
 }

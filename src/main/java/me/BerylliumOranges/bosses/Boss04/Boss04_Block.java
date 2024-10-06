@@ -20,13 +20,13 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import me.BerylliumOranges.bosses.Boss;
-import me.BerylliumOranges.bosses.utils.BossBarListener;
 import me.BerylliumOranges.bosses.utils.BossUtils;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
 import me.BerylliumOranges.bosses.utils.PlayerStateSaver;
 import me.BerylliumOranges.dimensions.chunkgenerators.CubeChunkGenerator;
+import me.BerylliumOranges.listeners.BossBarListener;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
-import me.BerylliumOranges.listeners.items.traits.traits.LesserAttackTrait;
+import me.BerylliumOranges.listeners.items.traits.traits.BasicAttackTrait;
 import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
 import net.md_5.bungee.api.ChatColor;
 
@@ -54,8 +54,8 @@ public class Boss04_Block extends Boss {
 
 	@Override
 	public List<ItemStack> getDrops() {
-		return Arrays.asList(ItemBuilder.buildPotionItem(new LesserAttackTrait(), false),
-				ItemBuilder.buildItem(new ItemStack(Material.DIAMOND_SWORD), Arrays.asList(new LesserAttackTrait())));
+		return Arrays.asList(ItemBuilder.buildPotionItem(new BasicAttackTrait(), false),
+				ItemBuilder.buildItem(new ItemStack(Material.DIAMOND_SWORD), Arrays.asList(new BasicAttackTrait())));
 	}
 
 	@Override
@@ -93,7 +93,7 @@ public class Boss04_Block extends Boss {
 			for (Class<? extends ItemTrait> clazz : traitClasses) {
 				ItemTrait trait = clazz.getDeclaredConstructor().newInstance();
 
-				trait.potionRunnable(bottom);
+				trait.potionConsume(bottom);
 			}
 		} catch (ReflectiveOperationException roe) {
 			roe.printStackTrace();
@@ -134,7 +134,7 @@ public class Boss04_Block extends Boss {
 			for (Class<? extends ItemTrait> clazz : traitClasses) {
 				ItemTrait trait = clazz.getDeclaredConstructor().newInstance();
 
-				trait.potionRunnable(boss);
+				trait.potionConsume(boss);
 			}
 		} catch (ReflectiveOperationException roe) {
 			roe.printStackTrace();

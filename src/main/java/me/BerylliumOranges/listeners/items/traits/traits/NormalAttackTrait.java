@@ -8,7 +8,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
 import me.BerylliumOranges.listeners.items.traits.utils.TraitOperation;
@@ -34,7 +33,7 @@ public class NormalAttackTrait extends ItemTrait {
 
 	@Override
 	public String getPotionDescription() {
-		return ChatColor.WHITE + "Gives " + getTraitColor() + "Strength II " + ChatColor.WHITE + ""
+		return ChatColor.WHITE + "Gives " + getTraitColor() + "Strength I " + ChatColor.WHITE + ""
 				+ ItemBuilder.getTimeInMinutes(getPotionDuration());
 	}
 
@@ -52,18 +51,8 @@ public class NormalAttackTrait extends ItemTrait {
 	int time = 0;
 
 	@Override
-	public BukkitRunnable potionRunnable(LivingEntity consumer) {
-		return new BukkitRunnable() {
-			@Override
-			public void run() {
-				consumer.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, potionDuration, 1));
-			}
-		};
-	}
-
-	@Override
-	public int getRarity() {
-		return 2;
+	public void handlePotionEffectStart() {
+		consumer.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, potionDuration, 1));
 	}
 
 	@Override
@@ -95,10 +84,4 @@ public class NormalAttackTrait extends ItemTrait {
 		}
 		return false;
 	}
-
-	@Override
-	public void toolEffect(LivingEntity center) {
-		center.damage(damage);
-	}
-
 }

@@ -18,8 +18,13 @@ commands:
       aliases: null
       permission: null
       usage: /<command>
-   gpt:
-      description: Talk with chatgpt.
+   screen:
+      description: Spawn yugi
+      aliases: null
+      permission: null
+      usage: /<command>
+   wall:
+      description: Spawn tiles
       aliases: null
       permission: null
       usage: /<command>
@@ -48,3 +53,4 @@ commands:
       aliases: null
       permission: null
       usage: /<command> <boss id (integer)>
+   

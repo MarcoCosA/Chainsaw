@@ -19,7 +19,6 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -176,9 +175,7 @@ public class TraitCache {
 			List<ItemTrait> traits = new ArrayList<>();
 			for (ItemStack item : inv.getContents()) {
 				if (item != null && item.getType().equals(Material.POTION) && hasItemId(item)) {
-					for (ItemTrait traitToAdd : getTraitsFromItem(item)) {
-						traits.add(traitToAdd);
-					}
+					traits.addAll(getTraitsFromItem(item));
 				} else if (item == null || (item.hasItemMeta() && item.getType().equals(Material.POTION))) {
 					traits.add(new PlaceholderTrait());
 				}
@@ -186,6 +183,7 @@ public class TraitCache {
 			addTraitsToItem(holder.getItem(), traits);
 
 			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(PluginMain.getInstance(), new Runnable() {
+				@Override
 				public void run() {
 					holder.getPlayer().updateInventory();
 				}
@@ -194,12 +192,12 @@ public class TraitCache {
 		return inv;
 	}
 
-	private static final String TRAITS_FILE_PATH = "plugins/Chainsaw/traits.dat";
+	private static final String TRAITS_FILE = "traits.dat";
 
 	public static void saveTraitsToFile() {
 		try {
 			// Ensure the directory exists before writing the file
-			File file = new File(TRAITS_FILE_PATH);
+			File file = new File(PluginMain.getInstance().getDataFolder(), TRAITS_FILE);
 			File directory = file.getParentFile(); // Get the directory part of the file path
 			if (!directory.exists()) {
 				directory.mkdirs(); // Make the directory (including any parent directories)
@@ -226,7 +224,7 @@ public class TraitCache {
 
 	@SuppressWarnings("unchecked")
 	public static void loadTraitsFromFile() {
-		File file = new File(TRAITS_FILE_PATH);
+		File file = new File(PluginMain.getInstance().getDataFolder(), TRAITS_FILE);
 		if (file.exists() && file.length() > 0) { // Check that the file is not empty
 			try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
 				Map<String, String> serializedTraits = (Map<String, String>) ois.readObject();
@@ -237,11 +235,8 @@ public class TraitCache {
 					for (String serializedList : serializedLists) {
 						for (String serializedTrait : serializedList.split(", ")) {
 							ItemTrait t = TraitSerializationUtils.deserializeTrait(serializedTrait);
-							if (t instanceof Listener)
-								PluginMain.getInstance().getServer().getPluginManager().registerEvents((Listener) t,
-										PluginMain.getInstance());
+							t.registerListeners();
 							traitLists.add(t);
-
 						}
 					}
 					itemTraits.put(entry.getKey(), traitLists);

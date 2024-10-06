@@ -36,8 +36,11 @@ public class GlobalTraitListener implements Listener {
 	public void potionDrink(PlayerItemConsumeEvent e) {
 		if (TraitCache.hasItemId(e.getItem())) {
 			List<ItemTrait> traits = TraitCache.getTraitsFromItem(e.getItem());
+			
+			
+			
 			for (ItemTrait trait : traits) {
-				BukkitRunnable r = trait.potionRunnable(e.getPlayer());
+				BukkitRunnable r = trait.potionConsume(e.getPlayer());
 				ItemTrait.activePotions.put(r, e.getPlayer());
 				r.runTask(PluginMain.getInstance());
 			}

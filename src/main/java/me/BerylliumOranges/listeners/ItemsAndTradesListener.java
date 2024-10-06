@@ -25,15 +25,16 @@ public class ItemsAndTradesListener implements Listener {
 		if (e.getHand().equals(EquipmentSlot.HAND) && e.getPlayer().getGameMode().equals(GameMode.CREATIVE) && item != null) {
 			if (e.getRightClicked().getType().equals(EntityType.ZOMBIE)) {
 				Zombie z = (Zombie) e.getRightClicked();
-				
-				if(TraitCache.hasItemId(item))
-				
-				z.getEquipment().setItemInHand(item);
-				
-				
+
+				if (TraitCache.hasItemId(item))
+
+					z.getEquipment().setItemInHand(item);
+
 			}
 		}
 	}
+
+
 
 //
 //	@EventHandler

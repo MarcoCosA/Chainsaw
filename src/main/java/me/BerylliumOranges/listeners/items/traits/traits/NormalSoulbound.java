@@ -62,7 +62,7 @@ public class NormalSoulbound extends ItemTrait implements Listener {
 	List<LivingEntity> entitiesWithPotion = new ArrayList<>();
 
 	@Override
-	public BukkitRunnable potionRunnable(LivingEntity consumer) {
+	public BukkitRunnable potionConsume(LivingEntity consumer) {
 		return new BukkitRunnable() {
 			@Override
 			public void run() {
@@ -78,7 +78,6 @@ public class NormalSoulbound extends ItemTrait implements Listener {
 
 			@Override
 			public void cancel() {
-
 				if (!consumer.isDead()) {
 					entitiesWithPotion.remove(consumer);
 					alertPlayer(consumer, "Potion ended");

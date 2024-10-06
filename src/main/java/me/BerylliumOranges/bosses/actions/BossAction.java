@@ -6,9 +6,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.util.Vector;
 
 import me.BerylliumOranges.bosses.utils.BossUtils;
 import me.BerylliumOranges.customEvents.TickEvent;
@@ -18,6 +20,7 @@ public abstract class BossAction implements Listener {
 
 	protected LivingEntity source;
 	protected HashMap<LivingEntity, Integer> targetsOnCooldown = new HashMap<>();
+	public ArrayList<LivingEntity> summonedEntities = new ArrayList<>();
 
 	protected int animationDuration = 5;
 	protected int maxTicksUntilAttack;
@@ -30,14 +33,16 @@ public abstract class BossAction implements Listener {
 
 	protected int hitCooldown = 8; // 8 ticks
 	protected double damage;
+	protected double knockback;
 
-	protected BossAction(LivingEntity source, int maxTicksUntilAttack, int attackRange, double damage) {
+	protected BossAction(LivingEntity source, int maxTicksUntilAttack, int attackRange, double damage, double knockback) {
 		this.source = source;
 		this.maxTicksUntilAttack = maxTicksUntilAttack;
 		this.currentTick = maxTicksUntilAttack / 3; // Assuming you still want to initialize it relative to maxTicks
 		this.attackRange = attackRange;
 		this.attackFrequencyModifier = 1; // Assuming default modifier
 		this.damage = damage;
+		this.knockback = knockback;
 
 		PluginMain.getInstance().getServer().getPluginManager().registerEvents(this, PluginMain.getInstance());
 	}
@@ -58,11 +63,20 @@ public abstract class BossAction implements Listener {
 
 	public abstract void execute(LivingEntity target);
 
-	public void applyDamage(LivingEntity target) {
+	public void applyDamage(LivingEntity target, Location loc) {
 		if (!targetsOnCooldown.containsKey(target) && !target.equals(source)) {
 			targetsOnCooldown.put(target, hitCooldown);
 			target.damage(damage, source);
+
+			Vector dir = loc.subtract(target.getLocation()).toVector().normalize();
+			dir.setY(dir.getY() - 0.1);
+			target.setVelocity(target.getVelocity().clone().add(dir).multiply(-knockback));
+
 		}
+	}
+
+	public void applyDamage(LivingEntity target) {
+		applyDamage(target, source.getLocation());
 	}
 
 	@EventHandler
@@ -162,5 +176,13 @@ public abstract class BossAction implements Listener {
 
 	public int getHitCooldown() {
 		return hitCooldown;
+	}
+
+	public ArrayList<LivingEntity> getSummonedEntities() {
+		return summonedEntities;
+	}
+
+	public void setSummonedEntities(ArrayList<LivingEntity> summonedEntities) {
+		this.summonedEntities = summonedEntities;
 	}
 }

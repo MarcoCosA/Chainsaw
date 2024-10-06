@@ -14,7 +14,7 @@ import me.BerylliumOranges.customEvents.TickEvent;
 public class DefenseProjectile extends BossAction {
 
 	public DefenseProjectile(LivingEntity source) {
-		super(source, Integer.MAX_VALUE, 10, 0);
+		super(source, Integer.MAX_VALUE, 10, 0, 0);
 	}
 
 	@Override

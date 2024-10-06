@@ -2,47 +2,34 @@ package me.BerylliumOranges.listeners.items.traits.traits;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import me.BerylliumOranges.listeners.items.traits.utils.TraitCache;
-import me.BerylliumOranges.listeners.items.traits.utils.TraitOperation;
 import me.BerylliumOranges.main.PluginMain;
 import net.md_5.bungee.api.ChatColor;
 
-public class CursedNoArmor extends ItemTrait implements Listener {
+public class CursedNoArmor extends ItemTraitCursed implements Listener {
 
 	private static final long serialVersionUID = -7709915568319277958L;
 
 	public double maxSpeed = 0.2;
 
 	public CursedNoArmor() {
-		curse = true;
 		potionDuration = 180;
 	}
 
 	@Override
 	public String getTraitName() {
 		return getTraitColor() + "Curse of No Armor";
-	}
-
-	@Override
-	public ChatColor getTraitColor() {
-		return ChatColor.DARK_RED;
 	}
 
 	@Override
@@ -55,15 +42,10 @@ public class CursedNoArmor extends ItemTrait implements Listener {
 		return ChatColor.WHITE + "Chance to drop weapon on hotbar change";
 	}
 
-	@Override
-	public PotionType getPotionType() {
-		return PotionType.WEAKNESS;
-	}
-
 	List<LivingEntity> entitiesWithPotion = new ArrayList<>();
 
 	// Untested
-	public BukkitRunnable potionRunnable(LivingEntity consumer) {
+	public BukkitRunnable potionConsume(LivingEntity consumer) {
 		return new BukkitRunnable() {
 			@Override
 			public void run() {
@@ -106,11 +88,6 @@ public class CursedNoArmor extends ItemTrait implements Listener {
 	}
 
 	@Override
-	public int getRarity() {
-		return 1;
-	}
-
-	@Override
 	public ToolOption getToolOption() {
 		return ToolOption.WEAPON_EXCLUSIVE;
 	}
@@ -123,17 +100,4 @@ public class CursedNoArmor extends ItemTrait implements Listener {
 			e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_BUNDLE_DROP_CONTENTS, 0.5F, 1);
 		}
 	}
-
-	@Override
-	public boolean executeTrait(TraitOperation op, LivingEntity owner, ItemStack item, boolean victim) {
-		return false;
-	}
-
-	@Override
-	public void toolEffect(LivingEntity target) {
-		if (target instanceof Player) {
-//			
-		}
-	}
-
 }

@@ -60,7 +60,7 @@ public class NormalHealthBoost extends ItemTrait implements Listener {
 	}
 
 	@Override
-	public BukkitRunnable potionRunnable(LivingEntity consumer) {
+	public BukkitRunnable potionConsume(LivingEntity consumer) {
 		return new BukkitRunnable() {
 			@Override
 			public void run() {
