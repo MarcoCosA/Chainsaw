@@ -1,42 +1,33 @@
 package me.BerylliumOranges.listeners.items.traits.traits;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import org.bukkit.scheduler.BukkitRunnable;
 
-import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
 import me.BerylliumOranges.listeners.items.traits.utils.TraitCache;
-import me.BerylliumOranges.listeners.items.traits.utils.TraitOperation;
-import me.BerylliumOranges.main.PluginMain;
 import net.md_5.bungee.api.ChatColor;
 
-public class NormalSoulbound extends ItemTrait implements Listener {
+public class UniqueSoulbound extends ItemTraitUnique implements Listener {
 
 	private static final long serialVersionUID = -7709915568319277958L;
-	public int potionDuration = 60;
 
-	public NormalSoulbound() {
-		PluginMain.getInstance().getServer().getPluginManager().registerEvents(this, PluginMain.getInstance());
+	public UniqueSoulbound() {
+		super(300);
 	}
 
 	@Override
 	public String getTraitName() {
-		return getTraitColor() + "Normal Soulbound";
+		return getTraitColor() + "Soulbound";
 	}
 
 	@Override
@@ -46,7 +37,7 @@ public class NormalSoulbound extends ItemTrait implements Listener {
 
 	@Override
 	public String getPotionDescription() {
-		return ChatColor.WHITE + "Keep inventory on death " + ChatColor.WHITE + ItemBuilder.getTimeInMinutes(potionDuration);
+		return ChatColor.WHITE + "Keep inventory on death";
 	}
 
 	@Override
@@ -59,33 +50,6 @@ public class NormalSoulbound extends ItemTrait implements Listener {
 		return PotionType.INVISIBILITY;
 	}
 
-	List<LivingEntity> entitiesWithPotion = new ArrayList<>();
-
-	@Override
-	public BukkitRunnable potionConsume(LivingEntity consumer) {
-		return new BukkitRunnable() {
-			@Override
-			public void run() {
-				entitiesWithPotion.add(consumer);
-				Bukkit.getScheduler().runTaskLater(PluginMain.getInstance(), new Runnable() {
-					@Override
-					public void run() {
-						cancel();
-					}
-
-				}, 20L * potionDuration);
-			}
-
-			@Override
-			public void cancel() {
-				if (!consumer.isDead()) {
-					entitiesWithPotion.remove(consumer);
-					alertPlayer(consumer, "Potion ended");
-				}
-			}
-		};
-	}
-
 	public HashMap<Player, ItemStack[]> savedItems = new HashMap<Player, ItemStack[]>();
 
 	@EventHandler
@@ -93,10 +57,10 @@ public class NormalSoulbound extends ItemTrait implements Listener {
 		Bukkit.broadcastMessage("here");
 		Player player = event.getEntity();
 		ItemStack[] items = player.getInventory().getContents();
-		if (entitiesWithPotion.contains(event.getEntity())) {
+		if (consumerUUID != null && consumerUUID.equals(event.getEntity())) {
 			event.getDrops().removeAll(Arrays.asList(items));
 			savedItems.put(player, items);
-			entitiesWithPotion.remove(event.getEntity());
+			potionEffectTicker.stopTimer();
 		} else {
 			for (ItemStack item : items) {
 				if (item != null && (TraitCache.hasItemId(item))) {
@@ -119,27 +83,13 @@ public class NormalSoulbound extends ItemTrait implements Listener {
 						event.getPlayer().getInventory().addItem(stack);
 					}
 				}
+			potionEffectTicker.endPotion();
 			savedItems.remove(event.getPlayer());
 		}
 	}
 
 	@Override
-	public int getRarity() {
-		return 2;
-	}
-
-	@Override
 	public ToolOption getToolOption() {
 		return ToolOption.ANY;
-	}
-
-	@Override
-	public boolean executeTrait(TraitOperation op, LivingEntity owner, ItemStack item, boolean victim) {
-		return false;
-	}
-
-	@Override
-	public void toolEffect(LivingEntity center) {
-		center.addPotionEffect(new PotionEffect(PotionEffectType.HEALTH_BOOST, getPotionDuration() * 5, 0));
 	}
 }

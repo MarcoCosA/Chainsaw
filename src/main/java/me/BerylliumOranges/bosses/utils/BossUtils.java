@@ -20,10 +20,8 @@ import me.BerylliumOranges.bosses.Boss02.Boss02_Trap;
 import me.BerylliumOranges.bosses.Boss04.Boss04_Block;
 import me.BerylliumOranges.bosses.Boss09.Boss09_Fire;
 import me.BerylliumOranges.bosses.utils.Hazards.Hazard;
+import me.BerylliumOranges.listeners.items.traits.traits.BasicSpeedTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
-import me.BerylliumOranges.listeners.items.traits.traits.NormalArmorPenetrationTrait;
-import me.BerylliumOranges.listeners.items.traits.traits.NormalRepulsionTrait;
-import me.BerylliumOranges.listeners.items.traits.traits.SupremeRepulsionTrait;
 import me.BerylliumOranges.main.DirectoryTools;
 import me.BerylliumOranges.main.PluginMain;
 import net.md_5.bungee.api.ChatColor;
@@ -39,17 +37,17 @@ public class BossUtils {
 
 	public enum BossType {
 		THORNS(ChatColor.DARK_GREEN, "Thorns Devil", Boss01_Thorns.class, Arrays.asList(Hazard.CACTUS_DAMAGE),
-				Arrays.asList(SupremeRepulsionTrait.class)),
+				Arrays.asList(BasicSpeedTrait.class)),
 
 		BLOCK(ChatColor.AQUA, "Block Devil", Boss04_Block.class,
 				Arrays.asList(Hazard.NO_LOGOUT, Hazard.NO_BUILDING, Hazard.STAND_ON_GREEN, Hazard.MOVING_MAP),
-				Arrays.asList(NormalRepulsionTrait.class)),
+				Arrays.asList(BasicSpeedTrait.class)),
 
 		FIRE(ChatColor.of(new Color(170, 66, 3)), "Fire Devil", Boss09_Fire.class, Arrays.asList(Hazard.NO_LOGOUT),
-				Arrays.asList(NormalArmorPenetrationTrait.class)),
+				Arrays.asList(BasicSpeedTrait.class)),
 
 		TRAP(ChatColor.GRAY, "Trap Devil", Boss02_Trap.class, Arrays.asList(Hazard.NO_LOGOUT, Hazard.SPIDER_SPAWN),
-				Arrays.asList(NormalRepulsionTrait.class));
+				Arrays.asList(BasicSpeedTrait.class));
 
 		private final String name;
 		private final ChatColor color;

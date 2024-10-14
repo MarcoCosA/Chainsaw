@@ -1,20 +1,17 @@
 package me.BerylliumOranges.listeners.items.traits.traits;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import me.BerylliumOranges.listeners.items.traits.utils.TraitCache;
-import me.BerylliumOranges.main.PluginMain;
 import net.md_5.bungee.api.ChatColor;
 
 public class CursedDropping extends ItemTraitCursed implements Listener {
@@ -22,9 +19,10 @@ public class CursedDropping extends ItemTraitCursed implements Listener {
 	private static final long serialVersionUID = -7709915568319277958L;
 
 	public double maxSpeed = 0.2;
+	public int potionDuration = 60;
 
 	public CursedDropping() {
-		potionDuration = 180;
+		super(60);
 	}
 
 	@Override
@@ -42,49 +40,19 @@ public class CursedDropping extends ItemTraitCursed implements Listener {
 		return ChatColor.WHITE + "Chance to drop weapon on hotbar change";
 	}
 
-	List<LivingEntity> entitiesWithPotion = new ArrayList<>();
-
-	// Untested
-	public BukkitRunnable potionConsume(LivingEntity consumer) {
-		return new BukkitRunnable() {
-			@Override
-			public void run() {
-				entitiesWithPotion.add(consumer);
-				new BukkitRunnable() {
-					private int ticksElapsed = 0;
-
-					@Override
-					public void run() {
-						if (ticksElapsed >= potionDuration * 20) {
-							this.cancel();
-							alertPlayer(consumer, "Potion effect ended.");
-							entitiesWithPotion.remove(consumer);
-							return;
-						}
-
-						if (Math.random() > 0.999 && consumer instanceof Player) { // Check if consumer is a player
-							Player player = (Player) consumer;
-							ItemStack itemToDrop = player.getInventory().getItem((int) (Math.random() * player.getInventory().getSize()));
-							if (itemToDrop != null && itemToDrop.getType() != Material.AIR) {
-								player.getWorld().dropItemNaturally(player.getLocation(), itemToDrop);
-								player.getInventory().remove(itemToDrop);
-								player.getWorld().playSound(player.getLocation(), Sound.ITEM_BUNDLE_DROP_CONTENTS, 0.5F, 1);
-							}
-						}
-						ticksElapsed++;
-					}
-
-					@Override
-					public void cancel() {
-						super.cancel();
-						alertPlayer(consumer, "Potion effect ended.");
-						entitiesWithPotion.remove(consumer);
-					}
-				}.runTaskTimer(PluginMain.getInstance(), 0L, 1L);
-
-				this.cancel();
+	@Override
+	public void handlePotionEffectTick() {
+		if (Math.random() > 0.995 && getConsumer() instanceof Player) { // Check if consumer is a player
+			Player player = (Player) getConsumer();
+			int slot = (int) (Math.random() * player.getInventory().getSize());
+			ItemStack item = player.getInventory().getItem(slot);
+			if (item != null && item.getType() != Material.AIR) {
+				ItemStack itemToDrop = item.clone();
+				itemToDrop.setAmount(item.getAmount());
+				dropItemFromEntity(player, itemToDrop);
+				player.getInventory().setItem(slot, null);
 			}
-		};
+		}
 	}
 
 	@Override
@@ -92,13 +60,23 @@ public class CursedDropping extends ItemTraitCursed implements Listener {
 		return ToolOption.WEAPON_EXCLUSIVE;
 	}
 
-	@EventHandler
-	public void onPlayerMove(PlayerSwapHandItemsEvent e) {
-		if (entitiesWithPotion.contains(e.getPlayer()) && TraitCache.getTraitsFromItem(e.getMainHandItem()).contains(this)) {
-			e.getPlayer().getWorld().dropItemNaturally(e.getPlayer().getLocation(), e.getMainHandItem());
-			e.getPlayer().getInventory().remove(e.getMainHandItem());
-			e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.ITEM_BUNDLE_DROP_CONTENTS, 0.5F, 1);
+	@EventHandler(priority = EventPriority.LOW)
+	public void onHotbarChange(PlayerItemHeldEvent e) {
+		Player player = e.getPlayer();
+		ItemStack item = player.getInventory().getItem(e.getNewSlot());
+		if (item != null && !item.getType().isAir() && TraitCache.getTraitsFromItem(item).contains(this) && Math.random() > 0.85) {
+			ItemStack itemToDrop = item.clone();
+			itemToDrop.setAmount(item.getAmount());
+			dropItemFromEntity(player, itemToDrop);
+			player.getInventory().setItem(e.getNewSlot(), null);
 		}
 	}
 
+	public static void dropItemFromEntity(LivingEntity ent, ItemStack item) {
+		Item i = ent.getWorld().dropItemNaturally(ent.getEyeLocation(), item);
+		i.teleport(ent.getEyeLocation().clone().subtract(0, 0.1, 0));
+		i.setVelocity(ent.getFacing().getDirection().multiply(0.15));
+		ent.getWorld().playSound(ent.getLocation(), Sound.ITEM_BUNDLE_DROP_CONTENTS, 0.5F, 1);
+		i.setPickupDelay(40);
+	}
 }

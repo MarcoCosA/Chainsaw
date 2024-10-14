@@ -10,7 +10,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
-import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
 import me.BerylliumOranges.listeners.items.traits.utils.TraitOperation;
 import net.md_5.bungee.api.ChatColor;
 
@@ -31,8 +30,7 @@ public class BasicDefenseTrait extends ItemTraitBasic {
 
 	@Override
 	public String getPotionDescription() {
-		return ChatColor.WHITE + "Gives " + getTraitColor() + "Resistance I " + ChatColor.WHITE + ""
-				+ ItemBuilder.getTimeInMinutes(getPotionDuration());
+		return ChatColor.WHITE + "Gives " + getTraitColor() + "Resistance I";
 	}
 
 	@Override
@@ -52,7 +50,7 @@ public class BasicDefenseTrait extends ItemTraitBasic {
 
 	@Override
 	public void handlePotionEffectStart() {
-		consumer.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, getPotionDuration() * 20, 0));
+		getConsumer().addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, getPotionDuration() * 20, 0));
 	}
 
 	@Override

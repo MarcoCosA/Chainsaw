@@ -7,7 +7,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
-import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
 import me.BerylliumOranges.listeners.items.traits.utils.TraitOperation;
 import net.md_5.bungee.api.ChatColor;
 
@@ -28,8 +27,7 @@ public class BasicAttackTrait extends ItemTraitBasic {
 
 	@Override
 	public String getPotionDescription() {
-		return ChatColor.WHITE + "Gives " + getTraitColor() + "Strength I " + ChatColor.WHITE + ""
-				+ ItemBuilder.getTimeInMinutes(getPotionDuration());
+		return ChatColor.WHITE + "Gives " + getTraitColor() + "Strength I";
 	}
 
 	@Override

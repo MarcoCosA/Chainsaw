@@ -1,34 +1,37 @@
 package me.BerylliumOranges.listeners.items.traits.utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 
-import org.bukkit.util.io.BukkitObjectInputStream;
-import org.bukkit.util.io.BukkitObjectOutputStream;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 
 public class TraitSerializationUtils {
 
-	public static String serializeTrait(ItemTrait trait) throws IOException {
-		ByteArrayOutputStream io = new ByteArrayOutputStream();
-		BukkitObjectOutputStream os = new BukkitObjectOutputStream(io);
-		os.writeObject(trait);
-		os.flush();
-		byte[] serializedBytes = io.toByteArray();
-		String encoded = Base64.getEncoder().encodeToString(serializedBytes);
-		os.close();
-		return encoded;
+	private static Gson gson = null;
+
+	public static String serializeTrait(ItemTrait trait) {
+		JsonObject jsonObject = new JsonObject();
+		jsonObject.addProperty("type", trait.getClass().getSimpleName()); // Add class type information
+		jsonObject.add("data", getGson().toJsonTree(trait));
+		return Base64.getEncoder().encodeToString(jsonObject.toString().getBytes());
 	}
 
-	public static ItemTrait deserializeTrait(String base64) throws IOException, ClassNotFoundException {
-		byte[] serializedBytes = Base64.getDecoder().decode(base64);
-		ByteArrayInputStream io = new ByteArrayInputStream(serializedBytes);
-		BukkitObjectInputStream is = new BukkitObjectInputStream(io);
-		ItemTrait trait = (ItemTrait) is.readObject();
-		is.close();
-		return trait;
+	public static ItemTrait deserializeTrait(String base64) throws IOException {
+		byte[] decodedBytes = Base64.getDecoder().decode(base64);
+		String json = new String(decodedBytes);
+		return getGson().fromJson(json, ItemTrait.class);
+	}
+
+	public static void setupGson() {
+		gson = GsonSetup.createGson();
+	}
+
+	public static Gson getGson() {
+		if (gson == null)
+			setupGson();
+		return gson;
 	}
 }

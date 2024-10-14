@@ -21,6 +21,9 @@ import me.BerylliumOranges.bosses.Boss11.Screen;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
 import me.BerylliumOranges.bosses.utils.DungeonChestGenerator;
 import me.BerylliumOranges.dimensions.CustomChunkGenerator;
+import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
+import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
+import me.BerylliumOranges.listeners.items.traits.utils.TraitCache;
 import me.BerylliumOranges.misc.MiscItems;
 
 public class CommandParser {
@@ -123,10 +126,32 @@ public class CommandParser {
 				}
 				return true;
 			}
+
+			if (sender instanceof Player && sender.isOp() && cmd.getName().equalsIgnoreCase("purgetraits")) {
+				if (TraitCache.purgeTraitsAndTraitsFile())
+					sender.sendMessage("Deleted all traits");
+				else
+					sender.sendMessage("Something went wrong");
+				return true;
+			}
+
 			if (sender instanceof Player && cmd.getName().equalsIgnoreCase("dummy")) {
 				return true;
 			} else if (sender instanceof Player && cmd.getName().equalsIgnoreCase("potions")) {
-//				sendPotions((Player) sender);
+				boolean foundAPotion = false;
+				for (ItemTrait t : TraitCache.getTraits()) {
+					if (t.getConsumer() != null && t.getConsumer().equals(sender)) {
+						if (t.isPotionActive())
+							t.alertPlayer((Player) sender, ItemBuilder.getTimeInMinutes(
+									(t.getPotionEffectTicker().getPotionDuration() - t.getPotionEffectTicker().getTicksElapsed()) / 20));
+						else {
+							t.alertPlayer((Player) sender, ChatColor.BOLD + "Inactive");
+						}
+						foundAPotion = true;
+					}
+				}
+				if (!foundAPotion)
+					sender.sendMessage("No active potions found.");
 				return true;
 			}
 

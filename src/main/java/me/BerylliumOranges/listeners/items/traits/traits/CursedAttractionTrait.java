@@ -12,7 +12,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.util.Vector;
 
 import me.BerylliumOranges.customEvents.TickEvent;
-import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
 import net.md_5.bungee.api.ChatColor;
 
 public class CursedAttractionTrait extends ItemTraitCursed implements Listener {
@@ -24,7 +23,7 @@ public class CursedAttractionTrait extends ItemTraitCursed implements Listener {
 	public int hits = 0;
 
 	public CursedAttractionTrait() {
-		potionDuration = 150;
+		super(150);
 	}
 
 	@Override
@@ -35,7 +34,7 @@ public class CursedAttractionTrait extends ItemTraitCursed implements Listener {
 	@Override
 	public String getPotionDescription() {
 		return ChatColor.WHITE + "Monsters are " + getTraitColor() + "pulled " + ChatColor.WHITE + "towards you and " + getTraitColor()
-				+ "touching " + ChatColor.WHITE + "them damages you " + ItemBuilder.getTimeInMinutes(getPotionDuration());
+				+ "touching " + ChatColor.WHITE + "them damages you";
 	}
 
 	@Override
@@ -45,18 +44,18 @@ public class CursedAttractionTrait extends ItemTraitCursed implements Listener {
 
 	@Override
 	public void handlePotionEffectTick() {
-		boolean isPlayer = consumer instanceof Player;
-		for (Entity ent : consumer.getWorld().getNearbyEntities(consumer.getEyeLocation(), 15, 15, 15)) {
-			if (ent instanceof Monster && ent.getLocation().distance(consumer.getLocation()) < 15) {
+		boolean isPlayer = getConsumer() instanceof Player;
+		for (Entity ent : getConsumer().getWorld().getNearbyEntities(getConsumer().getEyeLocation(), 15, 15, 15)) {
+			if (ent instanceof Monster && ent.getLocation().distance(getConsumer().getLocation()) < 15) {
 				if (ent instanceof Monster && isPlayer) {
-					Vector direction = ent.getLocation().toVector().subtract(consumer.getLocation().toVector()).normalize();
+					Vector direction = ent.getLocation().toVector().subtract(getConsumer().getLocation().toVector()).normalize();
 					ent.setVelocity(ent.getVelocity().add(direction.multiply(-0.01)));
 				} else if (ent instanceof Player && !isPlayer) {
-					Vector direction = ent.getLocation().toVector().subtract(consumer.getLocation().toVector()).normalize();
+					Vector direction = ent.getLocation().toVector().subtract(getConsumer().getLocation().toVector()).normalize();
 					ent.setVelocity(ent.getVelocity().add(direction.multiply(-0.01)));
 				}
-				if (ent instanceof Mob && ent.getLocation().distance(consumer.getLocation()) < 0.75) {
-					consumer.damage(2, ent);
+				if (ent instanceof Mob && ent.getLocation().distance(getConsumer().getLocation()) < 0.75) {
+					getConsumer().damage(2, ent);
 				}
 			}
 		}

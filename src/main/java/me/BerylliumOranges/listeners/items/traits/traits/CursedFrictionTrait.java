@@ -19,7 +19,7 @@ public class CursedFrictionTrait extends ItemTraitCursed implements Listener {
 	public double maxSpeed = 0.2;
 
 	public CursedFrictionTrait() {
-		potionDuration = 150;
+		super(150);
 	}
 
 	@Override

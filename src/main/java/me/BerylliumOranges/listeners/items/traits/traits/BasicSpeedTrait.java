@@ -15,9 +15,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
 import me.BerylliumOranges.customEvents.ItemCombineEvent;
-import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
 import me.BerylliumOranges.listeners.items.traits.utils.TraitOperation;
-import me.BerylliumOranges.main.PluginMain;
 import net.md_5.bungee.api.ChatColor;
 
 public class BasicSpeedTrait extends ItemTraitBasic implements Listener {
@@ -26,10 +24,6 @@ public class BasicSpeedTrait extends ItemTraitBasic implements Listener {
 	public UUID id = UUID.randomUUID();
 	public int speedPercentage = 7;
 	public AttributeModifier mod = new AttributeModifier(id, "Speed", speedPercentage / 100.0, Operation.ADD_SCALAR);
-
-	public BasicSpeedTrait() {
-		PluginMain.getInstance().getServer().getPluginManager().registerEvents(this, PluginMain.getInstance());
-	}
 
 	@Override
 	public String getTraitName() {
@@ -43,8 +37,7 @@ public class BasicSpeedTrait extends ItemTraitBasic implements Listener {
 
 	@Override
 	public String getPotionDescription() {
-		return ChatColor.WHITE + "Gives " + getTraitColor() + "Speed I " + ChatColor.WHITE + "for "
-				+ ItemBuilder.getTimeInMinutes(getPotionDuration());
+		return ChatColor.WHITE + "Gives " + getTraitColor() + "Speed I";
 	}
 
 	@Override

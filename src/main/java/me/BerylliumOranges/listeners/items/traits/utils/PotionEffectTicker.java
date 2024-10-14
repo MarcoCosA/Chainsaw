@@ -1,5 +1,7 @@
 package me.BerylliumOranges.listeners.items.traits.utils;
 
+import java.io.Serializable;
+
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -11,30 +13,33 @@ import me.BerylliumOranges.listeners.items.traits.dummyevents.PotionEffectStartE
 import me.BerylliumOranges.listeners.items.traits.dummyevents.PotionEffectTickEvent;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 
-public class PotionEffectTicker implements Listener {
+public class PotionEffectTicker implements Listener, Serializable {
+	private static final long serialVersionUID = -2888714507552446269L;
 	private ItemTrait potionEffect;
 	private boolean running = false;
-	private int potionDuration;
-	private int timeElapsed;
+	private int potionDurationInTicks;
+	private int ticksElapsed = 0;
 
 	public PotionEffectTicker(ItemTrait potionEffect, int potionDuration) {
 		this.potionEffect = potionEffect;
-		this.potionDuration = potionDuration;
+		this.potionDurationInTicks = potionDuration * 20;
 	}
 
 	@EventHandler
 	public void onTick(TickEvent e) {
-		if (running && timeElapsed - 1 < potionDuration) {
+		if (potionEffect.getConsumer() == null)
+			return;
+
+		if (running && ticksElapsed - 1 < potionDurationInTicks) {
 			handlePotionEffectTick();
-			timeElapsed++;
-			if (timeElapsed >= potionDuration) {
-				running = false;
-				handlePotionEffectEnd();
+			ticksElapsed++;
+			if (ticksElapsed >= potionDurationInTicks) {
+				endPotion();
 			}
 		}
 	}
 
-	public void start() {
+	public void startPotion() {
 		startTimer();
 		handlePotionEffectStart();
 	}
@@ -51,16 +56,26 @@ public class PotionEffectTicker implements Listener {
 		return running;
 	}
 
-	public void setTimeElapsed(int time) {
-		timeElapsed = time;
+	public void setTicksElapsed(int ticks) {
+		ticksElapsed = ticks;
 	}
 
+	public int getTicksElapsed() {
+		return ticksElapsed;
+	}
+
+	/** @param duration in ticks **/
 	public void setDuration(int duration) {
-		potionDuration = duration;
+		potionDurationInTicks = duration;
 	}
 
+	/** @return duration in ticks **/
 	public int getPotionDuration() {
-		return potionDuration;
+		return potionDurationInTicks;
+	}
+
+	public void endPotion() {
+		handlePotionEffectEnd();
 	}
 
 	private void handlePotionEffectStart() {
@@ -82,20 +97,26 @@ public class PotionEffectTicker implements Listener {
 	public void onPotionEffectConsume(PotionEffectStartEvent event) {
 		if (event.isCancelled())
 			return;
-		potionEffect.handlePotionEffectStart();
+
+		if (event.getPotionEffect().equals(potionEffect))
+			potionEffect.handlePotionEffectStart();
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPotionEffectTick(PotionEffectTickEvent event) {
 		if (event.isCancelled())
 			return;
-		potionEffect.handlePotionEffectTick();
+		if (event.getPotionEffect().equals(potionEffect))
+			potionEffect.handlePotionEffectTick();
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onPotionEffectTick(PotionEffectEndEvent event) {
 		if (event.isCancelled())
 			return;
-		potionEffect.handlePotionEffectEnd();
+		if (event.getPotionEffect().equals(potionEffect)) {
+			potionEffect.handlePotionEffectEnd();
+			potionEffect.handlePotionEnd();
+		}
 	}
 }

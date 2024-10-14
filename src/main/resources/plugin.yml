@@ -53,4 +53,9 @@ commands:
       aliases: null
       permission: null
       usage: /<command> <boss id (integer)>
+   purgetraits:
+      description: Deletes all traits and saves traits
+      aliases: null
+      permission: null
+      usage: /<command>
    

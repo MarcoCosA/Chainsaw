@@ -1,13 +1,12 @@
 package me.BerylliumOranges.listeners.items.traits.globallisteners;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,11 +15,12 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import me.BerylliumOranges.customEvents.ItemCombineEvent;
 import me.BerylliumOranges.listeners.items.traits.dummyevents.DummyHealEvent;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
+import me.BerylliumOranges.listeners.items.traits.traits.ItemTraitSoulHolder;
 import me.BerylliumOranges.listeners.items.traits.utils.TraitCache;
 import me.BerylliumOranges.listeners.items.traits.utils.TraitOperation;
 import me.BerylliumOranges.main.PluginMain;
@@ -36,27 +36,38 @@ public class GlobalTraitListener implements Listener {
 	public void potionDrink(PlayerItemConsumeEvent e) {
 		if (TraitCache.hasItemId(e.getItem())) {
 			List<ItemTrait> traits = TraitCache.getTraitsFromItem(e.getItem());
-			
-			
-			
+
+			boolean found = false;
 			for (ItemTrait trait : traits) {
-				BukkitRunnable r = trait.potionConsume(e.getPlayer());
-				ItemTrait.activePotions.put(r, e.getPlayer());
-				r.runTask(PluginMain.getInstance());
+				if (trait.handlePotionConsumption(e.getPlayer()))
+					found = true;
 			}
+			if (found)
+				e.getPlayer().getInventory().removeItem(e.getItem());
 			e.setCancelled(true);
-			e.getPlayer().getInventory().removeItem(e.getItem());
 		}
 	}
 
 	@EventHandler
 	public void onDeath(EntityDeathEvent e) {
-		Iterator<Map.Entry<BukkitRunnable, LivingEntity>> iterator = ItemTrait.activePotions.entrySet().iterator();
-		while (iterator.hasNext()) {
-			Map.Entry<BukkitRunnable, LivingEntity> entry = iterator.next();
-			if (entry.getValue().equals(e.getEntity())) {
-				entry.getKey().cancel();
-				iterator.remove();
+		for (ItemTrait t : TraitCache.getTraits()) {
+			if (t.getConsumer() != null && t.getConsumer().equals(e.getEntity())) {
+				t.handlePotionEnd();
+			}
+		}
+
+		if (e.getEntity().getKiller() != null) {
+			Player p = e.getEntity().getKiller();
+			for (Entry<ItemStack, List<ItemTrait>> entry : TraitCache.getItemTraitMapFromEntity(p).entrySet()) {
+				for (ItemTrait t : entry.getValue()) {
+					if (t instanceof ItemTraitSoulHolder) {
+						ItemTraitSoulHolder h = (ItemTraitSoulHolder) t;
+						if (h.handleSoulAbsorption(e.getEntity())) {
+							p.updateInventory();
+							break;
+						}
+					}
+				}
 			}
 		}
 	}
@@ -97,11 +108,6 @@ public class GlobalTraitListener implements Listener {
 	public void onClick(PlayerInteractEvent e) {
 		TraitOperation op = new TraitOperation(e, e.getPlayer(), null);
 		op.processOperation();
-	}
-
-	@EventHandler
-	public void itemSave(ItemCombineEvent e) {
-		Bukkit.broadcastMessage("I  see itemcombine");
 	}
 
 //

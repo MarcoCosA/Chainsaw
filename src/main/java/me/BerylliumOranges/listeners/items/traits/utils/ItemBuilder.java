@@ -20,10 +20,21 @@ import com.google.common.collect.Multimap;
 
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait.ToolOption;
+import me.BerylliumOranges.listeners.items.traits.traits.ItemTraitPlaceholder;
 import me.BerylliumOranges.misc.LoreFormatter;
 import net.md_5.bungee.api.ChatColor;
 
 public class ItemBuilder {
+
+	public static final int BASE_TRAITS_TURTLE_SHELL = 3;
+	public static final int BASE_TRAITS_TRIDENT = 2;
+	public static final int BASE_TRAITS_MACE = 3;
+
+	public static final int BASE_TRAITS_IRON = 1;
+	public static final int BASE_TRAITS_GOLD = 2;
+	public static final int BASE_TRAITS_DIAMOND = 2;
+	public static final int BASE_TRAITS_NETHERITE = 3;
+
 	public static ItemStack buildPotionItem(ItemStack item, ItemTrait trait, boolean locked) {
 		String uniqueId = TraitCache.getItemIdFromMetadata(item);
 		if (uniqueId == null) {
@@ -40,12 +51,12 @@ public class ItemBuilder {
 
 		ToolOption toolType = TraitCache.getToolOption(item);
 		lore.add(ChatColor.WHITE + "" + ChatColor.BOLD + "When Applied to " + toolType.getDescription());
-		for (String d : LoreFormatter.formatLore(trait.getToolDescription())) {
+		for (String d : LoreFormatter.formatLore(trait.getFullToolDescription())) {
 			lore.add("  " + d);
 		}
 		lore.add("");
 		lore.add(ChatColor.WHITE + "" + ChatColor.BOLD + "When Consumed");
-		for (String d : LoreFormatter.formatLore(trait.getPotionDescription())) {
+		for (String d : LoreFormatter.formatLore(trait.getFullPotionDescription())) {
 			lore.add("  " + d);
 		}
 
@@ -75,6 +86,45 @@ public class ItemBuilder {
 		return updateMeta(item);
 	}
 
+	public static int getNumTraitsFromMaterial(Material type) {
+		String name = type.toString();
+		if (name.contains("SWORD") || name.contains("_AXE") || name.contains("HELMET") || name.contains("CHESTPLATE")
+				|| name.contains("LEGGINGS") || name.contains("BOOTS")) {
+			if (type.toString().contains("IRON")) {
+				return BASE_TRAITS_IRON;
+			} else if (type.toString().contains("GOLD")) {
+				return BASE_TRAITS_GOLD;
+			} else if (type.toString().contains("DIAMOND")) {
+				return BASE_TRAITS_DIAMOND;
+			} else if (type.toString().contains("NETHERITE")) {
+				return BASE_TRAITS_NETHERITE;
+			} else if (type.equals(Material.TURTLE_HELMET)) {
+				return BASE_TRAITS_TURTLE_SHELL;
+			}
+		} else if (type.equals(Material.MACE))
+			return BASE_TRAITS_MACE;
+		else if (type.equals(Material.TRIDENT))
+			return BASE_TRAITS_TRIDENT;
+
+		return -1;
+	}
+
+	public static void transformDefaultItemToTraitItem(ItemStack item) {
+		if (TraitCache.hasTraits(TraitCache.getItemIdFromMetadata(item)))
+			return;
+
+		int numTraits = getNumTraitsFromMaterial(item.getType());
+		if (numTraits < 1)
+			return;
+
+		ArrayList<ItemTrait> traitsToAdd = new ArrayList<>();
+		while (numTraits > 0) {
+			traitsToAdd.add(new ItemTraitPlaceholder());
+			numTraits--;
+		}
+		TraitCache.addTraitsToItem(item, traitsToAdd);
+	}
+
 	public static ItemStack updateMeta(ItemStack item) {
 
 		ItemMeta meta = item.getItemMeta();
@@ -84,9 +134,11 @@ public class ItemBuilder {
 		traits.addAll(TraitCache.getTraitsFromItem(item));
 
 		for (ItemTrait p : traits) {
+			if (p instanceof ItemTraitPlaceholder)
+				continue;
 			lore.add("");
 			lore.add(p.getTraitName());
-			for (String s : LoreFormatter.formatLore(p.getToolDescription())) {
+			for (String s : LoreFormatter.formatLore(p.getFullToolDescription())) {
 				lore.add("  " + s);
 			}
 		}

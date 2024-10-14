@@ -13,8 +13,6 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 
 import me.BerylliumOranges.customEvents.ItemCombineEvent;
-import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
-import me.BerylliumOranges.main.PluginMain;
 import net.md_5.bungee.api.ChatColor;
 
 public class BasicHealthBoost extends ItemTraitBasic implements Listener {
@@ -23,10 +21,6 @@ public class BasicHealthBoost extends ItemTraitBasic implements Listener {
 	public UUID id = UUID.randomUUID();
 	public int healthBonus = 2;
 	public AttributeModifier mod = new AttributeModifier(id, "Max Health", healthBonus, Operation.ADD_NUMBER);
-
-	public BasicHealthBoost() {
-		PluginMain.getInstance().getServer().getPluginManager().registerEvents(this, PluginMain.getInstance());
-	}
 
 	@Override
 	public String getTraitName() {
@@ -40,8 +34,7 @@ public class BasicHealthBoost extends ItemTraitBasic implements Listener {
 
 	@Override
 	public String getPotionDescription() {
-		return ChatColor.WHITE + "Gives " + getTraitColor() + "Health Boost I " + ChatColor.WHITE
-				+ ItemBuilder.getTimeInMinutes(potionDuration);
+		return ChatColor.WHITE + "Gives " + getTraitColor() + "Health Boost I";
 	}
 
 	@Override

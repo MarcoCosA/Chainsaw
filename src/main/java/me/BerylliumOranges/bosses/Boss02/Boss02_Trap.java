@@ -34,7 +34,6 @@ import me.BerylliumOranges.bosses.Boss;
 import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
 import me.BerylliumOranges.dimensions.chunkgenerators.SkyIslandChunkGenerator;
 import me.BerylliumOranges.listeners.BossBarListener;
-import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.BasicAttackTrait;
 import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
 import me.BerylliumOranges.main.PluginMain;
@@ -158,24 +157,6 @@ public class Boss02_Trap extends Boss {
 			equipment.setLeggingsDropChance(0f);
 			equipment.setBootsDropChance(0f);
 		}
-
-		try {
-			List<Class<? extends ItemTrait>> traitClasses = getBossType().getTraits();
-
-			for (Class<? extends ItemTrait> clazz : traitClasses) {
-				ItemTrait trait = clazz.getDeclaredConstructor().newInstance();
-
-				trait.potionConsume(boss);
-			}
-		} catch (ReflectiveOperationException roe) {
-			Bukkit.broadcastMessage("Errored here");
-			roe.printStackTrace();
-		}
-
-		Bukkit.broadcastMessage("Bosses Size: " + bosses.size());
-		for (LivingEntity b : bosses) {
-			Bukkit.broadcastMessage("-  " + b.getName());
-		}
 		new BossBarListener(bosses, BarColor.WHITE, 4);
 	}
 
@@ -190,8 +171,7 @@ public class Boss02_Trap extends Boss {
 		return item;
 	}
 
-	
-	//Stops the Evoker Boss from spawning Vexes
+	// Stops the Evoker Boss from spawning Vexes
 	@EventHandler
 	public void onVex(EntitySpellCastEvent e) {
 		if (bosses.contains(e.getEntity())) {

@@ -18,7 +18,7 @@ public class PotionConsumeEvent extends Event implements Cancellable {
 	public PotionConsumeEvent(ItemTrait effect, LivingEntity consumer, PotionEffectTicker potionEffectTicker) {
 		this.effect = effect;
 		this.potionEffectTicker = potionEffectTicker;
-		effect.handlePotionEffectTick();
+		this.consumer = consumer;
 	}
 
 	public ItemTrait getPotionEffect() {

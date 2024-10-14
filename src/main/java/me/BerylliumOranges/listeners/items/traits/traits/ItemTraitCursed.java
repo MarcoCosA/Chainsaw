@@ -7,6 +7,10 @@ import net.md_5.bungee.api.ChatColor;
 public abstract class ItemTraitCursed extends ItemTrait {
 	private static final long serialVersionUID = -4291429898837986560L;
 
+	public ItemTraitCursed(int initialDuration) {
+		super(initialDuration);
+	}
+
 	@Override
 	public ChatColor getTraitColor() {
 		return ChatColor.DARK_RED;

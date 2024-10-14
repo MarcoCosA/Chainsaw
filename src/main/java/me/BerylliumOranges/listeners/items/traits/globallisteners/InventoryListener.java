@@ -19,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait.ToolOption;
+import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
 import me.BerylliumOranges.listeners.items.traits.utils.TraitCache;
 import me.BerylliumOranges.listeners.items.traits.utils.TraitInventoryHolder;
 import me.BerylliumOranges.main.PluginMain;
@@ -57,6 +58,7 @@ public class InventoryListener implements Listener {
 		if (e.isSneaking()) {
 			Player p = e.getPlayer();
 			ItemStack item = p.getInventory().getItemInMainHand();
+			ItemBuilder.transformDefaultItemToTraitItem(item);
 			if (item != null && item.hasItemMeta()) {
 				if (isArmor(item)) {
 					if (TraitCache.hasItemId(item) && !item.getType().equals(Material.POTION)) {
@@ -74,7 +76,7 @@ public class InventoryListener implements Listener {
 		ItemStack item = e.getItem();
 		Action a = e.getAction();
 		EquipmentSlot slot = e.getHand();
-
+		ItemBuilder.transformDefaultItemToTraitItem(item);
 		if (item != null && item.hasItemMeta()) {
 			if ((slot.equals(EquipmentSlot.HAND)
 					&& ((a.equals(Action.RIGHT_CLICK_AIR) || a.equals(Action.RIGHT_CLICK_BLOCK)) && p.isSneaking())
@@ -120,7 +122,7 @@ public class InventoryListener implements Listener {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public static String getInventoryTitle(InventoryEvent event) {
 		try {
 			Object view = event.getView();

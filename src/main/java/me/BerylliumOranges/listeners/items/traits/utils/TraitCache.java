@@ -1,11 +1,10 @@
 package me.BerylliumOranges.listeners.items.traits.utils;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -24,10 +23,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import com.google.gson.reflect.TypeToken;
+
 import me.BerylliumOranges.customEvents.ItemCombineEvent;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait.ToolOption;
-import me.BerylliumOranges.listeners.items.traits.traits.PlaceholderTrait;
+import me.BerylliumOranges.listeners.items.traits.traits.ItemTraitPlaceholder;
 import me.BerylliumOranges.main.PluginMain;
 
 public class TraitCache {
@@ -157,7 +158,7 @@ public class TraitCache {
 			if (itemsTraits.size() % 2 == 0 && i % 9 == 4)
 				index++;
 
-			if (itemsTraits.get(i) instanceof PlaceholderTrait) {
+			if (itemsTraits.get(i) instanceof ItemTraitPlaceholder) {
 
 				inv.setItem(index + i, null);
 			} else {
@@ -177,7 +178,7 @@ public class TraitCache {
 				if (item != null && item.getType().equals(Material.POTION) && hasItemId(item)) {
 					traits.addAll(getTraitsFromItem(item));
 				} else if (item == null || (item.hasItemMeta() && item.getType().equals(Material.POTION))) {
-					traits.add(new PlaceholderTrait());
+					traits.add(new ItemTraitPlaceholder());
 				}
 			}
 			addTraitsToItem(holder.getItem(), traits);
@@ -192,59 +193,74 @@ public class TraitCache {
 		return inv;
 	}
 
+	public static List<ItemTrait> getTraits() {
+		List<ItemTrait> allTraits = new ArrayList<>();
+		for (List<ItemTrait> traitsList : itemTraits.values()) {
+			allTraits.addAll(traitsList);
+		}
+		return allTraits;
+	}
+
 	private static final String TRAITS_FILE = "traits.dat";
 
 	public static void saveTraitsToFile() {
 		try {
-			// Ensure the directory exists before writing the file
 			File file = new File(PluginMain.getInstance().getDataFolder(), TRAITS_FILE);
-			File directory = file.getParentFile(); // Get the directory part of the file path
+			File directory = file.getParentFile();
 			if (!directory.exists()) {
-				directory.mkdirs(); // Make the directory (including any parent directories)
+				directory.mkdirs();
 			}
 
-			// Now, safely write the file
-			try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
-				Map<String, String> serializedTraits = new HashMap<>();
+			try (FileWriter writer = new FileWriter(file)) {
+				Map<String, List<String>> serializedTraits = new HashMap<>();
 				for (Map.Entry<String, List<ItemTrait>> entry : itemTraits.entrySet()) {
 					List<String> serializedTraitLists = new ArrayList<>();
 					for (ItemTrait trait : entry.getValue()) {
-						List<String> serializedInnerList = new ArrayList<>();
-						serializedInnerList.add(TraitSerializationUtils.serializeTrait(trait));
-						serializedTraitLists.add(String.join(", ", serializedInnerList));
+						serializedTraitLists.add(TraitSerializationUtils.serializeTrait(trait));
 					}
-					serializedTraits.put(entry.getKey(), String.join("; ", serializedTraitLists));
+					serializedTraits.put(entry.getKey(), serializedTraitLists);
 				}
-				oos.writeObject(serializedTraits);
+				String json = TraitSerializationUtils.getGson().toJson(serializedTraits);
+				writer.write(json);
 			}
 		} catch (IOException e) {
-			e.printStackTrace(); // Log the exception
+			e.printStackTrace();
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	public static void loadTraitsFromFile() {
 		File file = new File(PluginMain.getInstance().getDataFolder(), TRAITS_FILE);
-		if (file.exists() && file.length() > 0) { // Check that the file is not empty
-			try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
-				Map<String, String> serializedTraits = (Map<String, String>) ois.readObject();
-				itemTraits.clear(); // Clear existing traits before loading new ones
-				for (Map.Entry<String, String> entry : serializedTraits.entrySet()) {
-					List<ItemTrait> traitLists = new ArrayList<>();
-					String[] serializedLists = entry.getValue().split("; ");
-					for (String serializedList : serializedLists) {
-						for (String serializedTrait : serializedList.split(", ")) {
-							ItemTrait t = TraitSerializationUtils.deserializeTrait(serializedTrait);
-							t.registerListeners();
-							traitLists.add(t);
-						}
+		if (file.exists() && file.length() > 0) {
+			try (FileReader reader = new FileReader(file)) {
+				Type type = new TypeToken<Map<String, List<String>>>() {
+				}.getType();
+				Map<String, List<String>> serializedTraits = TraitSerializationUtils.getGson().fromJson(reader, type);
+				itemTraits.clear();
+				for (Map.Entry<String, List<String>> entry : serializedTraits.entrySet()) {
+					List<ItemTrait> traits = new ArrayList<>();
+					for (String encodedTrait : entry.getValue()) {
+						traits.add(TraitSerializationUtils.deserializeTrait(encodedTrait));
 					}
-					itemTraits.put(entry.getKey(), traitLists);
+					itemTraits.put(entry.getKey(), traits);
 				}
-			} catch (IOException | ClassNotFoundException e) {
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public static boolean purgeTraitsAndTraitsFile() {
+		File file = new File(PluginMain.getInstance().getDataFolder(), TRAITS_FILE);
+		if (file.exists()) {
+			if (file.delete()) {
+				Bukkit.getConsoleSender().sendMessage("Traits file successfully deleted.");
+			} else {
+				Bukkit.getConsoleSender().sendMessage("Failed to delete traits file.");
+			}
+		}
+		itemTraits.clear();
+		return true;
 	}
 
 }

@@ -1,14 +1,14 @@
 package me.BerylliumOranges.listeners.items.traits.traits;
 
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionType;
-import org.bukkit.scheduler.BukkitRunnable;
 
-import me.BerylliumOranges.listeners.items.traits.utils.TraitOperation;
 import net.md_5.bungee.api.ChatColor;
 
-public class PlaceholderTrait extends ItemTrait {
+public class ItemTraitPlaceholder extends ItemTrait {
+
+	public ItemTraitPlaceholder() {
+		super(0);
+	}
 
 	private static final long serialVersionUID = 1318520862884228707L;
 
@@ -24,7 +24,6 @@ public class PlaceholderTrait extends ItemTrait {
 
 	@Override
 	public String getPotionDescription() {
-		// TODO Auto-generated method stub
 		return ChatColor.WHITE + "";
 	}
 
@@ -39,31 +38,7 @@ public class PlaceholderTrait extends ItemTrait {
 	}
 
 	@Override
-	public BukkitRunnable potionConsume(LivingEntity consumer) {
-		return new BukkitRunnable() {
-			@Override
-			public void run() {
-
-			}
-		};
-	}
-
-	@Override
-	public int getRarity() {
-		return 0;
-	}
-
-	@Override
 	public ToolOption getToolOption() {
 		return ToolOption.ANY;
-	}
-
-	@Override
-	public boolean executeTrait(TraitOperation op, LivingEntity owner, ItemStack item, boolean victim) {
-		return false;
-	}
-
-	@Override
-	public void toolEffect(LivingEntity center) {
 	}
 }

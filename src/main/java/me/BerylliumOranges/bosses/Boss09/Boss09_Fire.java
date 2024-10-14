@@ -31,7 +31,6 @@ import me.BerylliumOranges.bosses.utils.BossUtils.BossType;
 import me.BerylliumOranges.dimensions.chunkgenerators.SkyIslandChunkGenerator;
 import me.BerylliumOranges.dimensions.surfaceeditors.SurfacePopulator;
 import me.BerylliumOranges.listeners.BossBarListener;
-import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.BasicAttackTrait;
 import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
 import me.BerylliumOranges.main.PluginMain;
@@ -151,15 +150,6 @@ public class Boss09_Fire extends Boss {
 			equipment.setBootsDropChance(0f);
 		}
 
-		try {
-			List<Class<? extends ItemTrait>> traitClasses = getBossType().getTraits();
-			for (Class<? extends ItemTrait> clazz : traitClasses) {
-				ItemTrait trait = clazz.getDeclaredConstructor().newInstance();
-				trait.potionConsume(boss);
-			}
-		} catch (ReflectiveOperationException roe) {
-			roe.printStackTrace();
-		}
 		bossBar = new BossBarListener(bosses, BarColor.GREEN, 4);
 		if (!(boss instanceof Player))
 			bossBar.setOverrideName(bossBar.getBar().getTitle() + ": Rekindled");

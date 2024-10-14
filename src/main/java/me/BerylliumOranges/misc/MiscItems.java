@@ -9,7 +9,7 @@ import org.bukkit.inventory.ItemStack;
 
 import me.BerylliumOranges.listeners.items.traits.traits.ItemTrait;
 import me.BerylliumOranges.listeners.items.traits.traits.BasicHealPower;
-import me.BerylliumOranges.listeners.items.traits.traits.PlaceholderTrait;
+import me.BerylliumOranges.listeners.items.traits.traits.ItemTraitPlaceholder;
 import me.BerylliumOranges.listeners.items.traits.utils.ItemBuilder;
 import me.BerylliumOranges.main.DirectoryTools;
 
@@ -26,7 +26,7 @@ public class MiscItems {
 	public static ItemStack getSword() {
 		ItemStack item = new ItemStack(Material.NETHERITE_SWORD);
 		List<ItemTrait> traits = new ArrayList<>();
-		traits.add(new PlaceholderTrait());
+		traits.add(new ItemTraitPlaceholder());
 		ItemBuilder.buildItem(item, traits);
 		return item;
 	}
@@ -36,7 +36,7 @@ public class MiscItems {
 		{
 			ItemStack item = new ItemStack(Material.DIAMOND_AXE);
 			List<ItemTrait> traits = new ArrayList<>();
-			traits.addAll(List.of(new PlaceholderTrait(), new PlaceholderTrait(), new PlaceholderTrait(), new PlaceholderTrait()));
+			traits.addAll(List.of(new ItemTraitPlaceholder(), new ItemTraitPlaceholder(), new ItemTraitPlaceholder(), new ItemTraitPlaceholder()));
 			ItemBuilder.buildItem(item, traits);
 			items.add(item);
 		}

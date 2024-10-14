@@ -24,7 +24,7 @@ public class CursedNoArmor extends ItemTraitCursed implements Listener {
 	public double maxSpeed = 0.2;
 
 	public CursedNoArmor() {
-		potionDuration = 180;
+		super(180);
 	}
 
 	@Override

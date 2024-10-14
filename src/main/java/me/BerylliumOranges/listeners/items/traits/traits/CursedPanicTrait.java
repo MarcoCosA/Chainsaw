@@ -26,7 +26,7 @@ public class CursedPanicTrait extends ItemTraitCursed implements Listener {
 	public double maxSpeed = 0.2;
 
 	public CursedPanicTrait() {
-		potionDuration = 150;
+		super(150);
 	}
 
 	@Override
